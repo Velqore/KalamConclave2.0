@@ -5,15 +5,79 @@
 @layer base {
   body {
     @apply m-0 bg-navy font-sans text-slate-100 antialiased;
+    background-image:
+      linear-gradient(rgba(59, 130, 246, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(59, 130, 246, 0.025) 1px, transparent 1px);
+    background-size: 48px 48px;
   }
 
   * {
     @apply box-border;
+  }
+
+  ::selection {
+    background: rgba(155, 28, 28, 0.55);
+    color: #f8fafc;
+  }
+
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: #05080f;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: #1e293b;
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: #334155;
   }
 }
 
 @layer components {
   .input {
     @apply mt-1 w-full rounded border border-blue-900 bg-navy px-3 py-2 text-slate-100 outline-none ring-electricBlue transition focus:ring-2;
+  }
+
+  .section-divider {
+    @apply h-px w-full bg-gradient-to-r from-transparent via-crimson/40 to-transparent;
+  }
+
+  .card-war {
+    @apply rounded-2xl border border-crimson/30 bg-navyLight/80 shadow-war backdrop-blur-sm;
+  }
+
+  .card-science {
+    @apply rounded-2xl border border-blue-800/50 bg-navyLight/80 shadow-science backdrop-blur-sm;
+  }
+
+  .glow-text-gold {
+    text-shadow: 0 0 20px rgba(245, 158, 11, 0.5), 0 0 40px rgba(245, 158, 11, 0.2);
+  }
+
+  .glow-text-red {
+    text-shadow: 0 0 20px rgba(220, 38, 38, 0.5), 0 0 40px rgba(220, 38, 38, 0.2);
+  }
+}
+
+@layer utilities {
+  .shimmer-text {
+    background: linear-gradient(
+      90deg,
+      #f59e0b 0%,
+      #fcd34d 30%,
+      #f59e0b 50%,
+      #d97706 70%,
+      #f59e0b 100%
+    );
+    background-size: 200% auto;
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 4s linear infinite;
   }
 }
