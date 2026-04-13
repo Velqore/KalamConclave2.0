@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState } from 'react'
+import { createContext, createElement, useContext, useMemo, useState } from 'react'
 
 const ADMIN_STORAGE_KEY = 'kalam_admin_authenticated'
 const defaultUsername = import.meta.env.VITE_ADMIN_USERNAME ?? 'KalamAdmin'
@@ -30,7 +30,7 @@ export function AdminProvider({ children }) {
     [isAuthenticated],
   )
 
-  return <AdminContext.Provider value={value}>{children}</AdminContext.Provider>
+  return createElement(AdminContext.Provider, { value }, children)
 }
 
 export function useAdmin() {

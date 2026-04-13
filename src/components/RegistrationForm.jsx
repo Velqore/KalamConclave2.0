@@ -18,7 +18,13 @@ const initialForm = {
 const yearOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
 const heardFromOptions = ['Instagram', 'LinkedIn', 'WhatsApp', 'Friend/Faculty', 'Poster', 'Other']
 
-const generateRegId = () => `KCC2-${Math.floor(1000 + Math.random() * 9000)}`
+const generateRegId = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const buffer = new Uint32Array(4)
+  crypto.getRandomValues(buffer)
+  const suffix = Array.from(buffer, (value) => chars[value % chars.length]).join('')
+  return `KCC2-${suffix}`
+}
 
 function RegistrationForm() {
   const [formData, setFormData] = useState(initialForm)

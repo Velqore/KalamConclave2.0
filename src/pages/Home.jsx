@@ -1,4 +1,4 @@
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
@@ -10,7 +10,7 @@ function Home() {
   return (
     <div>
       <section className="mx-auto w-full max-w-6xl px-4 py-16">
-        <motion.div
+        <Motion.div
           animate={{ opacity: 1, y: 0 }}
           initial={{ opacity: 0, y: 30 }}
           transition={{ duration: 0.6 }}
@@ -38,7 +38,7 @@ function Home() {
           >
             Register Now
           </button>
-        </motion.div>
+        </Motion.div>
       </section>
 
       <section className="mx-auto w-full max-w-6xl px-4 py-10">

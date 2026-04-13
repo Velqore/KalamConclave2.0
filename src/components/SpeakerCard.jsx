@@ -1,8 +1,8 @@
-import { motion } from 'framer-motion'
+import { motion as Motion } from 'framer-motion'
 
 function SpeakerCard({ speaker }) {
   return (
-    <motion.article
+    <Motion.article
       whileHover={{ y: -4 }}
       className="rounded-2xl border border-blue-900 bg-navyLight/80 p-6 shadow-soft"
     >
@@ -14,7 +14,7 @@ function SpeakerCard({ speaker }) {
       <h3 className="mt-4 text-lg font-semibold text-gold">{speaker.name}</h3>
       <p className="text-sm text-electricBlue">{speaker.title}</p>
       <p className="mt-3 text-sm text-slate-300">{speaker.topic}</p>
-    </motion.article>
+    </Motion.article>
   )
 }
 
