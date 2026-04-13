@@ -87,6 +87,22 @@ function RegistrationForm() {
     throw new Error('Could not generate unique registration ID, please retry.')
   }
 
+  const sendConfirmationEmail = async ({ full_name, email, reg_id }) => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    if (!supabaseUrl) return
+
+    const url = `${supabaseUrl}/functions/v1/send-confirmation`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: full_name, email, reg_id }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Confirmation email could not be sent.')
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setSubmitting(true)
@@ -97,6 +113,10 @@ function RegistrationForm() {
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
       setScreenshot(null)
+
+      sendConfirmationEmail(data).catch(() => {
+        toast.error('Registration saved, but confirmation email failed. Please contact us if needed.')
+      })
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -115,7 +135,7 @@ function RegistrationForm() {
     doc.text(`Name: ${confirmation.full_name}`, 10, 45)
     doc.text(`Email: ${confirmation.email}`, 10, 55)
     doc.text('Date: 21st April 2026 | Time: 10:00 AM Onwards', 10, 65)
-    doc.text('Venue: K.R. Mangalam University, Aryabhatta Block, 4th Floor', 10, 75)
+    doc.text('Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University', 10, 75)
     doc.save(`KalamConclave-${confirmation.reg_id}.pdf`)
   }
 
@@ -128,7 +148,7 @@ function RegistrationForm() {
           <p>Name: {confirmation.full_name}</p>
           <p>Email: {confirmation.email}</p>
           <p>Date: 21st April 2026 | Time: 10:00 AM Onwards</p>
-          <p>Venue: K.R. Mangalam University, Aryabhatta Block, 4th Floor</p>
+          <p>Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University</p>
         </div>
         <button
           className="mt-6 rounded bg-gold px-5 py-2 font-semibold text-navy transition hover:bg-amber-400"

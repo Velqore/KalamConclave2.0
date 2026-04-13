@@ -3,9 +3,10 @@ import { NavLink } from 'react-router-dom'
 
 const links = [
   { to: '/', label: 'Home' },
+  { to: '/schedule', label: 'Events' },
+  { to: '/gulf-war', label: 'Gulf War' },
   { to: '/register', label: 'Register' },
   { to: '/speakers', label: 'Speakers' },
-  { to: '/schedule', label: 'Schedule' },
   { to: '/#organisers', label: 'Organisers' },
   { to: '/admin', label: 'Admin' },
 ]
@@ -14,14 +15,14 @@ function Navbar() {
   const [open, setOpen] = useState(false)
 
   return (
-    <header className="sticky top-0 z-50 border-b border-crimson/20 bg-navy/95 backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-accent/15 bg-gradient-to-b from-[rgba(14,12,8,0.97)] to-transparent backdrop-blur">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        <NavLink to="/" className="font-display text-lg font-bold text-gold transition-all hover:glow-text-gold">
-          <span className="shimmer-text">Kalam Conclave 2.0</span>
+        <NavLink to="/" className="font-display text-3xl leading-none tracking-[0.04em] text-accent">
+          Kalam Conclave 2.0
         </NavLink>
 
         <button
-          className="rounded border border-crimson/40 px-3 py-1 text-sm text-slate-300 transition hover:border-crimson/70 hover:text-white md:hidden"
+          className="rounded border border-sand/35 px-3 py-1 text-sm text-sand transition hover:border-accent hover:text-accent md:hidden"
           onClick={() => setOpen((prev) => !prev)}
           type="button"
         >
@@ -33,7 +34,9 @@ function Navbar() {
             <li key={link.to}>
               <NavLink
                 className={({ isActive }) =>
-                  `text-sm transition ${isActive ? 'text-electricBlue' : 'text-slate-300 hover:text-white'}`
+                  `font-mono text-xs uppercase tracking-[0.18em] transition ${
+                    isActive ? 'text-accent' : 'text-sand/80 hover:text-sand'
+                  }`
                 }
                 to={link.to}
               >
@@ -45,12 +48,16 @@ function Navbar() {
       </nav>
 
       {open && (
-        <ul className="space-y-1 border-t border-crimson/20 px-4 pb-4 md:hidden">
+        <ul className="space-y-1 border-t border-accent/15 px-4 pb-4 md:hidden">
           {links.map((link) => (
             <li key={link.to}>
               <NavLink
                 className={({ isActive }) =>
-                  `block rounded px-3 py-2 text-sm ${isActive ? 'bg-crimson/20 text-white' : 'text-slate-200 hover:bg-navy/60'}`
+                  `block rounded px-3 py-2 font-mono text-xs uppercase tracking-[0.12em] ${
+                    isActive
+                      ? 'bg-primary/20 text-accent'
+                      : 'text-sand/90 hover:bg-surface/55 hover:text-sand'
+                  }`
                 }
                 onClick={() => setOpen(false)}
                 to={link.to}

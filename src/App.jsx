@@ -5,6 +5,7 @@ import Home from './pages/Home'
 import Register from './pages/Register'
 import Speakers from './pages/Speakers'
 import Schedule from './pages/Schedule'
+import GulfWar from './pages/GulfWar'
 import Admin from './pages/Admin'
 import AdminDashboard from './pages/AdminDashboard'
 import { useAdmin } from './hooks/useAdmin'
@@ -16,7 +17,7 @@ function ProtectedRoute({ children }) {
 
 function AppLayout({ children, hideFooter = false }) {
   return (
-    <div className="min-h-screen bg-navy text-slate-100">
+    <div className="min-h-screen bg-bg text-sand">
       <Navbar />
       <main>{children}</main>
       {!hideFooter && <Footer />}
@@ -56,6 +57,14 @@ function App() {
         element={
           <AppLayout>
             <Schedule />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/gulf-war"
+        element={
+          <AppLayout>
+            <GulfWar />
           </AppLayout>
         }
       />
