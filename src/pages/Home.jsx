@@ -129,7 +129,7 @@ function Home() {
             ethical innovation, rapid-response medicine, and resilience engineering.
           </p>
           <p className="mt-4 leading-relaxed text-sand/86">
-            Inspired by Dr. A.P.J. Abdul Kalam&apos;s vision, the conclave brings together students and
+            Inspired by Dr. A.P.J. Abdul Kalam's vision, the conclave brings together students and
             experts to decode science where stakes are highest.
           </p>
           <div className="mt-6 grid gap-4 sm:grid-cols-3">

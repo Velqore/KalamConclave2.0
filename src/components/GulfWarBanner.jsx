@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom'
+
 function GulfWarBanner() {
   return (
     <section className="reveal relative z-10 mx-auto mt-12 w-full max-w-6xl px-4">
@@ -25,12 +27,12 @@ function GulfWarBanner() {
           </p>
         </div>
 
-        <a
+        <Link
           className="justify-self-start font-mono text-sm uppercase tracking-[0.18em] text-accent transition hover:text-sand md:justify-self-end"
-          href="/gulf-war"
+          to="/gulf-war"
         >
           Explore ›
-        </a>
+        </Link>
       </div>
     </section>
   )

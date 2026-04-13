@@ -14,14 +14,18 @@ function Ticker() {
   return (
     <div className="relative z-10 mt-10 overflow-hidden border-y border-primary/30 bg-primary/10">
       <div className="ticker-track flex w-max gap-10 py-2.5">
-        {strip.map((item, index) => (
+        {strip.map((item, index) => {
+          const pass = index < items.length ? 'first' : 'second'
+          const itemIndex = index % items.length
+          return (
           <span
-            key={`${item}-${index}`}
+            key={`${pass}-${itemIndex}`}
             className="font-mono text-[0.65rem] uppercase tracking-[0.22em] text-sand/90"
           >
-            // {item}
+            {`// ${item}`}
           </span>
-        ))}
+          )
+        })}
       </div>
     </div>
   )
