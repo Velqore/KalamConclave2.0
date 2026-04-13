@@ -92,6 +92,15 @@ serve(async (req) => {
                 <p style="margin:6px 0 0 0;font-size:13px;color:#94a3b8;">Your payment is currently being reviewed. You will receive a final confirmation once it is verified by our team. Please bring your transaction proof and this registration ID to the event.</p>
               </div>
 
+              <!-- WhatsApp CTA -->
+              <div style="text-align:center;margin-bottom:28px;">
+                <p style="margin:0 0 12px 0;font-size:14px;color:#94a3b8;">Join our official WhatsApp group for updates, schedules, and announcements:</p>
+                <a href="https://chat.whatsapp.com/EMJS5MYaNNk63UI1y73NER?mode=gi_t"
+                   style="display:inline-block;background:#25d366;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">
+                  💬 Join WhatsApp Group
+                </a>
+              </div>
+
               <p style="margin:0;font-size:13px;color:#64748b;">If you have any questions, reply to this email or contact us on Instagram <strong style="color:#60a5fa;">@kalamconclave</strong>.</p>
             </td>
           </tr>
