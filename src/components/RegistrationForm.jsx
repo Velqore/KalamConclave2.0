@@ -87,6 +87,22 @@ function RegistrationForm() {
     throw new Error('Could not generate unique registration ID, please retry.')
   }
 
+  const sendConfirmationEmail = async ({ full_name, email, reg_id }) => {
+    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
+    if (!supabaseUrl) return
+
+    const url = `${supabaseUrl}/functions/v1/send-confirmation`
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: full_name, email, reg_id }),
+    })
+
+    if (!response.ok) {
+      throw new Error('Confirmation email could not be sent.')
+    }
+  }
+
   const handleSubmit = async (event) => {
     event.preventDefault()
     setSubmitting(true)
@@ -97,6 +113,10 @@ function RegistrationForm() {
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
       setScreenshot(null)
+
+      sendConfirmationEmail(data).catch(() => {
+        toast.error('Registration saved, but confirmation email failed. Please contact us if needed.')
+      })
     } catch (error) {
       toast.error(error.message)
     } finally {

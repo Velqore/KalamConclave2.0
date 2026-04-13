@@ -1,0 +1,102 @@
+# Confirmation Email Setup
+
+After a successful registration, the app automatically sends a branded confirmation email to the registrant using a **Supabase Edge Function** backed by [Resend](https://resend.com).
+
+---
+
+## Prerequisites
+
+- Supabase project linked (`supabase link --project-ref <project-ref>`)
+- [Supabase CLI](https://supabase.com/docs/guides/cli) installed
+- A free [Resend](https://resend.com) account and API key
+- (Production) A verified sending domain in Resend, e.g. `kalamconclave.org`
+
+---
+
+## 1. Get a Resend API Key
+
+1. Sign up at [resend.com](https://resend.com) (free tier: 3,000 emails/month, 100/day).
+2. In the Resend dashboard → **API Keys** → **Create API Key**.
+3. Copy the key — you will only see it once.
+
+---
+
+## 2. Add the Secret to Supabase
+
+```bash
+supabase secrets set RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+```
+
+Verify it was saved:
+
+```bash
+supabase secrets list
+```
+
+---
+
+## 3. Update the Sender Address (Production)
+
+By default the function sends from `noreply@kalamconclave.org`. Before going live:
+
+1. In Resend → **Domains** → **Add Domain** → verify DNS records for `kalamconclave.org`.
+2. If you don't have a custom domain, change the `from` field in `supabase/functions/send-confirmation/index.ts` to:
+   ```
+   from: 'Kalam Conclave 2.0 <onboarding@resend.dev>',
+   ```
+   Note: `@resend.dev` sender can only send to the address that owns the Resend account (use for testing only).
+
+---
+
+## 4. Deploy the Edge Function
+
+```bash
+# From the repository root
+supabase functions deploy send-confirmation --no-verify-jwt
+```
+
+The `--no-verify-jwt` flag lets the frontend call this function without a user session token. The function itself does not read or modify database data, so this is safe.
+
+---
+
+## 5. Verify Deployment
+
+```bash
+supabase functions list
+```
+
+You should see `send-confirmation` with status **ACTIVE**.
+
+---
+
+## How It Works
+
+| Step | What happens |
+|------|--------------|
+| User submits registration form | Frontend inserts a row into `registrations` table via Supabase JS client |
+| Registration saved | Frontend calls `POST {SUPABASE_URL}/functions/v1/send-confirmation` with `{ name, email, reg_id }` |
+| Edge Function receives request | Calls Resend API with a branded HTML email |
+| Email delivered | Registrant receives confirmation with their Registration ID, event details, and payment-pending notice |
+| Email failure (if any) | Registration is **not** rolled back — a toast notifies the user to contact organizers |
+
+---
+
+## Local Testing
+
+```bash
+supabase functions serve send-confirmation --env-file .env.local
+```
+
+Create `.env.local` (never commit this file):
+
+```
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxxxxxx
+```
+
+Then test with curl:
+
+```bash
+curl -i -X POST http://localhost:54321/functions/v1/send-confirmation \
+  -H "Content-Type: application/json" \
+  -d '{"name":"Test User","email":"your@email.com","reg_id":"KCC2-TEST"}'
+```
