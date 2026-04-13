@@ -1,0 +1,19 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply m-0 bg-navy font-sans text-slate-100 antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  .input {
+    @apply mt-1 w-full rounded border border-blue-900 bg-navy px-3 py-2 text-slate-100 outline-none ring-electricBlue transition focus:ring-2;
+  }
+}
