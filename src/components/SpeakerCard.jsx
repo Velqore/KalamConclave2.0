@@ -2,18 +2,19 @@ import { motion as Motion } from 'framer-motion'
 
 function SpeakerCard({ speaker }) {
   return (
-    <Motion.article
-      whileHover={{ y: -4 }}
-      className="rounded-2xl border border-blue-900 bg-navyLight/80 p-6 shadow-soft"
-    >
-      <img
-        alt={speaker.name}
-        className="mx-auto h-24 w-24 rounded-full border border-blue-800 object-cover"
-        src={speaker.image}
-      />
-      <h3 className="mt-4 text-lg font-semibold text-gold">{speaker.name}</h3>
-      <p className="text-sm text-electricBlue">{speaker.title}</p>
-      <p className="mt-3 text-sm text-slate-300">{speaker.topic}</p>
+    <Motion.article whileHover={{ y: -3 }} className="topic-card p-6">
+      <div className="flex items-center gap-3">
+        <span className="text-xl">🎙️</span>
+        <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-sand/75">
+          Speaker Brief
+        </span>
+      </div>
+
+      <img alt={speaker.name} className="mt-4 h-20 w-20 rounded-full border border-sand/30 object-cover" src={speaker.image} />
+
+      <h3 className="mt-4 font-display text-3xl leading-none text-accent">{speaker.name}</h3>
+      <p className="mt-1 text-xs font-mono uppercase tracking-[0.16em] text-primary/90">{speaker.title}</p>
+      <p className="mt-3 text-sm italic text-sand/90">{speaker.topic}</p>
     </Motion.article>
   )
 }

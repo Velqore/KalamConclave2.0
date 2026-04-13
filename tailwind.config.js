@@ -4,16 +4,21 @@ export default {
   theme: {
     extend: {
       colors: {
-        navy: '#05080F',
-        navyLight: '#0B1220',
-        navyMid: '#101D35',
-        electricBlue: '#3B82F6',
-        gold: '#F59E0B',
-        crimson: '#9B1C1C',
-        warRed: '#DC2626',
-        ember: '#D97706',
-        radarGreen: '#166534',
-        smoke: '#374151',
+        primary: '#A01010',
+        accent: '#C9952A',
+        ember: '#D4611A',
+        sand: '#D4B98A',
+        bg: '#0E0C08',
+        surface: '#2A2518',
+        navy: '#0E0C08',
+        navyLight: '#2A2518',
+        navyMid: '#1E1A12',
+        electricBlue: '#C9952A',
+        gold: '#C9952A',
+        crimson: '#A01010',
+        warRed: '#A01010',
+        radarGreen: '#6D5A2A',
+        smoke: '#5A4C33',
       },
       boxShadow: {
         soft: '0 10px 30px rgba(0,0,0,0.4)',
@@ -22,9 +27,9 @@ export default {
         gold: '0 0 30px rgba(245,158,11,0.3)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', 'sans-serif'],
-        display: ['Poppins', 'Inter', 'system-ui', 'sans-serif'],
-        mono: ['JetBrains Mono', 'Consolas', 'monospace'],
+        sans: ['"Crimson Pro"', 'serif'],
+        display: ['"Bebas Neue"', '"Crimson Pro"', 'serif'],
+        mono: ['"Share Tech Mono"', 'monospace'],
       },
       keyframes: {
         warGlow: {

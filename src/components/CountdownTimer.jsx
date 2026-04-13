@@ -35,9 +35,11 @@ function CountdownTimer() {
   return (
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((item) => (
-        <div key={item.label} className="rounded-xl border border-blue-900 bg-navyLight/70 p-4 text-center shadow-soft">
-          <p className="text-2xl font-bold text-electricBlue">{String(item.value).padStart(2, '0')}</p>
-          <p className="text-xs uppercase tracking-wide text-slate-400">{item.label}</p>
+        <div key={item.label} className="topic-card p-4 text-center">
+          <p className="font-display text-4xl leading-none text-accent">{String(item.value).padStart(2, '0')}</p>
+          <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-sand/76">
+            {item.label}
+          </p>
         </div>
       ))}
     </div>
