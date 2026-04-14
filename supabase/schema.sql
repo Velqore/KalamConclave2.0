@@ -134,6 +134,13 @@ CREATE TABLE IF NOT EXISTS public.registrations (
 
 ALTER TABLE public.registrations ENABLE ROW LEVEL SECURITY;
 
+-- Backward compatibility for existing databases created before
+-- verification email tracking fields were introduced.
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS verification_email_sent boolean NOT NULL DEFAULT false;
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS verification_email_sent_at timestamptz;
+
 -- Anyone can insert a new registration (public registration form)
 DROP POLICY IF EXISTS "Public insert registrations" ON public.registrations;
 CREATE POLICY "Public insert registrations"

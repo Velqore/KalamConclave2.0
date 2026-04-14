@@ -96,6 +96,8 @@ function AdminDashboard() {
       }
     }
     loadPageViews()
+    const interval = setInterval(loadPageViews, 30_000)
+    return () => clearInterval(interval)
   }, [])
 
   const filteredAttendees = useMemo(
