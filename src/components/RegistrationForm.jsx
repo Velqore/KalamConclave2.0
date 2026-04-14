@@ -307,7 +307,7 @@ function RegistrationForm() {
           Event Selection (Mandatory)
         </p>
         <p className="mt-2 text-xs text-slate-300">
-          Select event(s) now. After main registration, you can complete each event&apos;s separate form.
+          Select at least one event to continue your registration.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {SUB_EVENTS.map((event) => (
