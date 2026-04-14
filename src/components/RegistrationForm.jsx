@@ -10,6 +10,7 @@ import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { generateQRCode } from '../lib/generateQRCode'
 import { SUB_EVENTS } from '../config/subEvents'
 import EventPassCard from './EventPassCard'
+import { getRegistrationDeadline } from '../utils/dateHelpers'
 
 const initialForm = {
   full_name: '',
@@ -38,6 +39,7 @@ function RegistrationForm() {
   const navigate = useNavigate()
   const { settings } = useAppData()
   const ticketPrice = settings.ticket_price || '149'
+  const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
   const [screenshot, setScreenshot] = useState(null)
@@ -237,6 +239,15 @@ function RegistrationForm() {
   return (
     <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-4 shadow-soft sm:grid-cols-2 sm:p-6" onSubmit={handleSubmit}>
       <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
+
+      {regDeadline && (
+        <div className="col-span-full flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2.5">
+          <span className="text-lg">🗓️</span>
+          <p className="text-sm font-semibold text-primary">
+            Registration closes on <span className="text-accent">{regDeadline}</span> — 2 days before the event.
+          </p>
+        </div>
+      )}
 
       <label className="text-sm">
         Full Name *
