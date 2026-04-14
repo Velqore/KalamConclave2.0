@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { NavLink } from 'react-router-dom'
+import { NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { EVENT_SHORT_TITLE } from '../config/branding'
 
 const links = [
@@ -16,6 +16,27 @@ const links = [
 
 function Navbar() {
   const [open, setOpen] = useState(false)
+  const location = useLocation()
+  const navigate = useNavigate()
+
+  const handleLinkClick = (link, e) => {
+    setOpen(false)
+    if (!link.to.startsWith('/#')) return
+    e.preventDefault()
+    const id = link.to.slice(2)
+    const scrollToSection = () => {
+      const el = document.getElementById(id)
+      if (el) el.scrollIntoView({ behavior: 'smooth' })
+    }
+    if (location.pathname === '/') {
+      scrollToSection()
+    } else {
+      // Allow React Router to finish navigating to '/' before scrolling
+      const NAVIGATION_SCROLL_DELAY = 300
+      navigate('/')
+      setTimeout(scrollToSection, NAVIGATION_SCROLL_DELAY)
+    }
+  }
 
   return (
     <header className="sticky top-0 z-50 border-b border-accent/15 bg-[rgba(14,12,8,0.97)] backdrop-blur">
@@ -67,6 +88,7 @@ function Navbar() {
                   }`
                 }
                 to={link.to}
+                onClick={(e) => handleLinkClick(link, e)}
               >
                 {link.label}
               </NavLink>
@@ -88,7 +110,7 @@ function Navbar() {
                       : 'text-sand/90 hover:bg-surface/60 hover:text-sand'
                   }`
                 }
-                onClick={() => setOpen(false)}
+                onClick={(e) => handleLinkClick(link, e)}
                 to={link.to}
               >
                 {link.label}
