@@ -4,6 +4,7 @@ import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const emptyForm = { name: '', title: '', topic: '', image: '', sort_order: 0 }
+const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value))
 
 function AdminSpeakers() {
   const { speakers, setSpeakers } = useAppData()
@@ -47,6 +48,10 @@ function AdminSpeakers() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
+        if (!isUuid(editId)) {
+          toast.error('This is a local placeholder guest. Add a new guest to create a database record.')
+          return
+        }
         const { error } = await supabase.from('speakers').update(form).eq('id', editId)
         if (error) throw error
         setSpeakers((prev) => prev.map((s) => (s.id === editId ? { ...s, ...form } : s)))
@@ -67,6 +72,10 @@ function AdminSpeakers() {
 
   const handleDelete = async (speaker) => {
     if (!window.confirm(`Delete guest "${speaker.name}"?`)) return
+    if (!isUuid(speaker.id)) {
+      toast.error('This is a local placeholder guest and cannot be deleted from database.')
+      return
+    }
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('speakers').delete().eq('id', speaker.id)

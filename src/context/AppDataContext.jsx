@@ -16,12 +16,12 @@ export function AppDataProvider({ children }) {
 
     const loadSpeakers = async () => {
       const { data } = await supabase.from('speakers').select('*').order('sort_order', { ascending: true })
-      if (data?.length) setSpeakers(data)
+      if (Array.isArray(data)) setSpeakers(data)
     }
 
     const loadSchedule = async () => {
       const { data } = await supabase.from('schedule').select('*').order('sort_order', { ascending: true })
-      if (data?.length) setSchedule(data)
+      if (Array.isArray(data)) setSchedule(data)
     }
 
     const loadSettings = async () => {

@@ -4,6 +4,7 @@ import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const emptyForm = { time: '', title: '', description: '', sort_order: 0 }
+const isUuid = (value) => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(String(value))
 
 function AdminSchedule() {
   const { schedule, setSchedule } = useAppData()
@@ -46,6 +47,10 @@ function AdminSchedule() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
+        if (!isUuid(editId)) {
+          toast.error('This is a local placeholder item. Add a new agenda item to create a database record.')
+          return
+        }
         const { error } = await supabase.from('schedule').update(form).eq('id', editId)
         if (error) throw error
         setSchedule((prev) => prev.map((item) => (item.id === editId ? { ...item, ...form } : item)))
@@ -66,6 +71,10 @@ function AdminSchedule() {
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete agenda item "${item.title}"?`)) return
+    if (!isUuid(item.id)) {
+      toast.error('This is a local placeholder item and cannot be deleted from database.')
+      return
+    }
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('schedule').delete().eq('id', item.id)

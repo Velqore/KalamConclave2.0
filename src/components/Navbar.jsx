@@ -8,6 +8,8 @@ const links = [
   { to: '/gulf-war', label: 'Gulf War' },
   { to: '/register', label: 'Register' },
   { to: '/guests', label: 'Guests' },
+  { to: '/#social-media', label: 'Follow Us' },
+  { to: '/volunteer', label: 'Volunteer' },
   { to: '/#organisers', label: 'Organisers' },
   { to: '/admin', label: 'Admin' },
 ]

@@ -19,10 +19,14 @@ CREATE TABLE IF NOT EXISTS public.speakers (
 
 ALTER TABLE public.speakers ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Public read speakers"
+DROP POLICY IF EXISTS "Public read speakers" ON public.speakers;
+DROP POLICY IF EXISTS "Public read guests" ON public.speakers;
+CREATE POLICY "Public read guests"
   ON public.speakers FOR SELECT USING (true);
 
-CREATE POLICY "Allow all speakers operations"
+DROP POLICY IF EXISTS "Allow all speakers operations" ON public.speakers;
+DROP POLICY IF EXISTS "Allow all guests operations" ON public.speakers;
+CREATE POLICY "Allow all guests operations"
   ON public.speakers FOR ALL USING (true) WITH CHECK (true);
 
 -- ─────────────────────────────────────────────────────────────
@@ -39,9 +43,11 @@ CREATE TABLE IF NOT EXISTS public.schedule (
 
 ALTER TABLE public.schedule ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read schedule" ON public.schedule;
 CREATE POLICY "Public read schedule"
   ON public.schedule FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow all schedule operations" ON public.schedule;
 CREATE POLICY "Allow all schedule operations"
   ON public.schedule FOR ALL USING (true) WITH CHECK (true);
 
@@ -60,9 +66,11 @@ CREATE TABLE IF NOT EXISTS public.organisers (
 
 ALTER TABLE public.organisers ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read organisers" ON public.organisers;
 CREATE POLICY "Public read organisers"
   ON public.organisers FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow all organisers operations" ON public.organisers;
 CREATE POLICY "Allow all organisers operations"
   ON public.organisers FOR ALL USING (true) WITH CHECK (true);
 
@@ -77,9 +85,11 @@ CREATE TABLE IF NOT EXISTS public.app_settings (
 
 ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Public read app_settings" ON public.app_settings;
 CREATE POLICY "Public read app_settings"
   ON public.app_settings FOR SELECT USING (true);
 
+DROP POLICY IF EXISTS "Allow all app_settings operations" ON public.app_settings;
 CREATE POLICY "Allow all app_settings operations"
   ON public.app_settings FOR ALL USING (true) WITH CHECK (true);
 
@@ -125,11 +135,13 @@ CREATE TABLE IF NOT EXISTS public.registrations (
 ALTER TABLE public.registrations ENABLE ROW LEVEL SECURITY;
 
 -- Anyone can insert a new registration (public registration form)
+DROP POLICY IF EXISTS "Public insert registrations" ON public.registrations;
 CREATE POLICY "Public insert registrations"
   ON public.registrations FOR INSERT WITH CHECK (true);
 
 -- Only allow reading all registrations (admin dashboard uses anon key directly;
 -- for tighter security add a service-role check here)
+DROP POLICY IF EXISTS "Allow all registrations operations" ON public.registrations;
 CREATE POLICY "Allow all registrations operations"
   ON public.registrations FOR ALL USING (true) WITH CHECK (true);
 
@@ -169,6 +181,7 @@ CREATE TABLE IF NOT EXISTS public.attendance (
 -- Allow all operations for volunteer portal (no Supabase auth required)
 ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow all attendance operations" ON public.attendance;
 CREATE POLICY "Allow all attendance operations"
   ON public.attendance FOR ALL
   USING (true)
@@ -201,6 +214,7 @@ CREATE TABLE IF NOT EXISTS public.sub_event_registrations (
 
 ALTER TABLE public.sub_event_registrations ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow all sub event operations" ON public.sub_event_registrations;
 CREATE POLICY "Allow all sub event operations"
   ON public.sub_event_registrations
   FOR ALL USING (true) WITH CHECK (true);
@@ -223,6 +237,7 @@ CREATE TABLE IF NOT EXISTS public.page_views (
 
 ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
 
+DROP POLICY IF EXISTS "Allow all page views operations" ON public.page_views;
 CREATE POLICY "Allow all page views operations"
   ON public.page_views FOR ALL USING (true) WITH CHECK (true);
 
