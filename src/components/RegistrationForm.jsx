@@ -11,6 +11,9 @@ import { SUB_EVENTS } from '../config/subEvents'
 import EventPassCard from './EventPassCard'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
 
+const DEBATE_TOPICS = ['Scientists', 'UN Delegates', 'Policy Makers']
+const DEBATE_EVENT_ID = 'war_room_debate'
+
 const initialForm = {
   full_name: '',
   email: '',
@@ -42,6 +45,7 @@ function RegistrationForm() {
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
+  const [debateTopic, setDebateTopic] = useState('')
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
@@ -66,9 +70,14 @@ function RegistrationForm() {
   }
 
   const handleEventToggle = (eventId) => {
-    setSelectedEvents((prev) =>
-      prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId],
-    )
+    setSelectedEvents((prev) => {
+      const next = prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
+      // Clear debate topic if the debate event is deselected
+      if (eventId === DEBATE_EVENT_ID && !next.includes(DEBATE_EVENT_ID)) {
+        setDebateTopic('')
+      }
+      return next
+    })
   }
 
   const uploadScreenshot = async (regId) => {
@@ -128,10 +137,19 @@ function RegistrationForm() {
       toast.error('Please select at least one event.')
       return
     }
+    if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateTopic) {
+      toast.error('Please select a debate topic for The War Room Debate.')
+      return
+    }
     setSubmitting(true)
 
     try {
-      const data = await saveRegistration(formData)
+      const payload = {
+        ...formData,
+        selected_events: selectedEvents,
+        debate_topic: selectedEvents.includes(DEBATE_EVENT_ID) ? debateTopic : null,
+      }
+      const data = await saveRegistration(payload)
       setConfirmation(data)
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
@@ -322,6 +340,39 @@ function RegistrationForm() {
             </label>
           ))}
         </div>
+
+        {selectedEvents.includes(DEBATE_EVENT_ID) && (
+          <div className="mt-4 rounded-lg border border-red-800/40 bg-red-950/20 p-3">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-red-400">
+              Debate Topic *
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              Select the perspective you will represent in The War Room Debate.
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {DEBATE_TOPICS.map((topic) => (
+                <label
+                  key={topic}
+                  className={`flex cursor-pointer items-center gap-2 rounded border px-3 py-2 text-sm transition ${
+                    debateTopic === topic
+                      ? 'border-red-500 bg-red-900/30 text-red-300'
+                      : 'border-sand/15 text-sand/80 hover:border-red-700/60'
+                  }`}
+                >
+                  <input
+                    checked={debateTopic === topic}
+                    className="accent-red-500"
+                    name="debate_topic"
+                    onChange={() => setDebateTopic(topic)}
+                    type="radio"
+                    value={topic}
+                  />
+                  <span>{topic}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">

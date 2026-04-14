@@ -141,6 +141,12 @@ ALTER TABLE public.registrations
 ALTER TABLE public.registrations
   ADD COLUMN IF NOT EXISTS verification_email_sent_at timestamptz;
 
+-- Event selection and debate topic fields (added after initial launch)
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS selected_events text[] DEFAULT '{}';
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS debate_topic text DEFAULT NULL;
+
 -- Anyone can insert a new registration (public registration form)
 DROP POLICY IF EXISTS "Public insert registrations" ON public.registrations;
 CREATE POLICY "Public insert registrations"
