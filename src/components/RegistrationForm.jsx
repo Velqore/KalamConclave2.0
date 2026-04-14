@@ -35,6 +35,7 @@ const generateRegId = () => {
 }
 
 const emptyMember = () => ({ name: '', phone: '' })
+const MAX_TEAM_MEMBERS = 9
 
 function RegistrationForm() {
   const navigate = useNavigate()
@@ -69,7 +70,7 @@ function RegistrationForm() {
   }
 
   const addTeamMember = () => {
-    if (teamMembers.length < 9) setTeamMembers((prev) => [...prev, emptyMember()])
+    if (teamMembers.length < MAX_TEAM_MEMBERS) setTeamMembers((prev) => [...prev, emptyMember()])
   }
 
   const removeTeamMember = (idx) => {
@@ -409,7 +410,7 @@ function RegistrationForm() {
                     </div>
                   ))}
                 </div>
-                {teamMembers.length < 9 && (
+                {teamMembers.length < MAX_TEAM_MEMBERS && (
                   <button
                     className="mt-2 rounded border border-sand/30 px-4 py-1.5 text-xs text-sand/80 hover:border-accent hover:text-accent"
                     onClick={addTeamMember}
