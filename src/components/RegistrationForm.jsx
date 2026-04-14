@@ -34,6 +34,8 @@ const generateRegId = () => {
   return `KCC2-${suffix}`
 }
 
+const emptyMember = () => ({ name: '', phone: '' })
+
 function RegistrationForm() {
   const navigate = useNavigate()
   const { settings } = useAppData()
@@ -41,6 +43,9 @@ function RegistrationForm() {
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
+  const [participationMode, setParticipationMode] = useState('solo')
+  const [teamName, setTeamName] = useState('')
+  const [teamMembers, setTeamMembers] = useState([emptyMember()])
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
@@ -57,6 +62,18 @@ function RegistrationForm() {
     setSelectedEvents((prev) =>
       prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId],
     )
+  }
+
+  const handleTeamMemberChange = (idx, field, value) => {
+    setTeamMembers((prev) => prev.map((m, i) => (i === idx ? { ...m, [field]: value } : m)))
+  }
+
+  const addTeamMember = () => {
+    if (teamMembers.length < 9) setTeamMembers((prev) => [...prev, emptyMember()])
+  }
+
+  const removeTeamMember = (idx) => {
+    if (teamMembers.length > 1) setTeamMembers((prev) => prev.filter((_, i) => i !== idx))
   }
 
   const uploadScreenshot = async (regId) => {
@@ -112,10 +129,28 @@ function RegistrationForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+
+    if (selectedEvents.length === 0) {
+      toast.error('Please select at least one event to participate in.')
+      return
+    }
+
     setSubmitting(true)
 
     try {
-      const data = await saveRegistration(formData)
+      const filledMembers =
+        participationMode === 'team'
+          ? teamMembers.filter((m) => m.name.trim() || m.phone.trim())
+          : []
+
+      const payload = {
+        ...formData,
+        participation_mode: participationMode,
+        team_name: participationMode === 'team' && teamName.trim() ? teamName.trim() : null,
+        team_members: filledMembers.length > 0 ? filledMembers : null,
+      }
+
+      const data = await saveRegistration(payload)
       setConfirmation(data)
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
@@ -288,10 +323,10 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-accent/30 bg-surface/40 p-4">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-accent">
-          Event Selection (Optional)
+          Event Selection <span className="text-primary">*</span>
         </p>
         <p className="mt-2 text-xs text-slate-300">
-          Select event(s) now. After main registration, you can complete each event&apos;s separate form.
+          Select at least one event you want to participate in.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {SUB_EVENTS.map((event) => (
@@ -306,6 +341,87 @@ function RegistrationForm() {
             </label>
           ))}
         </div>
+
+        {selectedEvents.length > 0 && (
+          <>
+            <div className="mt-4 border-t border-sand/10 pt-4">
+              <p className="text-xs font-semibold text-slate-300">Participation Mode</p>
+              <div className="mt-2 flex gap-5">
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    checked={participationMode === 'solo'}
+                    name="participation_mode"
+                    onChange={() => setParticipationMode('solo')}
+                    type="radio"
+                    value="solo"
+                  />
+                  <span>Solo</span>
+                </label>
+                <label className="flex cursor-pointer items-center gap-2 text-sm">
+                  <input
+                    checked={participationMode === 'team'}
+                    name="participation_mode"
+                    onChange={() => setParticipationMode('team')}
+                    type="radio"
+                    value="team"
+                  />
+                  <span>Team</span>
+                </label>
+              </div>
+            </div>
+
+            {participationMode === 'team' && (
+              <div className="mt-4 border-t border-sand/10 pt-4">
+                <p className="text-xs font-semibold text-slate-300">
+                  Team Information{' '}
+                  <span className="font-normal text-slate-500">(Optional)</span>
+                </p>
+                <input
+                  className="input mt-2"
+                  onChange={(e) => setTeamName(e.target.value)}
+                  placeholder="Team Name (optional)"
+                  value={teamName}
+                />
+                <div className="mt-3 space-y-2">
+                  {teamMembers.map((member, idx) => (
+                    <div key={idx} className="grid grid-cols-[1fr_1fr_auto] gap-2">
+                      <input
+                        className="input text-sm"
+                        onChange={(e) => handleTeamMemberChange(idx, 'name', e.target.value)}
+                        placeholder={`Member ${idx + 1} Name`}
+                        value={member.name}
+                      />
+                      <input
+                        className="input text-sm"
+                        onChange={(e) => handleTeamMemberChange(idx, 'phone', e.target.value)}
+                        placeholder="Phone"
+                        value={member.phone}
+                      />
+                      {teamMembers.length > 1 && (
+                        <button
+                          className="rounded border border-primary/60 px-2 py-1 text-xs text-primary hover:bg-primary/10"
+                          onClick={() => removeTeamMember(idx)}
+                          type="button"
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+                {teamMembers.length < 9 && (
+                  <button
+                    className="mt-2 rounded border border-sand/30 px-4 py-1.5 text-xs text-sand/80 hover:border-accent hover:text-accent"
+                    onClick={addTeamMember}
+                    type="button"
+                  >
+                    + Add Member
+                  </button>
+                )}
+              </div>
+            )}
+          </>
+        )}
       </div>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">

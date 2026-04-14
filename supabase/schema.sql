@@ -141,6 +141,14 @@ ALTER TABLE public.registrations
 ALTER TABLE public.registrations
   ADD COLUMN IF NOT EXISTS verification_email_sent_at timestamptz;
 
+-- Participation mode and team details (added for solo/team selection feature)
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS participation_mode text NOT NULL DEFAULT 'solo';
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS team_name text;
+ALTER TABLE public.registrations
+  ADD COLUMN IF NOT EXISTS team_members jsonb;
+
 -- Anyone can insert a new registration (public registration form)
 DROP POLICY IF EXISTS "Public insert registrations" ON public.registrations;
 CREATE POLICY "Public insert registrations"

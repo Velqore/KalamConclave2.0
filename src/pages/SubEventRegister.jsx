@@ -461,6 +461,39 @@ function SubmitButton({ submitting }) {
   )
 }
 
+// ─── Payment gate ─────────────────────────────────────────────────────
+function PaymentGateView({ paymentUrl, onPaid }) {
+  return (
+    <div className="space-y-6 text-center">
+      <div className="rounded-xl border border-yellow-500/40 bg-yellow-900/20 p-6 sm:p-8">
+        <p className="text-4xl">💳</p>
+        <h2 className="mt-3 text-xl font-bold text-yellow-300 sm:text-2xl">Payment Required</h2>
+        <p className="mt-2 text-sm text-sand/80">
+          To receive your event pass, please complete the payment first.
+        </p>
+        <a
+          className="mt-5 inline-block rounded bg-gold px-6 py-3 font-semibold text-navy transition hover:bg-amber-400"
+          href={paymentUrl}
+          rel="noreferrer"
+          target="_blank"
+        >
+          💸 Proceed to Payment →
+        </a>
+      </div>
+      <p className="text-sm text-sand/60">
+        Once you have completed the payment, click below to get your pass.
+      </p>
+      <button
+        className="rounded border border-accent bg-accent/20 px-6 py-3 font-semibold text-accent transition hover:bg-accent/30"
+        onClick={onPaid}
+        type="button"
+      >
+        ✅ I&apos;ve Paid — Show My Pass
+      </button>
+    </div>
+  )
+}
+
 // ─── Confirmation view with pass ─────────────────────────────────────
 function ConfirmationView({ passData, qrCodeDataUrl, passCardRef, onDownload, downloading }) {
   return (
@@ -497,6 +530,9 @@ function ConfirmationView({ passData, qrCodeDataUrl, passCardRef, onDownload, do
 }
 
 // ─── Main page component ──────────────────────────────────────────────
+const isPaymentLink = (str) =>
+  typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'))
+
 function SubEventRegister() {
   const { eventId } = useParams()
   const navigate = useNavigate()
@@ -506,6 +542,8 @@ function SubEventRegister() {
 
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
+  const [pendingConfirmation, setPendingConfirmation] = useState(null)
+  const [paymentGate, setPaymentGate] = useState(null)
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState(null)
   const [downloading, setDownloading] = useState(false)
 
@@ -585,8 +623,17 @@ function SubEventRegister() {
         passId: data.pass_id,
         passType: 'Participant',
       }
-      setConfirmation(passDisplayData)
+
+      // Start generating QR in background regardless of which step shows next
       generateQRCode(data.pass_id, data.participant_name).then(setQrCodeDataUrl).catch(() => {})
+
+      // If admin has set a payment link in the UPI ID field, gate the pass behind it
+      if (isPaymentLink(settings.upi_id)) {
+        setPendingConfirmation(passDisplayData)
+        setPaymentGate(settings.upi_id)
+      } else {
+        setConfirmation(passDisplayData)
+      }
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -643,7 +690,7 @@ function SubEventRegister() {
         </p>
       </div>
 
-      {/* Form or confirmation */}
+      {/* Form, payment gate, or confirmation */}
       <div className="topic-card p-4 sm:p-8">
         {confirmation ? (
           <ConfirmationView
@@ -652,6 +699,14 @@ function SubEventRegister() {
             passCardRef={passCardRef}
             passData={confirmation}
             qrCodeDataUrl={qrCodeDataUrl}
+          />
+        ) : paymentGate ? (
+          <PaymentGateView
+            onPaid={() => {
+              setConfirmation(pendingConfirmation)
+              setPaymentGate(null)
+            }}
+            paymentUrl={paymentGate}
           />
         ) : (
           <>
