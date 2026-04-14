@@ -5,7 +5,7 @@ import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
-import speakers from '../config/speakers'
+import { useAppData } from '../context/useAppData'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
 
@@ -20,6 +20,7 @@ const fadeUp = {
 
 function Home() {
   const navigate = useNavigate()
+  const { speakers, settings, organisers } = useAppData()
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll('.reveal'))
@@ -92,8 +93,8 @@ function Home() {
             variants={fadeUp}
             className="mt-6 space-y-1.5 font-mono text-sm text-sand/80"
           >
-            <p>📅 21st April 2026 | 10:00 AM Onwards</p>
-            <p>📍 MultiPurpose Hall, A-Block, K.R. Mangalam University</p>
+            <p>📅 {settings.event_date_label} | {settings.event_time_label}</p>
+            <p>📍 {settings.event_venue}</p>
           </Motion.div>
 
           <Motion.div custom={0.5} initial="hidden" animate="visible" variants={fadeUp} className="mt-8 max-w-xl">
@@ -168,11 +169,32 @@ function Home() {
           <h2 className="font-display text-5xl leading-none text-accent">Organisers</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
-        <div className="topic-card p-8 text-center">
-          <p className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-sand/72">Situation Brief</p>
-          <p className="mt-3 font-display text-4xl leading-none text-accent">Team Dossier Incoming</p>
-          <p className="mt-3 text-sm italic text-sand/84">Organising team details will be published shortly.</p>
-        </div>
+        {organisers.length > 0 ? (
+          <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
+            {organisers.map((org) => (
+              <article key={org.id} className="topic-card p-5">
+                <div className="flex items-center gap-3">
+                  {org.image ? (
+                    <img alt={org.name} className="h-14 w-14 rounded-full border border-sand/25 object-cover" src={org.image} />
+                  ) : (
+                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/70 text-2xl">👤</span>
+                  )}
+                  <div>
+                    <h3 className="font-display text-2xl leading-none text-accent">{org.name}</h3>
+                    <p className="mt-1 font-mono text-[0.63rem] uppercase tracking-[0.16em] text-primary/90">{org.role}</p>
+                  </div>
+                </div>
+                {org.bio && <p className="mt-3 text-sm italic text-sand/86">{org.bio}</p>}
+              </article>
+            ))}
+          </div>
+        ) : (
+          <div className="topic-card p-8 text-center">
+            <p className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-sand/72">Situation Brief</p>
+            <p className="mt-3 font-display text-4xl leading-none text-accent">Team Dossier Incoming</p>
+            <p className="mt-3 text-sm italic text-sand/84">Organising team details will be published shortly.</p>
+          </div>
+        )}
       </section>
     </div>
   )

@@ -78,6 +78,52 @@ Create a table named `registrations`:
 
 Also create a public storage bucket named `payment-screenshots` for optional payment screenshots.
 
+### Admin-Managed Content Tables
+
+Create these additional tables to enable full admin control over the site content:
+
+**`speakers`** — Displayed on Speakers and Home pages:
+- `id` (uuid, primary key, default: `gen_random_uuid()`)
+- `name` (text)
+- `title` (text)
+- `topic` (text)
+- `image` (text, URL)
+- `sort_order` (integer, default: `0`)
+
+**`schedule`** — Displayed on the Schedule / Events page:
+- `id` (uuid, primary key, default: `gen_random_uuid()`)
+- `time` (text)
+- `title` (text)
+- `description` (text)
+- `sort_order` (integer, default: `0`)
+
+**`organisers`** — Displayed in the Organisers section on the Home page:
+- `id` (uuid, primary key, default: `gen_random_uuid()`)
+- `name` (text)
+- `role` (text)
+- `image` (text, URL, nullable)
+- `bio` (text, nullable)
+- `sort_order` (integer, default: `0`)
+
+**`app_settings`** — Key-value store for event configuration:
+- `key` (text, **primary key**)
+- `value` (text)
+
+Supported setting keys and their defaults:
+
+| Key | Default | Description |
+|-----|---------|-------------|
+| `event_date` | `2026-04-21T10:00:00+05:30` | ISO datetime for countdown timer |
+| `event_date_label` | `21st April 2026` | Human-readable date shown on site |
+| `event_time_label` | `10:00 AM Onwards` | Time shown on site |
+| `event_venue` | MultiPurpose Hall... | Venue shown on site and in PDF |
+| `event_short_title` | `1st Kalam Conclave 2.0` | Title used in confirmation PDF |
+| `upi_qr_url` | _(empty)_ | Public URL of UPI QR code image |
+| `upi_id` | _(empty)_ | UPI ID shown below QR on registration form |
+| `ticket_price` | `149` | Registration fee in INR |
+
+> If these tables don't exist, the app falls back to the static default values in `src/config/` and `src/context/AppDataContext.jsx`.
+
 ## Admin Login
 
 - Username: `KalamAdmin`
@@ -85,14 +131,23 @@ Also create a public storage bucket named `payment-screenshots` for optional pay
 
 You can override both using `VITE_ADMIN_USERNAME` and `VITE_ADMIN_PASSWORD`.
 
-## How to Update Speakers and Schedule
+## How to Update Content
 
-- Edit speaker records in:
-  - `/src/config/speakers.js`
-- Edit agenda items in:
-  - `/src/config/schedule.js`
+All site content — speakers, schedule, organisers, event date/venue, UPI QR code, and ticket price — can now be managed directly from the **Admin Dashboard** without touching any code.
 
-No logic changes required.
+Login at `/admin` and use the tabbed dashboard:
+
+| Tab | What you can manage |
+|-----|---------------------|
+| **Registrations** | Add / edit / delete attendees, toggle payment & attendance, export CSV |
+| **Speakers** | Add / edit / delete speaker cards shown on the site |
+| **Schedule** | Add / edit / delete agenda/timeline items |
+| **Event Settings** | Event date, venue, UPI QR code image URL, UPI ID, ticket price |
+| **Organisers** | Add / edit / delete organiser cards shown on the Home page |
+
+> These changes require the four additional Supabase tables described in the Supabase Setup section above.
+
+The static config files (`/src/config/speakers.js`, `/src/config/schedule.js`) still serve as **fallback defaults** when the Supabase tables are empty or unavailable.
 
 ## Deploy to Vercel
 

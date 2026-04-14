@@ -1,7 +1,8 @@
 import SpeakerCard from '../components/SpeakerCard'
-import speakers from '../config/speakers'
+import { useAppData } from '../context/useAppData'
 
 function Speakers() {
+  const { speakers } = useAppData()
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-14">
       <h1 className="font-display text-6xl leading-none text-accent">Speakers</h1>

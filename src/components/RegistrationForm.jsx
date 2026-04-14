@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
 import { ensureSupabase } from '../lib/supabaseClient'
+import { useAppData } from '../context/useAppData'
 
 const initialForm = {
   full_name: '',
@@ -27,6 +28,8 @@ const generateRegId = () => {
 }
 
 function RegistrationForm() {
+  const { settings } = useAppData()
+  const ticketPrice = settings.ticket_price || '149'
   const [formData, setFormData] = useState(initialForm)
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
@@ -129,13 +132,13 @@ function RegistrationForm() {
 
     const doc = new jsPDF()
     doc.setFontSize(16)
-    doc.text('1st Kalam Conclave 2.0 - Registration Confirmation', 10, 20)
+    doc.text(`${settings.event_short_title} - Registration Confirmation`, 10, 20)
     doc.setFontSize(12)
     doc.text(`Registration ID: ${confirmation.reg_id}`, 10, 35)
     doc.text(`Name: ${confirmation.full_name}`, 10, 45)
     doc.text(`Email: ${confirmation.email}`, 10, 55)
-    doc.text('Date: 21st April 2026 | Time: 10:00 AM Onwards', 10, 65)
-    doc.text('Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University', 10, 75)
+    doc.text(`Date: ${settings.event_date_label} | Time: ${settings.event_time_label}`, 10, 65)
+    doc.text(`Venue: ${settings.event_venue}`, 10, 75)
     doc.save(`KalamConclave-${confirmation.reg_id}.pdf`)
   }
 
@@ -147,8 +150,8 @@ function RegistrationForm() {
         <div className="mt-4 space-y-2 text-sm text-slate-300">
           <p>Name: {confirmation.full_name}</p>
           <p>Email: {confirmation.email}</p>
-          <p>Date: 21st April 2026 | Time: 10:00 AM Onwards</p>
-          <p>Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University</p>
+          <p>Date: {settings.event_date_label} | Time: {settings.event_time_label}</p>
+          <p>Venue: {settings.event_venue}</p>
         </div>
         <button
           className="mt-6 rounded bg-gold px-5 py-2 font-semibold text-navy transition hover:bg-amber-400"
@@ -163,7 +166,7 @@ function RegistrationForm() {
 
   return (
     <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-6 shadow-soft sm:grid-cols-2" onSubmit={handleSubmit}>
-      <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹149 (Standard Ticket)</h2>
+      <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
 
       <label className="text-sm">
         Full Name *
@@ -211,10 +214,17 @@ function RegistrationForm() {
       </label>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
-        <p className="font-semibold text-gold">Scan to Pay ₹149 via UPI</p>
-        <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
-          UPI QR Placeholder
-        </div>
+        <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
+        {settings.upi_qr_url ? (
+          <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
+        ) : (
+          <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
+            UPI QR Placeholder
+          </div>
+        )}
+        {settings.upi_id && (
+          <p className="mt-2 font-mono text-xs text-slate-300">{settings.upi_id}</p>
+        )}
       </div>
 
       <label className="col-span-full text-sm">

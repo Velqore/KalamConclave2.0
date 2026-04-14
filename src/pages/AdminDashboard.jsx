@@ -4,8 +4,20 @@ import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import AttendeeTable from '../components/AttendeeTable'
 import StatCard from '../components/StatCard'
+import AdminSpeakers from '../components/admin/AdminSpeakers'
+import AdminSchedule from '../components/admin/AdminSchedule'
+import AdminSettings from '../components/admin/AdminSettings'
+import AdminOrganisers from '../components/admin/AdminOrganisers'
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
+
+const TABS = [
+  { id: 'registrations', label: 'Registrations' },
+  { id: 'speakers', label: 'Speakers' },
+  { id: 'schedule', label: 'Schedule' },
+  { id: 'settings', label: 'Event Settings' },
+  { id: 'organisers', label: 'Organisers' },
+]
 
 const generateRegId = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
@@ -36,6 +48,7 @@ const createRegistrationTemplate = () => ({
 function AdminDashboard() {
   const navigate = useNavigate()
   const { logout } = useAdmin()
+  const [activeTab, setActiveTab] = useState('registrations')
   const [attendees, setAttendees] = useState([])
   const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
@@ -216,148 +229,174 @@ function AdminDashboard() {
 
   return (
     <section className="mx-auto w-full max-w-7xl px-4 py-10">
+      {/* Dashboard header */}
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <h1 className="text-3xl font-bold text-gold">Admin Dashboard</h1>
-        <div className="flex gap-3">
-          <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={handleCreateNew} type="button">
-            Add Registration
-          </button>
-          <button className="rounded bg-electricBlue px-4 py-2 text-sm font-semibold" onClick={exportCSV} type="button">
-            Export CSV
-          </button>
-          <button className="rounded bg-rose-600 px-4 py-2 text-sm font-semibold" onClick={handleLogout} type="button">
-            Logout
-          </button>
-        </div>
+        <button className="rounded bg-rose-600 px-4 py-2 text-sm font-semibold" onClick={handleLogout} type="button">
+          Logout
+        </button>
       </div>
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <StatCard title="Total Registrations" value={stats.total} />
-        <StatCard title="Verified Payments" value={stats.verified} />
-        <StatCard title="Pending Verification" value={stats.pending} />
-        <StatCard title="Total Revenue (₹)" value={stats.revenue} />
+      {/* Tab navigation */}
+      <div className="mb-6 flex flex-wrap gap-2 border-b border-blue-900 pb-3">
+        {TABS.map((tab) => (
+          <button
+            key={tab.id}
+            className={`rounded-t px-4 py-2 text-sm font-semibold transition ${
+              activeTab === tab.id
+                ? 'bg-gold text-navy'
+                : 'bg-navyLight/60 text-slate-300 hover:bg-navyLight hover:text-gold'
+            }`}
+            onClick={() => setActiveTab(tab.id)}
+            type="button"
+          >
+            {tab.label}
+          </button>
+        ))}
       </div>
 
-      <div className="my-6">
-        <input
-          className="input max-w-md"
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search by name, email, or college"
-          value={search}
-        />
-      </div>
-
-      {formOpen && (
-        <form className="mb-6 grid gap-3 rounded-xl border border-blue-900 bg-navyLight/70 p-4 sm:grid-cols-2" onSubmit={handleSave}>
-          <h2 className="col-span-full text-xl font-semibold text-gold">
-            {editingId ? 'Edit Registration' : 'Add Registration'}
-          </h2>
-
-          <label className="text-sm">
-            Registration ID
-            <input
-              className="input"
-              name="reg_id"
-              onChange={handleFormChange}
-              readOnly
-              required
-              value={formData.reg_id}
-            />
-          </label>
-          <label className="text-sm">
-            Full Name
-            <input className="input" name="full_name" onChange={handleFormChange} required value={formData.full_name} />
-          </label>
-          <label className="text-sm">
-            Email
-            <input className="input" name="email" onChange={handleFormChange} required type="email" value={formData.email} />
-          </label>
-          <label className="text-sm">
-            Phone
-            <input className="input" name="phone" onChange={handleFormChange} required value={formData.phone} />
-          </label>
-          <label className="text-sm">
-            College
-            <input className="input" name="college" onChange={handleFormChange} required value={formData.college} />
-          </label>
-          <label className="text-sm">
-            Course
-            <input className="input" name="course" onChange={handleFormChange} required value={formData.course} />
-          </label>
-          <label className="text-sm">
-            Year Of Study
-            <select className="input" name="year_of_study" onChange={handleFormChange} value={formData.year_of_study}>
-              {yearOfStudyOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm">
-            City
-            <input className="input" name="city" onChange={handleFormChange} required value={formData.city} />
-          </label>
-          <label className="text-sm">
-            Heard From
-            <select className="input" name="heard_from" onChange={handleFormChange} value={formData.heard_from}>
-              {heardFromOptions.map((option) => (
-                <option key={option} value={option}>
-                  {option}
-                </option>
-              ))}
-            </select>
-          </label>
-          <label className="text-sm">
-            UTR ID
-            <input
-              className="input"
-              name="utr_id"
-              onChange={handleFormChange}
-              required={formData.payment_status === 'verified'}
-              value={formData.utr_id}
-            />
-          </label>
-          <label className="text-sm">
-            Payment Status
-            <select className="input" name="payment_status" onChange={handleFormChange} value={formData.payment_status}>
-              <option value="pending">pending</option>
-              <option value="verified">verified</option>
-            </select>
-          </label>
-          <label className="flex items-center gap-2 pt-7 text-sm">
-            <input checked={formData.attendance} name="attendance" onChange={handleFormChange} type="checkbox" />
-            Mark as Present
-          </label>
-
-          <div className="col-span-full flex gap-3">
-            <button
-              className="rounded bg-electricBlue px-4 py-2 text-sm font-semibold disabled:opacity-60"
-              disabled={submitting}
-              type="submit"
-            >
-              {submitting ? 'Saving...' : editingId ? 'Save Changes' : 'Create'}
-            </button>
-            <button className="rounded border border-blue-700 px-4 py-2 text-sm" onClick={resetForm} type="button">
-              Cancel
-            </button>
+      {/* Registrations tab */}
+      {activeTab === 'registrations' && (
+        <>
+          <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+            <div className="flex gap-3">
+              <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={handleCreateNew} type="button">
+                Add Registration
+              </button>
+              <button className="rounded bg-electricBlue px-4 py-2 text-sm font-semibold" onClick={exportCSV} type="button">
+                Export CSV
+              </button>
+            </div>
           </div>
-        </form>
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <StatCard title="Total Registrations" value={stats.total} />
+            <StatCard title="Verified Payments" value={stats.verified} />
+            <StatCard title="Pending Verification" value={stats.pending} />
+            <StatCard title="Total Revenue (₹)" value={stats.revenue} />
+          </div>
+
+          <div className="my-6">
+            <input
+              className="input max-w-md"
+              onChange={(event) => setSearch(event.target.value)}
+              placeholder="Search by name, email, or college"
+              value={search}
+            />
+          </div>
+
+          {formOpen && (
+            <form className="mb-6 grid gap-3 rounded-xl border border-blue-900 bg-navyLight/70 p-4 sm:grid-cols-2" onSubmit={handleSave}>
+              <h2 className="col-span-full text-xl font-semibold text-gold">
+                {editingId ? 'Edit Registration' : 'Add Registration'}
+              </h2>
+
+              <label className="text-sm">
+                Registration ID
+                <input className="input" name="reg_id" onChange={handleFormChange} readOnly required value={formData.reg_id} />
+              </label>
+              <label className="text-sm">
+                Full Name
+                <input className="input" name="full_name" onChange={handleFormChange} required value={formData.full_name} />
+              </label>
+              <label className="text-sm">
+                Email
+                <input className="input" name="email" onChange={handleFormChange} required type="email" value={formData.email} />
+              </label>
+              <label className="text-sm">
+                Phone
+                <input className="input" name="phone" onChange={handleFormChange} required value={formData.phone} />
+              </label>
+              <label className="text-sm">
+                College
+                <input className="input" name="college" onChange={handleFormChange} required value={formData.college} />
+              </label>
+              <label className="text-sm">
+                Course
+                <input className="input" name="course" onChange={handleFormChange} required value={formData.course} />
+              </label>
+              <label className="text-sm">
+                Year Of Study
+                <select className="input" name="year_of_study" onChange={handleFormChange} value={formData.year_of_study}>
+                  {yearOfStudyOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm">
+                City
+                <input className="input" name="city" onChange={handleFormChange} required value={formData.city} />
+              </label>
+              <label className="text-sm">
+                Heard From
+                <select className="input" name="heard_from" onChange={handleFormChange} value={formData.heard_from}>
+                  {heardFromOptions.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <label className="text-sm">
+                UTR ID
+                <input
+                  className="input"
+                  name="utr_id"
+                  onChange={handleFormChange}
+                  required={formData.payment_status === 'verified'}
+                  value={formData.utr_id}
+                />
+              </label>
+              <label className="text-sm">
+                Payment Status
+                <select className="input" name="payment_status" onChange={handleFormChange} value={formData.payment_status}>
+                  <option value="pending">pending</option>
+                  <option value="verified">verified</option>
+                </select>
+              </label>
+              <label className="flex items-center gap-2 pt-7 text-sm">
+                <input checked={formData.attendance} name="attendance" onChange={handleFormChange} type="checkbox" />
+                Mark as Present
+              </label>
+
+              <div className="col-span-full flex gap-3">
+                <button
+                  className="rounded bg-electricBlue px-4 py-2 text-sm font-semibold disabled:opacity-60"
+                  disabled={submitting}
+                  type="submit"
+                >
+                  {submitting ? 'Saving...' : editingId ? 'Save Changes' : 'Create'}
+                </button>
+                <button className="rounded border border-blue-700 px-4 py-2 text-sm" onClick={resetForm} type="button">
+                  Cancel
+                </button>
+              </div>
+            </form>
+          )}
+
+          {loading ? (
+            <p className="text-slate-300">Loading registrations...</p>
+          ) : (
+            <AttendeeTable
+              attendees={filteredAttendees}
+              onDelete={handleDelete}
+              onEdit={handleEdit}
+              onToggleAttendance={handleToggleAttendance}
+              onTogglePayment={handleTogglePayment}
+            />
+          )}
+        </>
       )}
 
-      {loading ? (
-        <p className="text-slate-300">Loading registrations...</p>
-      ) : (
-        <AttendeeTable
-          attendees={filteredAttendees}
-          onDelete={handleDelete}
-          onEdit={handleEdit}
-          onToggleAttendance={handleToggleAttendance}
-          onTogglePayment={handleTogglePayment}
-        />
-      )}
+      {activeTab === 'speakers' && <AdminSpeakers />}
+      {activeTab === 'schedule' && <AdminSchedule />}
+      {activeTab === 'settings' && <AdminSettings />}
+      {activeTab === 'organisers' && <AdminOrganisers />}
     </section>
   )
 }
 
 export default AdminDashboard
+
