@@ -25,7 +25,7 @@ function AppLayout({ children, hideFooter = false }) {
   return (
     <div className="min-h-screen bg-bg text-sand">
       <Navbar />
-      <main>{children}</main>
+      <main className="guide-persuade-flow">{children}</main>
       {!hideFooter && <Footer />}
     </div>
   )
