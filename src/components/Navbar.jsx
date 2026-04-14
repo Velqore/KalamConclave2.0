@@ -50,7 +50,7 @@ function Navbar() {
             <img
               src="/event_logo.svg"
               alt="Kalam Conclave 2.0 logos"
-              className="h-14 w-auto max-w-[calc(100vw-7rem)] object-contain sm:h-12 sm:max-w-[240px]"
+              className="h-14 w-auto max-w-full object-contain sm:h-12 sm:max-w-[240px]"
             />
             <span className="truncate font-display text-base font-bold leading-none tracking-[0.02em] text-accent sm:text-xl">
               {EVENT_SHORT_TITLE}
