@@ -154,7 +154,7 @@ function Home() {
         </div>
       </section>
 
-      <section id="speakers" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10">
+      <section id="guests" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10">
         <div className="mb-8">
           <h2 className="font-display text-5xl leading-none text-accent">Featured Guests</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />

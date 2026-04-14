@@ -7,7 +7,7 @@ const links = [
   { to: '/schedule', label: 'Events' },
   { to: '/gulf-war', label: 'Gulf War' },
   { to: '/register', label: 'Register' },
-  { to: '/speakers', label: 'Guests' },
+  { to: '/guests', label: 'Guests' },
   { to: '/#organisers', label: 'Organisers' },
   { to: '/admin', label: 'Admin' },
 ]
