@@ -15,6 +15,7 @@ const TABS = [
   { key: 'views', label: 'Views', emoji: '👁️' },
   { key: 'info', label: 'Info', emoji: 'ℹ️' },
 ]
+const MAX_PATH_ENTRIES = 8
 
 function LiveClock() {
   const [time, setTime] = useState(new Date())
@@ -72,13 +73,13 @@ function VolunteerDashboard() {
     views: (
       <div style={{ padding: '16px', overflowY: 'auto', height: '100%' }}>
         <div style={{ border: '1px solid #334155', borderRadius: '12px', background: '#1e293b', padding: '14px' }}>
-          <h3 style={{ color: '#f8fafc', fontSize: '14px', fontWeight: 700 }}>Page Viewer</h3>
+          <h3 style={{ color: '#f8fafc', fontSize: '14px', fontWeight: 700 }}>Page View Analytics</h3>
           <p style={{ marginTop: '6px', color: '#94a3b8', fontSize: '12px' }}>
             Total views: <span style={{ color: '#f8fafc' }}>{pageViews.total}</span> • Unique visitors:{' '}
             <span style={{ color: '#f8fafc' }}>{pageViews.unique}</span>
           </p>
           <div style={{ marginTop: '10px', display: 'grid', gap: '8px' }}>
-            {pageViews.byPath.slice(0, 8).map((entry) => (
+            {pageViews.byPath.slice(0, MAX_PATH_ENTRIES).map((entry) => (
               <div key={entry.path} style={{ border: '1px solid #334155', borderRadius: '10px', background: '#0f172a', padding: '10px' }}>
                 <div style={{ color: '#cbd5e1', fontSize: '12px', fontFamily: 'monospace' }}>{entry.path}</div>
                 <div style={{ color: '#facc15', fontSize: '12px', marginTop: '2px' }}>{entry.count} views</div>

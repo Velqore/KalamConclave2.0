@@ -1,6 +1,7 @@
 import { ensureSupabase, supabase } from './supabaseClient'
 
-const VISITOR_STORAGE_KEY = 'kalamConclaveVisitorId'
+const VISITOR_STORAGE_KEY = 'appVisitorId'
+const TRACKED_FLAG = 'true'
 
 const toRole = (pathname = '/') => {
   if (pathname.startsWith('/admin')) return 'admin'
@@ -11,7 +12,7 @@ const toRole = (pathname = '/') => {
 const getVisitorId = () => {
   const existing = localStorage.getItem(VISITOR_STORAGE_KEY)
   if (existing) return existing
-  const next = crypto.randomUUID()
+  const next = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
   localStorage.setItem(VISITOR_STORAGE_KEY, next)
   return next
 }
@@ -21,8 +22,8 @@ export async function trackPageView(pathname = '/') {
 
   const role = toRole(pathname)
   const onceKey = `page-view:${role}:${pathname}`
-  if (sessionStorage.getItem(onceKey) === '1') return
-  sessionStorage.setItem(onceKey, '1')
+  if (sessionStorage.getItem(onceKey) === TRACKED_FLAG) return
+  sessionStorage.setItem(onceKey, TRACKED_FLAG)
 
   try {
     const client = ensureSupabase()

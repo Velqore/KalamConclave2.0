@@ -33,6 +33,7 @@ const generateRegId = () => {
 
 const yearOfStudyOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
 const heardFromOptions = ['Instagram', 'LinkedIn', 'WhatsApp', 'Friend/Faculty', 'Poster', 'Other']
+const MAX_PATH_ENTRIES = 6
 
 const createRegistrationTemplate = () => ({
   reg_id: generateRegId(),
@@ -232,12 +233,16 @@ function AdminDashboard() {
     if (nextStatus === 'verified' && !attendee.verification_email_sent) {
       try {
         await sendVerificationEmail(attendee.full_name, attendee.email, attendee.reg_id)
-        await updateRegistration(
+        const emailFlagUpdated = await updateRegistration(
           attendee.id,
           { verification_email_sent: true, verification_email_sent_at: new Date().toISOString() },
           { showToast: false },
         )
-        toast.success('Payment verified and confirmation email sent')
+        if (emailFlagUpdated) {
+          toast.success('Payment verified and confirmation email sent')
+        } else {
+          toast.success('Payment verified and confirmation email sent (flag update failed)')
+        }
       } catch (error) {
         toast.error(error?.message || 'Payment verified, but confirmation email could not be sent.')
       }
@@ -329,7 +334,7 @@ function AdminDashboard() {
               <span className="text-slate-200">{pageViews.unique}</span>
             </p>
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
-              {pageViews.byPath.slice(0, 6).map((entry) => (
+              {pageViews.byPath.slice(0, MAX_PATH_ENTRIES).map((entry) => (
                 <div key={entry.path} className="rounded-lg border border-blue-900/80 bg-blue-950/40 px-3 py-2 text-xs">
                   <p className="font-mono text-slate-300">{entry.path}</p>
                   <p className="mt-1 text-gold">{entry.count} views</p>

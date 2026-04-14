@@ -31,7 +31,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
               <td className="px-3 py-3">
                 {attendee.payment_screenshot_url ? (
                   <div className="flex flex-col gap-1">
-                    <span className="text-xs font-semibold text-emerald-300">Shared</span>
+                    <span className="text-xs font-semibold text-emerald-300">Uploaded</span>
                     <a
                       className="text-xs text-electricBlue underline"
                       href={attendee.payment_screenshot_url}
@@ -42,7 +42,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
                     </a>
                   </div>
                 ) : (
-                  <span className="text-xs font-semibold text-rose-300">Not shared</span>
+                  <span className="text-xs font-semibold text-rose-300">Not uploaded</span>
                 )}
               </td>
               <td className="px-3 py-3">

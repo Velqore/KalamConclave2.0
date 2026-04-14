@@ -82,10 +82,6 @@ function RegistrationForm() {
   }
 
   const saveRegistration = async (payload) => {
-    if (!screenshot) {
-      throw new Error('Please upload your payment screenshot before submitting.')
-    }
-
     const supabase = ensureSupabase()
 
     for (let attempt = 1; attempt <= 3; attempt += 1) {

@@ -355,11 +355,11 @@ function ParticipantsList() {
         {selected && (
           <ParticipantModal
             key="modal"
-              onClose={() => setSelected(null)}
-              onDelete={handleDelete}
-              onUpdate={() => { setRefreshKey((k) => k + 1); setSelected(null) }}
-              record={selected}
-            />
+            onClose={() => setSelected(null)}
+            onDelete={handleDelete}
+            onUpdate={() => { setRefreshKey((k) => k + 1); setSelected(null) }}
+            record={selected}
+          />
         )}
       </AnimatePresence>
     </div>

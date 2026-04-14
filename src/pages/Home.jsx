@@ -276,7 +276,7 @@ function Home() {
 
       <section id="social-media" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
         <div className="mb-6 sm:mb-8">
-          <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Club Social Media</h2>
+          <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Follow Us</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
         {socialLinks.length > 0 ? (
