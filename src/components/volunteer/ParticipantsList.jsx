@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 import { supabase } from '../../lib/supabaseClient'
+import { SUB_EVENTS } from '../../config/subEvents'
 
 const STATUS_LABEL = { not_arrived: 'Not Arrived', checked_in: 'Checked In', checked_out: 'Checked Out' }
 const STATUS_COLOR = {
@@ -14,7 +15,7 @@ const PASS_TYPE_COLORS = {
   Speaker: '#D97706',
   Guest: '#2563EB',
 }
-const FILTERS = ['All', 'Checked In', 'Not Arrived', 'Checked Out']
+const STATUS_FILTERS = ['All', 'Checked In', 'Not Arrived', 'Checked Out']
 const FILTER_STATUS = {
   All: null,
   'Checked In': 'checked_in',
@@ -22,6 +23,9 @@ const FILTER_STATUS = {
   'Checked Out': 'checked_out',
 }
 const REFRESH_INTERVAL = 10_000
+
+// Sub-event filter chips labels
+const SUB_EVENT_FILTER_OPTIONS = ['All Sub-Events', ...SUB_EVENTS.map((e) => e.name)]
 
 function getInitials(name = '') {
   return name.trim().split(/\s+/).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? '').join('')
@@ -135,20 +139,28 @@ function ParticipantsList() {
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
   const [filter, setFilter] = useState('All')
+  const [subEventFilter, setSubEventFilter] = useState('All Sub-Events')
   const [selected, setSelected] = useState(null)
   const [totalReg, setTotalReg] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
+  const [subEventMap, setSubEventMap] = useState({}) // pass_id → sub_event_name
   const intervalRef = useRef(null)
 
   useEffect(() => {
     const doFetch = async () => {
       if (!supabase) { setLoading(false); return }
-      const [attRes, regRes] = await Promise.all([
+      const [attRes, regRes, subRes] = await Promise.all([
         supabase.from('attendance').select('*').order('created_at', { ascending: false }),
         supabase.from('registrations').select('id', { count: 'exact', head: true }),
+        supabase.from('sub_event_registrations').select('pass_id, sub_event_name, sub_event_id'),
       ])
       if (attRes.data) setRecords(attRes.data)
       if (regRes.count != null) setTotalReg(regRes.count)
+      if (subRes.data) {
+        const map = {}
+        subRes.data.forEach((r) => { map[r.pass_id] = r.sub_event_name })
+        setSubEventMap(map)
+      }
       setLoading(false)
     }
 
@@ -156,11 +168,11 @@ function ParticipantsList() {
     intervalRef.current = setInterval(doFetch, REFRESH_INTERVAL)
     window.addEventListener('attendance-updated', doFetch)
 
-    // Supabase realtime — attendance + registrations (admin add/delete)
     if (supabase) {
       const channels = [
         supabase.channel('attendance-list').on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch).subscribe(),
         supabase.channel('participants-registrations').on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, doFetch).subscribe(),
+        supabase.channel('participants-sub-events').on('postgres_changes', { event: '*', schema: 'public', table: 'sub_event_registrations' }, doFetch).subscribe(),
       ]
       return () => {
         clearInterval(intervalRef.current)
@@ -176,9 +188,14 @@ function ParticipantsList() {
 
   const filtered = records.filter((r) => {
     const statusMatch = !FILTER_STATUS[filter] || r.status === FILTER_STATUS[filter]
+    const subName = subEventMap[r.participant_id] ?? ''
+    const subEventMatch =
+      subEventFilter === 'All Sub-Events' ||
+      subName.toLowerCase().includes(subEventFilter.toLowerCase()) ||
+      SUB_EVENTS.find((e) => e.name === subEventFilter)?.id === subName
     const q = search.toLowerCase()
     const textMatch = !q || r.participant_name?.toLowerCase().includes(q) || r.participant_id?.toLowerCase().includes(q) || r.department?.toLowerCase().includes(q)
-    return statusMatch && textMatch
+    return statusMatch && subEventMatch && textMatch
   })
 
   const checkedIn = records.filter((r) => r.status === 'checked_in').length
@@ -197,9 +214,9 @@ function ParticipantsList() {
           type="text"
           value={search}
         />
-        {/* Filter chips */}
+        {/* Status filter chips */}
         <div style={{ display: 'flex', gap: '8px', marginTop: '10px', overflowX: 'auto', paddingBottom: '2px' }}>
-          {FILTERS.map((f) => (
+          {STATUS_FILTERS.map((f) => (
             <button
               key={f}
               onClick={() => setFilter(f)}
@@ -219,6 +236,33 @@ function ParticipantsList() {
               {f}
             </button>
           ))}
+        </div>
+        {/* Sub-event filter chips */}
+        <div style={{ display: 'flex', gap: '8px', marginTop: '6px', overflowX: 'auto', paddingBottom: '4px' }}>
+          {SUB_EVENT_FILTER_OPTIONS.map((f) => {
+            const ev = SUB_EVENTS.find((e) => e.name === f)
+            const active = subEventFilter === f
+            return (
+              <button
+                key={f}
+                onClick={() => setSubEventFilter(f)}
+                style={{
+                  padding: '4px 12px',
+                  background: active ? (ev?.color ?? '#334155') : '#0f172a',
+                  border: `1px solid ${active ? (ev?.color ?? '#334155') : '#334155'}`,
+                  borderRadius: '999px',
+                  color: active ? '#fff' : '#64748b',
+                  fontSize: '11px',
+                  fontWeight: active ? 700 : 400,
+                  cursor: 'pointer',
+                  whiteSpace: 'nowrap',
+                  minHeight: '28px',
+                }}
+              >
+                {ev ? `${ev.icon} ${f}` : f}
+              </button>
+            )
+          })}
         </div>
       </div>
 
@@ -251,6 +295,11 @@ function ParticipantsList() {
                 <div style={{ color: '#64748b', fontSize: '12px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {r.participant_id} {r.department ? `• ${r.department}` : ''}
                 </div>
+                {subEventMap[r.participant_id] && (
+                  <div style={{ color: '#94a3b8', fontSize: '10px', marginTop: '1px' }}>
+                    {subEventMap[r.participant_id]}
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
                 <StatusBadge status={r.status} />

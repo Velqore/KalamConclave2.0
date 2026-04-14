@@ -170,3 +170,35 @@ CREATE POLICY "Allow all attendance operations"
 
 -- Fast lookup index for QR scans
 CREATE INDEX IF NOT EXISTS idx_attendance_pass_id ON public.attendance(pass_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- 8. sub_event_registrations  (4 sub-event forms)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.sub_event_registrations (
+  id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  pass_id                 text        NOT NULL UNIQUE,
+  sub_event_id            text        NOT NULL,
+  sub_event_name          text        NOT NULL,
+  participant_name        text        NOT NULL,
+  participant_roll        text,
+  participant_email       text,
+  participant_phone       text,
+  participant_course      text,
+  participant_year        text,
+  participant_university  text        DEFAULT 'KR Mangalam University',
+  team_name               text,
+  team_members            jsonb,
+  extra_fields            jsonb,
+  pass_type               text        DEFAULT 'Participant',
+  created_at              timestamptz DEFAULT now()
+);
+
+ALTER TABLE public.sub_event_registrations ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all sub event operations"
+  ON public.sub_event_registrations
+  FOR ALL USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_sub_event_reg_sub_event   ON public.sub_event_registrations(sub_event_id);
+CREATE INDEX IF NOT EXISTS idx_sub_event_reg_email        ON public.sub_event_registrations(participant_email);
+CREATE INDEX IF NOT EXISTS idx_sub_event_reg_pass_id      ON public.sub_event_registrations(pass_id);
