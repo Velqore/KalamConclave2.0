@@ -17,6 +17,7 @@
   html,
   body {
     @apply m-0 min-h-full antialiased;
+    overflow-x: hidden;
   }
 
   body {
@@ -178,5 +179,14 @@
   100% {
     opacity: 0;
     transform: translate3d(var(--tx), var(--ty), 0);
+  }
+}
+
+/* Prevent iOS from zooming into inputs smaller than 16px */
+@media (max-width: 767px) {
+  input,
+  select,
+  textarea {
+    font-size: 16px !important;
   }
 }

@@ -2,9 +2,9 @@ import { Link } from 'react-router-dom'
 
 function GulfWarBanner() {
   return (
-    <section className="reveal relative z-10 mx-auto mt-12 w-full max-w-6xl px-4">
+    <section className="reveal relative z-10 mx-auto mt-8 w-full max-w-6xl px-4 sm:mt-12">
       <div
-        className="grid items-center gap-5 border border-primary/50 bg-primary/10 p-5 backdrop-blur-md md:grid-cols-[180px_1fr_120px]"
+        className="relative grid items-center gap-4 border border-primary/50 bg-primary/10 p-4 backdrop-blur-md sm:gap-5 sm:p-5 md:grid-cols-[180px_1fr_120px]"
         style={{
           clipPath: 'polygon(0 0, calc(100% - 20px) 0, 100% 20px, 100% 100%, 20px 100%, 0 calc(100% - 20px))',
         }}
@@ -20,7 +20,7 @@ function GulfWarBanner() {
         </div>
 
         <div>
-          <h3 className="font-display text-[1.6rem] leading-none text-sand">🎯 The Gulf War — Featured Topic</h3>
+          <h3 className="font-display text-xl leading-none text-sand sm:text-[1.6rem]">🎯 The Gulf War — Featured Topic</h3>
           <p className="mt-2 text-sm italic text-sand/90">
             Drone warfare, trauma surgery, satellite intelligence &amp; environmental science under
             extreme pressure — science at the front line.
@@ -28,7 +28,7 @@ function GulfWarBanner() {
         </div>
 
         <Link
-          className="justify-self-start font-mono text-sm uppercase tracking-[0.18em] text-accent transition hover:text-sand md:justify-self-end"
+          className="font-mono text-sm uppercase tracking-[0.18em] text-accent transition hover:text-sand md:justify-self-end"
           to="/gulf-war"
         >
           Explore ›

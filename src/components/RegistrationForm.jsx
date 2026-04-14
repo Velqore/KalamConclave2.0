@@ -165,14 +165,14 @@ function RegistrationForm() {
     }
 
     return (
-      <section className="mx-auto w-full max-w-2xl rounded-2xl border border-blue-900 bg-navyLight/70 p-8 shadow-soft">
-        <h2 className="text-2xl font-bold text-gold">Registration Confirmed! 🎉</h2>
+      <section className="mx-auto w-full max-w-2xl rounded-2xl border border-blue-900 bg-navyLight/70 p-4 shadow-soft sm:p-8">
+        <h2 className="text-xl font-bold text-gold sm:text-2xl">Registration Confirmed! 🎉</h2>
         <p className="mt-2 text-sm text-slate-300">
           Your event pass is ready. Download it as a PDF to bring on the day of the event.
         </p>
 
-        {/* Pass card preview — centered */}
-        <div className="mt-6 flex justify-center overflow-x-auto">
+        {/* Pass card preview — centered, scrollable on small screens */}
+        <div className="mt-6 flex justify-center overflow-x-auto pb-2">
           <EventPassCard pass={passData} qrCodeDataUrl={qrCodeDataUrl} ref={passCardRef} />
         </div>
 
@@ -197,7 +197,7 @@ function RegistrationForm() {
   }
 
   return (
-    <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-6 shadow-soft sm:grid-cols-2" onSubmit={handleSubmit}>
+    <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-4 shadow-soft sm:grid-cols-2 sm:p-6" onSubmit={handleSubmit}>
       <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
 
       <label className="text-sm">

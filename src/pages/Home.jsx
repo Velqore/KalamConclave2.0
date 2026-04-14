@@ -47,7 +47,7 @@ function Home() {
         <RocketEffect />
       </Suspense>
 
-      <section className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-10 pt-14 sm:pt-20">
+      <section className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-8 pt-10 sm:pb-10 sm:pt-16">
         <Motion.div
           className="overflow-hidden rounded-2xl border border-primary/40 p-5 sm:p-10 lg:p-14"
           style={{
@@ -82,7 +82,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 max-w-3xl font-subtitle text-lg text-sand/92 sm:text-xl"
+            className="mt-4 max-w-3xl font-subtitle text-base text-sand/92 sm:text-xl"
           >
             When conflict reshapes civilisation, science becomes both weapon and lifeline. Explore
             how the ongoing Gulf War is redefining research, medicine, and innovation.
@@ -108,7 +108,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-8 rounded border border-accent bg-accent px-7 py-3 font-semibold text-bg transition hover:brightness-110"
+            className="mt-8 w-full rounded border border-accent bg-accent px-7 py-3 font-semibold text-bg transition hover:brightness-110 sm:w-auto"
             onClick={() => navigate('/register')}
             type="button"
           >
@@ -120,12 +120,12 @@ function Home() {
       <Ticker />
       <GulfWarBanner />
 
-      <section id="about" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-14">
-        <div className="mb-8">
+      <section id="about" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
+        <div className="mb-6 sm:mb-8">
           <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">About the Conclave</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
-        <div className="topic-card p-7">
+        <div className="topic-card p-4 sm:p-7">
           <p className="leading-relaxed text-sand/90">
             Kalam Conclave 2.0 examines how modern science operates under the pressure of active
             conflict. With the ongoing Gulf War as the featured lens, this edition focuses on
@@ -154,20 +154,20 @@ function Home() {
         </div>
       </section>
 
-      <section id="guests" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="mb-8">
+      <section id="guests" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
+        <div className="mb-6 sm:mb-8">
           <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Featured Guests</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
-        <div className="grid gap-5 md:grid-cols-3">
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
           {speakers.map((speaker) => (
             <SpeakerCard key={speaker.id} speaker={speaker} />
           ))}
         </div>
       </section>
 
-      <section id="organisers" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10">
-        <div className="mb-8">
+      <section id="organisers" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
+        <div className="mb-6 sm:mb-8">
           <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Organisers</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
