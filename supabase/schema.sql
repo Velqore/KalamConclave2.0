@@ -1,5 +1,150 @@
--- Attendance records table for the Volunteer Portal
-CREATE TABLE IF NOT EXISTS attendance (
+-- =============================================================
+-- Kalam Conclave 2.0 — Full Database Schema
+-- Run this entire file in the Supabase SQL Editor to create
+-- all required tables.  It is safe to re-run (uses IF NOT EXISTS).
+-- =============================================================
+
+-- ─────────────────────────────────────────────────────────────
+-- 1. speakers  (Guests section)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.speakers (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text        NOT NULL DEFAULT '',
+  title       text        NOT NULL DEFAULT '',
+  topic       text        NOT NULL DEFAULT '',
+  image       text                 DEFAULT '',
+  sort_order  integer     NOT NULL DEFAULT 0,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.speakers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read speakers"
+  ON public.speakers FOR SELECT USING (true);
+
+CREATE POLICY "Allow all speakers operations"
+  ON public.speakers FOR ALL USING (true) WITH CHECK (true);
+
+-- ─────────────────────────────────────────────────────────────
+-- 2. schedule  (Event agenda)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.schedule (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  time        text        NOT NULL DEFAULT '',
+  title       text        NOT NULL DEFAULT '',
+  description text                 DEFAULT '',
+  sort_order  integer     NOT NULL DEFAULT 0,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.schedule ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read schedule"
+  ON public.schedule FOR SELECT USING (true);
+
+CREATE POLICY "Allow all schedule operations"
+  ON public.schedule FOR ALL USING (true) WITH CHECK (true);
+
+-- ─────────────────────────────────────────────────────────────
+-- 3. organisers
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.organisers (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  name        text        NOT NULL DEFAULT '',
+  role        text        NOT NULL DEFAULT '',
+  image       text                 DEFAULT '',
+  bio         text                 DEFAULT '',
+  sort_order  integer     NOT NULL DEFAULT 0,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.organisers ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read organisers"
+  ON public.organisers FOR SELECT USING (true);
+
+CREATE POLICY "Allow all organisers operations"
+  ON public.organisers FOR ALL USING (true) WITH CHECK (true);
+
+-- ─────────────────────────────────────────────────────────────
+-- 4. app_settings  (key/value store for live event config)
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.app_settings (
+  key         text        PRIMARY KEY,
+  value       text        NOT NULL DEFAULT '',
+  updated_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.app_settings ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Public read app_settings"
+  ON public.app_settings FOR SELECT USING (true);
+
+CREATE POLICY "Allow all app_settings operations"
+  ON public.app_settings FOR ALL USING (true) WITH CHECK (true);
+
+-- Seed default settings (safe to re-run — upserts on conflict)
+INSERT INTO public.app_settings (key, value) VALUES
+  ('event_date',        '2026-04-21T10:00:00+05:30'),
+  ('event_date_label',  '21st April 2026'),
+  ('event_time_label',  '10:00 AM Onwards'),
+  ('event_venue',       'MultiPurpose Hall, A-Block, K.R. Mangalam University'),
+  ('event_short_title', 'Kalam Conclave 2.0'),
+  ('upi_qr_url',        ''),
+  ('upi_id',            ''),
+  ('ticket_price',      '149')
+ON CONFLICT (key) DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────
+-- 5. registrations
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.registrations (
+  id                      uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  reg_id                  text        NOT NULL UNIQUE,
+  full_name               text        NOT NULL DEFAULT '',
+  email                   text        NOT NULL DEFAULT '',
+  phone                   text        NOT NULL DEFAULT '',
+  college                 text        NOT NULL DEFAULT '',
+  course                  text        NOT NULL DEFAULT '',
+  year_of_study           text        NOT NULL DEFAULT '1st',
+  city                    text        NOT NULL DEFAULT '',
+  heard_from              text        NOT NULL DEFAULT 'Instagram',
+  utr_id                  text        NOT NULL DEFAULT '',
+  payment_screenshot_url  text,
+  payment_status          text        NOT NULL DEFAULT 'pending'
+    CHECK (payment_status IN ('pending', 'verified')),
+  attendance              boolean     NOT NULL DEFAULT false,
+  created_at              timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.registrations ENABLE ROW LEVEL SECURITY;
+
+-- Anyone can insert a new registration (public registration form)
+CREATE POLICY "Public insert registrations"
+  ON public.registrations FOR INSERT WITH CHECK (true);
+
+-- Only allow reading all registrations (admin dashboard uses anon key directly;
+-- for tighter security add a service-role check here)
+CREATE POLICY "Allow all registrations operations"
+  ON public.registrations FOR ALL USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_registrations_reg_id      ON public.registrations(reg_id);
+CREATE INDEX IF NOT EXISTS idx_registrations_email       ON public.registrations(email);
+CREATE INDEX IF NOT EXISTS idx_registrations_payment_status ON public.registrations(payment_status);
+
+-- ─────────────────────────────────────────────────────────────
+-- 6. payment-screenshots storage bucket
+--    Run this block once to create the public bucket.
+--    (Skip if you already created it in the Supabase dashboard.)
+-- ─────────────────────────────────────────────────────────────
+-- INSERT INTO storage.buckets (id, name, public)
+-- VALUES ('payment-screenshots', 'payment-screenshots', true)
+-- ON CONFLICT (id) DO NOTHING;
+
+-- ─────────────────────────────────────────────────────────────
+-- 7. Attendance records table for the Volunteer Portal
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.attendance (
   id                uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   pass_id           text NOT NULL,
   participant_name  text NOT NULL,
@@ -16,12 +161,12 @@ CREATE TABLE IF NOT EXISTS attendance (
 );
 
 -- Allow all operations for volunteer portal (no Supabase auth required)
-ALTER TABLE attendance ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.attendance ENABLE ROW LEVEL SECURITY;
 
 CREATE POLICY "Allow all attendance operations"
-  ON attendance FOR ALL
+  ON public.attendance FOR ALL
   USING (true)
   WITH CHECK (true);
 
 -- Fast lookup index for QR scans
-CREATE INDEX IF NOT EXISTS idx_attendance_pass_id ON attendance(pass_id);
+CREATE INDEX IF NOT EXISTS idx_attendance_pass_id ON public.attendance(pass_id);
