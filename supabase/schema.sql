@@ -92,7 +92,10 @@ INSERT INTO public.app_settings (key, value) VALUES
   ('event_short_title', 'Kalam Conclave 2.0'),
   ('upi_qr_url',        ''),
   ('upi_id',            ''),
-  ('ticket_price',      '149')
+  ('ticket_price',      '149'),
+  ('social_instagram_url', ''),
+  ('social_linkedin_url', ''),
+  ('social_youtube_url', '')
 ON CONFLICT (key) DO NOTHING;
 
 -- ─────────────────────────────────────────────────────────────
@@ -113,6 +116,8 @@ CREATE TABLE IF NOT EXISTS public.registrations (
   payment_screenshot_url  text,
   payment_status          text        NOT NULL DEFAULT 'pending'
     CHECK (payment_status IN ('pending', 'verified')),
+  verification_email_sent boolean     NOT NULL DEFAULT false,
+  verification_email_sent_at timestamptz,
   attendance              boolean     NOT NULL DEFAULT false,
   created_at              timestamptz NOT NULL DEFAULT now()
 );
@@ -131,6 +136,7 @@ CREATE POLICY "Allow all registrations operations"
 CREATE INDEX IF NOT EXISTS idx_registrations_reg_id      ON public.registrations(reg_id);
 CREATE INDEX IF NOT EXISTS idx_registrations_email       ON public.registrations(email);
 CREATE INDEX IF NOT EXISTS idx_registrations_payment_status ON public.registrations(payment_status);
+CREATE INDEX IF NOT EXISTS idx_registrations_verification_email_sent ON public.registrations(verification_email_sent);
 
 -- ─────────────────────────────────────────────────────────────
 -- 6. payment-screenshots storage bucket
@@ -202,3 +208,23 @@ CREATE POLICY "Allow all sub event operations"
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_sub_event   ON public.sub_event_registrations(sub_event_id);
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_email        ON public.sub_event_registrations(participant_email);
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_pass_id      ON public.sub_event_registrations(pass_id);
+
+-- ─────────────────────────────────────────────────────────────
+-- 9. page_views
+-- ─────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS public.page_views (
+  id          uuid        PRIMARY KEY DEFAULT gen_random_uuid(),
+  path        text        NOT NULL,
+  viewer_role text        NOT NULL DEFAULT 'viewer'
+    CHECK (viewer_role IN ('viewer', 'admin', 'volunteer')),
+  visitor_id  text        NOT NULL,
+  created_at  timestamptz NOT NULL DEFAULT now()
+);
+
+ALTER TABLE public.page_views ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow all page views operations"
+  ON public.page_views FOR ALL USING (true) WITH CHECK (true);
+
+CREATE INDEX IF NOT EXISTS idx_page_views_path       ON public.page_views(path);
+CREATE INDEX IF NOT EXISTS idx_page_views_created_at ON public.page_views(created_at);

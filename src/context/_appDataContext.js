@@ -11,6 +11,9 @@ export const defaultSettings = {
   upi_qr_url: '',
   upi_id: '',
   ticket_price: '149',
+  social_instagram_url: '',
+  social_linkedin_url: '',
+  social_youtube_url: '',
 }
 
 export const AppDataContext = createContext(null)

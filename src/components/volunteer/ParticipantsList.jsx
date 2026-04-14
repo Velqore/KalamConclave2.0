@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
 
@@ -49,7 +50,7 @@ function AvatarInitials({ name, passType }) {
   )
 }
 
-function ParticipantModal({ record, onClose, onUpdate }) {
+function ParticipantModal({ record, onClose, onUpdate, onDelete }) {
   const [saving, setSaving] = useState(false)
 
   const update = async (status) => {
@@ -129,6 +130,25 @@ function ParticipantModal({ record, onClose, onUpdate }) {
         <button onClick={onClose} style={{ marginTop: '16px', width: '100%', padding: '14px', background: '#374151', border: 'none', borderRadius: '10px', color: '#9ca3af', fontWeight: 600, cursor: 'pointer', minHeight: '52px' }}>
           Close
         </button>
+        <button
+          disabled={saving}
+          onClick={() => onDelete(record)}
+          style={{
+            marginTop: '10px',
+            width: '100%',
+            padding: '14px',
+            background: 'rgba(220, 38, 38, 0.2)',
+            border: '1px solid rgba(248, 113, 113, 0.4)',
+            borderRadius: '10px',
+            color: '#fca5a5',
+            fontWeight: 600,
+            cursor: 'pointer',
+            minHeight: '52px',
+          }}
+          type="button"
+        >
+          Delete Entry
+        </button>
       </Motion.div>
     </Motion.div>
   )
@@ -199,6 +219,22 @@ function ParticipantsList() {
   })
 
   const checkedIn = records.filter((r) => r.status === 'checked_in').length
+
+  const handleDelete = async (record) => {
+    if (!supabase) return
+    if (!record?.id) return
+    const confirmed = window.confirm(`Delete attendee entry for ${record.participant_name}?`)
+    if (!confirmed) return
+
+    const { error } = await supabase.from('attendance').delete().eq('id', record.id)
+    if (error) {
+      toast.error(error.message)
+      return
+    }
+    toast.success('Attendee entry deleted')
+    setRefreshKey((k) => k + 1)
+    setSelected(null)
+  }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%', background: '#0f172a' }}>
@@ -320,6 +356,7 @@ function ParticipantsList() {
           <ParticipantModal
             key="modal"
             onClose={() => setSelected(null)}
+            onDelete={handleDelete}
             onUpdate={() => { setRefreshKey((k) => k + 1); setSelected(null) }}
             record={selected}
           />

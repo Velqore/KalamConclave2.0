@@ -31,6 +31,11 @@ function Home() {
   const navigate = useNavigate()
   const { speakers, settings, organisers } = useAppData()
   const regDeadline = getRegistrationDeadline(settings.event_date)
+  const socialLinks = [
+    { key: 'instagram', label: 'Instagram', icon: '📸', url: settings.social_instagram_url },
+    { key: 'linkedin', label: 'LinkedIn', icon: '💼', url: settings.social_linkedin_url },
+    { key: 'youtube', label: 'YouTube', icon: '🎥', url: settings.social_youtube_url },
+  ].filter((item) => item.url)
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll('.reveal'))
@@ -265,6 +270,36 @@ function Home() {
             <p className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-sand/72">Situation Brief</p>
             <p className="mt-3 font-display text-3xl leading-none text-accent sm:text-4xl">Team Dossier Incoming</p>
             <p className="mt-3 text-sm italic text-sand/84">Organising team details will be published shortly.</p>
+          </div>
+        )}
+      </section>
+
+      <section id="social-media" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Follow Us</h2>
+          <div className="mt-2 h-px w-20 bg-primary/70" />
+        </div>
+        {socialLinks.length > 0 ? (
+          <div className="grid gap-4 sm:grid-cols-3">
+            {socialLinks.map((social) => (
+              <a
+                key={social.key}
+                className="topic-card flex items-center justify-between gap-3 p-4 transition hover:border-primary/60"
+                href={social.url}
+                rel="noreferrer"
+                target="_blank"
+              >
+                <div>
+                  <p className="font-mono text-[0.63rem] uppercase tracking-[0.16em] text-sand/72">Follow Us</p>
+                  <p className="mt-2 font-display text-2xl leading-none text-accent">{social.label}</p>
+                </div>
+                <span className="text-3xl">{social.icon}</span>
+              </a>
+            ))}
+          </div>
+        ) : (
+          <div className="topic-card p-6 text-sm text-sand/80">
+            Social media links will be published soon.
           </div>
         )}
       </section>

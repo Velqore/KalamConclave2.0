@@ -13,6 +13,9 @@ const SETTING_LABELS = {
   upi_qr_url: 'UPI QR Code Image URL',
   upi_id: 'UPI ID',
   ticket_price: 'Ticket Price (₹)',
+  social_instagram_url: 'Club Instagram URL',
+  social_linkedin_url: 'Club LinkedIn URL',
+  social_youtube_url: 'Club YouTube URL',
 }
 
 const SETTING_HELPERS = {
@@ -24,6 +27,9 @@ const SETTING_HELPERS = {
   upi_qr_url: 'Public URL of the QR code image shown on the registration form',
   upi_id: 'UPI ID shown below QR code on registration form',
   ticket_price: 'Registration fee in INR (number only, no ₹ symbol)',
+  social_instagram_url: 'Public Instagram profile link to show in Social Media section',
+  social_linkedin_url: 'Public LinkedIn page link to show in Social Media section',
+  social_youtube_url: 'Public YouTube channel link to show in Social Media section',
 }
 
 function AdminSettings() {

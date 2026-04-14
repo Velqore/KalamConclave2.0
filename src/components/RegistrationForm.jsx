@@ -4,7 +4,6 @@ import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
 import { useNavigate } from 'react-router-dom'
 import { ensureSupabase } from '../lib/supabaseClient'
-import { sendRegistrationEmail } from '../lib/emailService'
 import { useAppData } from '../context/useAppData'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { generateQRCode } from '../lib/generateQRCode'
@@ -96,6 +95,7 @@ function RegistrationForm() {
             reg_id: regId,
             payment_screenshot_url: paymentUrl,
             payment_status: 'pending',
+            verification_email_sent: false,
           })
           .select()
           .single()
@@ -108,10 +108,6 @@ function RegistrationForm() {
     }
 
     throw new Error('Could not generate unique registration ID, please retry.')
-  }
-
-  const sendConfirmationEmail = async ({ full_name, email, reg_id }) => {
-    await sendRegistrationEmail(full_name, email, reg_id)
   }
 
   const handleSubmit = async (event) => {
@@ -127,10 +123,6 @@ function RegistrationForm() {
 
       // Generate QR code for the pass
       generateQRCode(data.reg_id, data.full_name).then(setQrCodeDataUrl).catch(() => {})
-
-      sendConfirmationEmail(data).catch(() => {
-        toast.error('Registration saved, but confirmation email failed. Please contact us if needed.')
-      })
     } catch (error) {
       toast.error(error.message)
     } finally {
@@ -336,11 +328,12 @@ function RegistrationForm() {
       </label>
 
       <label className="col-span-full text-sm">
-        Upload Payment Screenshot (Optional)
+        Upload Payment Screenshot *
         <input
           accept="image/*"
           className="mt-2 block w-full text-sm"
           onChange={(event) => setScreenshot(event.target.files?.[0] ?? null)}
+          required
           type="file"
         />
       </label>
