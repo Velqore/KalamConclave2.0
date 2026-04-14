@@ -38,7 +38,7 @@ function CountdownTimer() {
     <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
       {items.map((item) => (
         <div key={item.label} className="topic-card p-4 text-center">
-          <p className="font-display text-4xl leading-none text-accent">{String(item.value).padStart(2, '0')}</p>
+          <p className="font-display text-3xl leading-none text-accent sm:text-4xl">{String(item.value).padStart(2, '0')}</p>
           <p className="mt-1 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-sand/76">
             {item.label}
           </p>

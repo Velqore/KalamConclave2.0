@@ -17,14 +17,17 @@ function Navbar() {
 
   return (
     <header className="sticky top-0 z-50 border-b border-accent/15 bg-gradient-to-b from-[rgba(14,12,8,0.97)] to-transparent backdrop-blur">
-      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between px-4 py-4">
-        <NavLink to="/" className="flex items-center gap-2.5 font-display text-3xl leading-none tracking-[0.04em] text-accent">
-          <img alt="Kalam Conclave logo" className="h-10 w-auto rounded-sm object-contain" src={EVENT_LOGO_URL} />
-          <span>{EVENT_SHORT_TITLE}</span>
+      <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-4">
+        <NavLink
+          to="/"
+          className="flex min-w-0 items-center gap-2.5 font-display text-xl leading-none tracking-[0.03em] text-accent sm:text-2xl md:text-3xl"
+        >
+          <img alt="Kalam Conclave logo" className="h-8 w-auto rounded-sm object-contain sm:h-10" src={EVENT_LOGO_URL} />
+          <span className="truncate">{EVENT_SHORT_TITLE}</span>
         </NavLink>
 
         <button
-          className="rounded border border-sand/35 px-3 py-1 text-sm text-sand transition hover:border-accent hover:text-accent md:hidden"
+          className="shrink-0 rounded border border-sand/35 px-3 py-1 text-xs text-sand transition hover:border-accent hover:text-accent sm:text-sm md:hidden"
           onClick={() => setOpen((prev) => !prev)}
           type="button"
         >

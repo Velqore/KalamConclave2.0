@@ -5,7 +5,7 @@ function Speakers() {
   const { speakers } = useAppData()
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-14">
-      <h1 className="font-display text-6xl leading-none text-accent">Guests</h1>
+      <h1 className="font-display text-4xl leading-none text-accent sm:text-6xl">Guests</h1>
       <p className="mt-3 max-w-2xl text-sand/88">
         Meet the distinguished guests shaping the dialogue on science, conflict systems, and humanitarian
         innovation.

@@ -12,7 +12,7 @@ function SpeakerCard({ speaker }) {
 
       <img alt={speaker.name} className="mt-4 h-20 w-20 rounded-full border border-sand/30 object-cover" src={speaker.image} />
 
-      <h3 className="mt-4 font-display text-3xl leading-none text-accent">{speaker.name}</h3>
+      <h3 className="mt-4 font-display text-2xl leading-none text-accent sm:text-3xl">{speaker.name}</h3>
       <p className="mt-1 text-xs font-mono uppercase tracking-[0.16em] text-primary/90">{speaker.title}</p>
       <p className="mt-3 text-sm italic text-sand/90">{speaker.topic}</p>
     </Motion.article>
