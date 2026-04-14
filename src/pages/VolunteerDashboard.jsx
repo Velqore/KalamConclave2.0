@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
+import { useAppData } from '../context/useAppData'
 import QRScanner from '../components/volunteer/QRScanner'
 import ParticipantsList from '../components/volunteer/ParticipantsList'
 import EventStats from '../components/volunteer/EventStats'
@@ -28,6 +29,7 @@ function LiveClock() {
 
 function VolunteerDashboard() {
   const navigate = useNavigate()
+  const { settings } = useAppData()
   const [activeTab, setActiveTab] = useState('scanner')
   const [direction, setDirection] = useState(0)
 
@@ -86,7 +88,7 @@ function VolunteerDashboard() {
         }}
       >
         <div>
-          <div style={{ color: '#fff', fontWeight: 800, fontSize: '14px', lineHeight: 1.1 }}>Kalam Conclave 2.0</div>
+          <div style={{ color: '#fff', fontWeight: 800, fontSize: '14px', lineHeight: 1.1 }}>{settings.event_short_title || 'Kalam Conclave 2.0'}</div>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '2px' }}>
             <span style={{ color: 'rgba(255,255,255,0.75)', fontSize: '11px' }}>{volunteerName}</span>
             <span style={{ color: 'rgba(255,255,255,0.4)', fontSize: '10px' }}>•</span>

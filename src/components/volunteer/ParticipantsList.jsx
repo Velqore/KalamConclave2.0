@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { AnimatePresence } from 'framer-motion'
+import { AnimatePresence, motion as Motion } from 'framer-motion'
 import { supabase } from '../../lib/supabaseClient'
 
 const STATUS_LABEL = { not_arrived: 'Not Arrived', checked_in: 'Checked In', checked_out: 'Checked Out' }
@@ -62,14 +62,14 @@ function ParticipantModal({ record, onClose, onUpdate }) {
 
   if (!record) return null
   return (
-    <motion.div
+    <Motion.div
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
       initial={{ opacity: 0 }}
       onClick={onClose}
       style={{ position: 'fixed', inset: 0, zIndex: 50, background: 'rgba(0,0,0,0.6)', display: 'flex', alignItems: 'flex-end' }}
     >
-      <motion.div
+      <Motion.div
         animate={{ y: 0 }}
         exit={{ y: '100%' }}
         initial={{ y: '100%' }}
@@ -125,8 +125,8 @@ function ParticipantModal({ record, onClose, onUpdate }) {
         <button onClick={onClose} style={{ marginTop: '16px', width: '100%', padding: '14px', background: '#374151', border: 'none', borderRadius: '10px', color: '#9ca3af', fontWeight: 600, cursor: 'pointer', minHeight: '52px' }}>
           Close
         </button>
-      </motion.div>
-    </motion.div>
+      </Motion.div>
+    </Motion.div>
   )
 }
 

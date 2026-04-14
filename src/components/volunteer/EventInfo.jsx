@@ -1,4 +1,5 @@
 import { useNavigate } from 'react-router-dom'
+import { useAppData } from '../../context/useAppData'
 
 const GUIDE_CARDS = [
   { bg: '#dcfce7', border: '#16a34a', color: '#14532d', emoji: '✅', title: 'Green Card — Valid Pass', desc: 'Allow entry. Confirm check-in.' },
@@ -9,6 +10,7 @@ const GUIDE_CARDS = [
 
 function EventInfo() {
   const navigate = useNavigate()
+  const { settings } = useAppData()
   const volunteerName = sessionStorage.getItem('volunteerName') || 'Volunteer'
   const sessionStart = sessionStorage.getItem('volunteerSessionStart')
   const scanCount = sessionStorage.getItem('volunteerScanCount') || '0'
@@ -32,10 +34,10 @@ function EventInfo() {
 
         {/* Event Details */}
         <Section title="📅 Event Details">
-          <Row label="Event" value="1st Kalam Conclave 2.0" />
-          <Row label="Date" value="21st April 2026" />
-          <Row label="Time" value="10:00 AM Onwards" />
-          <Row label="Venue" value="MultiPurpose Hall, A-Block, K.R. Mangalam University" />
+          <Row label="Event" value={settings.event_short_title || 'Kalam Conclave 2.0'} />
+          <Row label="Date" value={settings.event_date_label || '21st April 2026'} />
+          <Row label="Time" value={settings.event_time_label || '10:00 AM Onwards'} />
+          <Row label="Venue" value={settings.event_venue || 'K.R. Mangalam University'} />
           <Row label="Organizer" value="K.R. Mangalam University" />
           <Row label="Support Email" value="Mr_GhostKing@proton.me" />
         </Section>
