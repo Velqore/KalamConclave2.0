@@ -2,6 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
+import { isUuid } from '../../utils/isUuid'
 
 const emptyForm = { name: '', title: '', topic: '', image: '', sort_order: 0 }
 
@@ -47,6 +48,10 @@ function AdminSpeakers() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
+        if (!isUuid(editId)) {
+          toast.error('Cannot update local placeholder. Please add a new guest instead.')
+          return
+        }
         const { error } = await supabase.from('speakers').update(form).eq('id', editId)
         if (error) throw error
         setSpeakers((prev) => prev.map((s) => (s.id === editId ? { ...s, ...form } : s)))
@@ -67,6 +72,10 @@ function AdminSpeakers() {
 
   const handleDelete = async (speaker) => {
     if (!window.confirm(`Delete guest "${speaker.name}"?`)) return
+    if (!isUuid(speaker.id)) {
+      toast.error('Cannot delete local placeholder. Please add and manage database guests.')
+      return
+    }
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('speakers').delete().eq('id', speaker.id)

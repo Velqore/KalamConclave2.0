@@ -2,6 +2,7 @@ import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
+import { isUuid } from '../../utils/isUuid'
 
 const emptyForm = { time: '', title: '', description: '', sort_order: 0 }
 
@@ -46,6 +47,10 @@ function AdminSchedule() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
+        if (!isUuid(editId)) {
+          toast.error('Cannot update local placeholder. Please add a new agenda item instead.')
+          return
+        }
         const { error } = await supabase.from('schedule').update(form).eq('id', editId)
         if (error) throw error
         setSchedule((prev) => prev.map((item) => (item.id === editId ? { ...item, ...form } : item)))
@@ -66,6 +71,10 @@ function AdminSchedule() {
 
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete agenda item "${item.title}"?`)) return
+    if (!isUuid(item.id)) {
+      toast.error('Cannot delete local placeholder. Please add and manage database agenda items.')
+      return
+    }
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('schedule').delete().eq('id', item.id)
