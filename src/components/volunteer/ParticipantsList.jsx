@@ -154,6 +154,7 @@ function ParticipantsList() {
 
     doFetch()
     intervalRef.current = setInterval(doFetch, REFRESH_INTERVAL)
+    window.addEventListener('attendance-updated', doFetch)
 
     // Supabase realtime
     if (supabase) {
@@ -162,10 +163,14 @@ function ParticipantsList() {
         .subscribe()
       return () => {
         clearInterval(intervalRef.current)
+        window.removeEventListener('attendance-updated', doFetch)
         supabase.removeChannel(ch)
       }
     }
-    return () => clearInterval(intervalRef.current)
+    return () => {
+      clearInterval(intervalRef.current)
+      window.removeEventListener('attendance-updated', doFetch)
+    }
   }, [refreshKey])
 
   const filtered = records.filter((r) => {

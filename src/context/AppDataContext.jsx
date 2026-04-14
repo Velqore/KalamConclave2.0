@@ -1,6 +1,7 @@
 import { createElement, useEffect, useState } from 'react'
 import staticSpeakers from '../config/speakers'
 import staticSchedule from '../config/schedule'
+import { EVENT_SHORT_TITLE } from '../config/branding'
 import { supabase } from '../lib/supabaseClient'
 import { AppDataContext, defaultSettings } from './_appDataContext'
 
@@ -33,6 +34,9 @@ export function AppDataProvider({ children }) {
         const obj = Object.fromEntries(
           settingsRes.value.data.map(({ key, value }) => [key, value]),
         )
+        if (obj.event_short_title === '1st Kalam Conclave 2.0') {
+          obj.event_short_title = EVENT_SHORT_TITLE
+        }
         setSettings((prev) => ({ ...prev, ...obj }))
       }
       if (organisersRes.status === 'fulfilled' && organisersRes.value.data) {
@@ -56,4 +60,3 @@ export function AppDataProvider({ children }) {
 
   return createElement(AppDataContext.Provider, { value }, children)
 }
-

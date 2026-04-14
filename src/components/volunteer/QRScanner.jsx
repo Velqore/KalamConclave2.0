@@ -311,7 +311,7 @@ function QRScanner({ volunteerName }) {
         // First scan — create attendance record
         const reg = regData[0]
         const dept = [reg.course, reg.college].filter(Boolean).join(' • ')
-        const { data: newRecord } = await supabase
+        const { data: newRecord, error: createError } = await supabase
           .from('attendance')
           .insert({
             pass_id: passId,
@@ -325,9 +325,11 @@ function QRScanner({ volunteerName }) {
           })
           .select()
           .single()
+        if (createError) throw createError
 
         beepSuccess()
         if (navigator.vibrate) navigator.vibrate(200)
+        window.dispatchEvent(new Event('attendance-updated'))
         setScanResult({ state: 'checkin', record: newRecord })
         setProcessing(false)
         return
@@ -413,32 +415,45 @@ function QRScanner({ volunteerName }) {
     const now = new Date().toISOString()
     try {
       if (action === 'checkin') {
-        await supabase.from('attendance').update({
+        const { error } = await supabase.from('attendance').update({
           status: 'checked_in',
           checked_in_at: now,
           scan_count: (record.scan_count || 0) + 1,
           scanned_by: volunteerName,
         }).eq('id', record.id)
+        if (error) throw error
       } else if (action === 'checkout') {
-        await supabase.from('attendance').update({
+        const { error } = await supabase.from('attendance').update({
           status: 'checked_out',
           checked_out_at: now,
           scan_count: (record.scan_count || 0) + 1,
           scanned_by: volunteerName,
         }).eq('id', record.id)
+        if (error) throw error
       } else if (action === 'reentry') {
-        await supabase.from('attendance').update({
+        const { error } = await supabase.from('attendance').update({
           status: 'checked_in',
           checked_in_at: now,
           checked_out_at: null,
           scan_count: (record.scan_count || 0) + 1,
           scanned_by: volunteerName,
         }).eq('id', record.id)
+        if (error) throw error
       }
+      const { error: regError } = await supabase
+        .from('registrations')
+        .update({ attendance: true })
+        .eq('reg_id', record.participant_id || record.pass_id)
+      if (regError) throw regError
       // Update session scan count
       const sc = parseInt(sessionStorage.getItem('volunteerScanCount') || '0', 10)
       sessionStorage.setItem('volunteerScanCount', String(sc + 1))
-    } catch { /* db error — still dismiss */ }
+      window.dispatchEvent(new Event('attendance-updated'))
+    } catch {
+      beepError()
+      if (navigator.vibrate) navigator.vibrate([100, 50, 100])
+      return
+    }
     dismissTimerRef.current = setTimeout(dismissResult, DISMISS_DELAY_MS)
   }
 
