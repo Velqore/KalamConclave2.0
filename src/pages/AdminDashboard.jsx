@@ -207,8 +207,8 @@ function AdminDashboard() {
         })
         if (error) throw error
         toast.success('Verification email sent')
-      } catch {
-        toast.error('Payment verified, but confirmation email could not be sent.')
+      } catch (error) {
+        toast.error(error?.message || 'Payment verified, but confirmation email could not be sent.')
       }
     }
   }

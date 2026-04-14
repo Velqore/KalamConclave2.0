@@ -218,6 +218,8 @@ serve(async (req) => {
       ? `✅ Payment Verified — Kalam Conclave 2.0 [${reg_id}]`
       : `✅ Registration Confirmed — Kalam Conclave 2.0 [${reg_id}]`
 
+    const fromAddress = Deno.env.get('RESEND_FROM_EMAIL') || 'Kalam Conclave 2.0 <onboarding@resend.dev>'
+
     const resendResponse = await fetch('https://api.resend.com/emails', {
       method: 'POST',
       headers: {
@@ -225,7 +227,7 @@ serve(async (req) => {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Kalam Conclave 2.0 <noreply@kalamconclave.org>',
+        from: fromAddress,
         to: [email],
         subject,
         html,

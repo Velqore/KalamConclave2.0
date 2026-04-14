@@ -67,16 +67,21 @@ supabase secrets list
 
 ---
 
-## 3. Update the Sender Address (Production)
+## 3. Configure the Sender Address
 
-By default the function sends from `noreply@kalamconclave.org`. Before going live:
+The function reads `RESEND_FROM_EMAIL` from Supabase secrets.  
+If not set, it falls back to `Kalam Conclave 2.0 <onboarding@resend.dev>` (good for quick testing on your Resend account).
 
-1. In Resend → **Domains** → **Add Domain** → verify DNS records for `kalamconclave.org`.
-2. If you don't have a custom domain, change the `from` field in `supabase/functions/send-confirmation/index.ts` to:
-   ```
-   from: 'Kalam Conclave 2.0 <onboarding@resend.dev>',
-   ```
-   Note: `@resend.dev` sender can only send to the address that owns the Resend account (use for testing only).
+For production (recommended):
+
+1. In Resend → **Domains** → **Add Domain** → verify DNS records for your domain (e.g. `kalamconclave.org`).
+2. Set sender secret:
+
+```bash
+supabase secrets set RESEND_FROM_EMAIL="Kalam Conclave 2.0 <noreply@kalamconclave.org>"
+```
+
+Note: `@resend.dev` sender can only send to the email address that owns the Resend account (testing use only).
 
 ---
 

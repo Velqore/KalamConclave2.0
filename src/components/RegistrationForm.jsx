@@ -98,18 +98,12 @@ function RegistrationForm() {
   }
 
   const sendConfirmationEmail = async ({ full_name, email, reg_id }) => {
-    const supabaseUrl = import.meta.env.VITE_SUPABASE_URL
-    if (!supabaseUrl) return
-
-    const url = `${supabaseUrl}/functions/v1/send-confirmation`
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: full_name, email, reg_id }),
+    const supabase = ensureSupabase()
+    const { error } = await supabase.functions.invoke('send-confirmation', {
+      body: { name: full_name, email, reg_id },
     })
-
-    if (!response.ok) {
-      throw new Error('Confirmation email could not be sent.')
+    if (error) {
+      throw new Error(error.message || 'Confirmation email could not be sent.')
     }
   }
 
