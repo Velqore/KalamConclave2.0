@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Html5Qrcode } from 'html5-qrcode'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
+import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
 
 const DUPLICATE_WINDOW_MS = 30_000
@@ -451,6 +452,7 @@ function QRScanner({ volunteerName }) {
       window.dispatchEvent(new Event('attendance-updated'))
     } catch (error) {
       console.error('Attendance confirmation failed:', error)
+      toast.error('Could not update attendance. Please retry.')
       beepError()
       if (navigator.vibrate) navigator.vibrate([100, 50, 100])
       return
