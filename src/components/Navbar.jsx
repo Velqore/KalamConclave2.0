@@ -44,7 +44,7 @@ function Navbar() {
         <NavLink
           to="/"
           onClick={() => setOpen(false)}
-          className="min-w-0 flex-1 shrink-0 overflow-hidden"
+          className="min-w-0 flex-1 overflow-hidden"
         >
           <div className="flex items-center gap-2 sm:flex-col sm:items-center sm:gap-0.5">
             <img

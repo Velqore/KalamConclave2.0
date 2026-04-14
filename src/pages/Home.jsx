@@ -74,7 +74,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-subtitle text-base text-sand/92 sm:text-lg"
+            className="font-subtitle text-base text-sand/90 sm:text-lg"
           >
             <span className="italic">Theme : Science In the</span>
             <span className="block italic text-accent">Shadow of War</span>
@@ -95,7 +95,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 max-w-3xl font-subtitle text-base text-sand/92 sm:text-xl"
+            className="mt-4 max-w-3xl font-subtitle text-base text-sand/90 sm:text-xl"
           >
             When conflict reshapes civilisation, science becomes both weapon and lifeline. Explore
             how the ongoing Gulf War is redefining research, medicine, and innovation.
