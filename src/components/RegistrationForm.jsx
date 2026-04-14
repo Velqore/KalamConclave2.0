@@ -2,11 +2,13 @@ import { useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
+import { useNavigate } from 'react-router-dom'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { sendRegistrationEmail } from '../lib/emailService'
 import { useAppData } from '../context/useAppData'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { generateQRCode } from '../lib/generateQRCode'
+import { SUB_EVENTS } from '../config/subEvents'
 import EventPassCard from './EventPassCard'
 
 const initialForm = {
@@ -33,9 +35,11 @@ const generateRegId = () => {
 }
 
 function RegistrationForm() {
+  const navigate = useNavigate()
   const { settings } = useAppData()
   const ticketPrice = settings.ticket_price || '149'
   const [formData, setFormData] = useState(initialForm)
+  const [selectedEvents, setSelectedEvents] = useState([])
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
@@ -46,6 +50,12 @@ function RegistrationForm() {
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
+  }
+
+  const handleEventToggle = (eventId) => {
+    setSelectedEvents((prev) =>
+      prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId],
+    )
   }
 
   const uploadScreenshot = async (regId) => {
@@ -187,6 +197,34 @@ function RegistrationForm() {
           </button>
         </div>
 
+        {selectedEvents.length > 0 && (
+          <div className="mt-4 rounded-xl border border-accent/30 bg-surface/40 p-4">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-accent">
+              Complete Event Registrations
+            </p>
+            <p className="mt-2 text-xs text-slate-300">
+              You selected {selectedEvents.length} event{selectedEvents.length > 1 ? 's' : ''}. Use the buttons below to finish separate event registration forms.
+            </p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {selectedEvents.map((eventId) => {
+                const event = SUB_EVENTS.find((item) => item.id === eventId)
+                if (!event) return null
+                return (
+                  <button
+                    key={event.id}
+                    className="rounded px-3 py-1.5 text-xs font-semibold text-white"
+                    onClick={() => navigate(`/register/${event.id}`)}
+                    style={{ background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})` }}
+                    type="button"
+                  >
+                    {event.icon} {event.name}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
         <div className="mt-4 space-y-1 text-xs text-slate-400">
           <p>Registration ID: <span className="font-mono text-electricBlue">{confirmation.reg_id}</span></p>
           <p>Email: {confirmation.email}</p>
@@ -244,6 +282,28 @@ function RegistrationForm() {
           ))}
         </select>
       </label>
+
+      <div className="col-span-full rounded-xl border border-accent/30 bg-surface/40 p-4">
+        <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-accent">
+          Event Selection (Optional)
+        </p>
+        <p className="mt-2 text-xs text-slate-300">
+          Select event(s) now. After main registration, you can complete each event&apos;s separate form.
+        </p>
+        <div className="mt-3 grid gap-2 sm:grid-cols-2">
+          {SUB_EVENTS.map((event) => (
+            <label key={event.id} className="flex items-center gap-2 rounded border border-sand/15 px-3 py-2 text-sm">
+              <input
+                checked={selectedEvents.includes(event.id)}
+                onChange={() => handleEventToggle(event.id)}
+                type="checkbox"
+              />
+              <span className="text-base">{event.icon}</span>
+              <span>{event.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
         <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
