@@ -17,7 +17,6 @@
   html,
   body {
     @apply m-0 min-h-full antialiased;
-    scroll-behavior: smooth;
     overflow-x: hidden;
   }
 
@@ -205,5 +204,21 @@
   select,
   textarea {
     font-size: 16px !important;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  html {
+    scroll-behavior: smooth;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .guide-persuade-flow {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+    opacity: 1 !important;
   }
 }
