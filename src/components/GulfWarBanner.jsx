@@ -11,7 +11,7 @@ function GulfWarBanner() {
       >
         <span
           className="absolute top-0 bottom-0 left-0 w-[3px]"
-          style={{ background: 'linear-gradient(180deg, #A01010, #D4611A)' }}
+          style={{ background: 'linear-gradient(180deg, #1A6DC5, #22D3EE)' }}
         />
 
         <div className="flex items-center gap-2 font-mono text-[0.7rem] uppercase tracking-[0.2em] text-sand">

@@ -21,9 +21,16 @@ function Navbar() {
         <NavLink
           to="/"
           onClick={() => setOpen(false)}
-          className="shrink-0 font-display text-lg leading-none tracking-[0.02em] text-accent sm:text-xl md:text-2xl"
+          className="shrink-0 flex flex-col items-center gap-0.5"
         >
-          <span>{EVENT_SHORT_TITLE}</span>
+          <img
+            src="/event_logo.svg"
+            alt="Kalam Conclave 2.0 logos"
+            className="max-h-7 w-auto max-w-[200px] object-contain"
+          />
+          <span className="font-display text-base leading-none tracking-[0.02em] text-accent sm:text-lg">
+            {EVENT_SHORT_TITLE}
+          </span>
         </NavLink>
 
         {/* Hamburger / close button — mobile only */}

@@ -61,7 +61,7 @@ function Home() {
           className="overflow-hidden rounded-2xl border border-primary/40 p-5 sm:p-10 lg:p-14"
           style={{
             background:
-              'radial-gradient(circle at 70% 40%, rgba(160,16,16,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(80,74,34,0.32), transparent 48%), rgba(42,37,24,0.56)',
+              'radial-gradient(circle at 70% 40%, rgba(16,80,180,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(0,100,160,0.28), transparent 48%), rgba(10,18,35,0.70)',
           }}
         >
           <Motion.div
@@ -69,7 +69,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-mono text-sm uppercase tracking-[0.16em] text-primary sm:text-base sm:tracking-[0.2em]"
+            className="font-mono text-sm uppercase tracking-[0.16em] text-accent sm:text-base sm:tracking-[0.2em]"
           >
             <span>{EVENT_SHORT_TITLE} — Theme 2026</span>
           </Motion.div>
@@ -79,7 +79,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 font-display text-[clamp(2rem,9vw,6.4rem)] leading-[0.86]"
+            className="mt-4 font-display text-[clamp(1.5rem,4.5vw,3.2rem)] leading-[0.9]"
           >
             <span className="text-sand">Science In the</span>
             <span className="block text-accent">Shadow of War</span>
