@@ -47,13 +47,14 @@ function App() {
         }
       />
       <Route
-        path="/speakers"
+        path="/guests"
         element={
           <AppLayout>
             <Speakers />
           </AppLayout>
         }
       />
+      <Route path="/speakers" element={<Navigate to="/guests" replace />} />
       <Route
         path="/schedule"
         element={

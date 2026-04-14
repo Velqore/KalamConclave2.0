@@ -202,9 +202,11 @@ function AdminDashboard() {
     if (nextStatus === 'verified') {
       try {
         const supabase = ensureSupabase()
-        await supabase.functions.invoke('send-confirmation', {
+        const { error } = await supabase.functions.invoke('send-confirmation', {
           body: { name: attendee.full_name, email: attendee.email, reg_id: attendee.reg_id, type: 'verified' },
         })
+        if (error) throw error
+        toast.success('Verification email sent')
       } catch {
         toast.error('Payment verified, but confirmation email could not be sent.')
       }
@@ -409,4 +411,3 @@ function AdminDashboard() {
 }
 
 export default AdminDashboard
-
