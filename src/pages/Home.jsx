@@ -74,7 +74,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-mono text-sm uppercase tracking-[0.16em] text-accent sm:text-base sm:tracking-[0.2em]"
+            className="font-mono text-base font-bold uppercase tracking-[0.16em] text-accent sm:text-xl sm:tracking-[0.2em]"
           >
             <span>{EVENT_SHORT_TITLE} — Theme 2026</span>
           </Motion.div>
@@ -84,10 +84,10 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 font-display text-[clamp(1.5rem,4.5vw,3.2rem)] leading-[0.9]"
+            className="mt-4 font-display text-[clamp(2rem,6vw,4rem)] leading-[0.9]"
           >
-            <span className="text-sand">Science In the</span>
-            <span className="block text-accent">Shadow of War</span>
+            <span className="italic text-sand" style={{ fontFamily: "'Dancing Script', 'Pacifico', cursive" }}>Science In the</span>
+            <span className="block italic text-accent" style={{ fontFamily: "'Dancing Script', 'Pacifico', cursive" }}>Shadow of War</span>
           </Motion.h1>
 
           <Motion.p

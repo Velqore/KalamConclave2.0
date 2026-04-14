@@ -1,7 +1,8 @@
 import { ensureSupabase, supabase } from './supabaseClient'
 
 const VISITOR_STORAGE_KEY = 'appVisitorId'
-const TRACKED_FLAG = 'true'
+const LAST_TRACK_STORAGE_KEY = 'lastTrackedPageView'
+const TRACK_DEDUPE_WINDOW_MS = 1_500
 
 const toRole = (pathname = '/') => {
   if (pathname.startsWith('/admin')) return 'admin'
@@ -10,10 +11,32 @@ const toRole = (pathname = '/') => {
 }
 
 const getVisitorId = () => {
-  const existing = localStorage.getItem(VISITOR_STORAGE_KEY)
-  if (existing) return existing
+  try {
+    const existing = localStorage.getItem(VISITOR_STORAGE_KEY)
+    if (existing) return existing
+  } catch {
+    // continue with session fallback
+  }
+
+  try {
+    const existing = sessionStorage.getItem(VISITOR_STORAGE_KEY)
+    if (existing) return existing
+  } catch {
+    // continue with generated fallback
+  }
+
   const next = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
-  localStorage.setItem(VISITOR_STORAGE_KEY, next)
+
+  try {
+    localStorage.setItem(VISITOR_STORAGE_KEY, next)
+  } catch {
+    try {
+      sessionStorage.setItem(VISITOR_STORAGE_KEY, next)
+    } catch {
+      // ignore storage write failures
+    }
+  }
+
   return next
 }
 
@@ -21,9 +44,21 @@ export async function trackPageView(pathname = '/') {
   if (!supabase) return
 
   const role = toRole(pathname)
-  const onceKey = `page-view:${role}:${pathname}`
-  if (sessionStorage.getItem(onceKey) === TRACKED_FLAG) return
-  sessionStorage.setItem(onceKey, TRACKED_FLAG)
+  const signature = `${role}:${pathname}`
+  const now = Date.now()
+
+  try {
+    const serialized = sessionStorage.getItem(LAST_TRACK_STORAGE_KEY)
+    if (serialized) {
+      const previous = JSON.parse(serialized)
+      if (previous?.signature === signature && now - (previous.timestamp ?? 0) < TRACK_DEDUPE_WINDOW_MS) {
+        return
+      }
+    }
+    sessionStorage.setItem(LAST_TRACK_STORAGE_KEY, JSON.stringify({ signature, timestamp: now }))
+  } catch {
+    // ignore storage errors and continue tracking
+  }
 
   try {
     const client = ensureSupabase()
@@ -32,8 +67,8 @@ export async function trackPageView(pathname = '/') {
       viewer_role: role,
       visitor_id: getVisitorId(),
     })
-  } catch {
-    // intentionally swallow errors to avoid blocking navigation
+  } catch (error) {
+    console.error('Failed to track page view:', error)
   }
 }
 

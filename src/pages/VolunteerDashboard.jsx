@@ -36,6 +36,7 @@ function VolunteerDashboard() {
   const [activeTab, setActiveTab] = useState('scanner')
   const [direction, setDirection] = useState(0)
   const [pageViews, setPageViews] = useState({ total: 0, unique: 0, byPath: [] })
+  const [pageViewsError, setPageViewsError] = useState('')
 
   const volunteerName = sessionStorage.getItem('volunteerName') || 'Volunteer'
 
@@ -51,8 +52,10 @@ function VolunteerDashboard() {
       try {
         const summary = await fetchPageViewSummary()
         setPageViews(summary)
-      } catch {
-        // no-op
+        setPageViewsError('')
+      } catch (error) {
+        setPageViewsError('Unable to load page view analytics.')
+        console.error('Failed to load page view analytics:', error)
       }
     }
     loadPageViews()
@@ -80,6 +83,7 @@ function VolunteerDashboard() {
             Total views: <span style={{ color: '#f8fafc' }}>{pageViews.total}</span> • Unique visitors:{' '}
             <span style={{ color: '#f8fafc' }}>{pageViews.unique}</span>
           </p>
+          {pageViewsError && <p style={{ marginTop: '8px', color: '#fda4af', fontSize: '12px' }}>{pageViewsError}</p>}
           <div style={{ marginTop: '10px', display: 'grid', gap: '8px' }}>
             {pageViews.byPath.slice(0, MAX_PATH_ENTRIES).map((entry) => (
               <div key={entry.path} style={{ border: '1px solid #334155', borderRadius: '10px', background: '#0f172a', padding: '10px' }}>

@@ -64,6 +64,7 @@ function AdminDashboard() {
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState(createRegistrationTemplate)
   const [pageViews, setPageViews] = useState({ total: 0, unique: 0, byPath: [] })
+  const [pageViewsError, setPageViewsError] = useState('')
 
   const fetchRegistrations = async () => {
     try {
@@ -91,8 +92,10 @@ function AdminDashboard() {
       try {
         const summary = await fetchPageViewSummary()
         setPageViews(summary)
-      } catch {
-        // fail silently in dashboard UI
+        setPageViewsError('')
+      } catch (error) {
+        setPageViewsError('Unable to load page view analytics.')
+        console.error('Failed to load page view analytics:', error)
       }
     }
     loadPageViews()
@@ -335,6 +338,7 @@ function AdminDashboard() {
               Total views: <span className="text-slate-200">{pageViews.total}</span> • Unique visitors:{' '}
               <span className="text-slate-200">{pageViews.unique}</span>
             </p>
+            {pageViewsError && <p className="mt-2 text-xs text-rose-300">{pageViewsError}</p>}
             <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {pageViews.byPath.slice(0, MAX_PATH_ENTRIES).map((entry) => (
                 <div key={entry.path} className="rounded-lg border border-blue-900/80 bg-blue-950/40 px-3 py-2 text-xs">
