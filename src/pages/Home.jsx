@@ -8,6 +8,7 @@ import Ticker from '../components/Ticker'
 import { EVENT_SHORT_TITLE } from '../config/branding'
 import { useAppData } from '../context/useAppData'
 import { SUB_EVENTS } from '../config/subEvents'
+import { getRegistrationDeadline } from '../utils/dateHelpers'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
 
@@ -29,6 +30,7 @@ const fadeUp = {
 function Home() {
   const navigate = useNavigate()
   const { speakers, settings, organisers } = useAppData()
+  const regDeadline = getRegistrationDeadline(settings.event_date)
 
   useEffect(() => {
     const revealElements = Array.from(document.querySelectorAll('.reveal'))
@@ -103,6 +105,11 @@ function Home() {
           >
             <p>📅 {settings.event_date_label} | {settings.event_time_label}</p>
             <p>📍 {settings.event_venue}</p>
+            {regDeadline && (
+              <p className="mt-1 font-semibold text-primary">
+                🗓️ Registration closes: {regDeadline}
+              </p>
+            )}
           </Motion.div>
 
           <Motion.div custom={0.5} initial="hidden" animate="visible" variants={fadeUp} className="mt-8 max-w-xl">
