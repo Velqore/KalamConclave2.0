@@ -23,7 +23,7 @@ const fadeUp = {
   visible: (delay = 0) => ({
     opacity: 1,
     y: 0,
-    transition: { duration: 0.65, delay, ease: 'easeOut' },
+    transition: { duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] },
   }),
 }
 
@@ -74,9 +74,10 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-mono text-base font-bold uppercase tracking-[0.16em] text-accent sm:text-xl sm:tracking-[0.2em]"
+            className="font-subtitle text-base text-sand/92 sm:text-lg"
           >
-            <span>{EVENT_SHORT_TITLE} — Theme 2026</span>
+            <span className="italic">Theme : Science In the</span>
+            <span className="block italic text-accent">Shadow of War</span>
           </Motion.div>
 
           <Motion.h1
@@ -84,10 +85,9 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 font-display text-[clamp(2rem,6vw,4rem)] leading-[0.9]"
+            className="mt-4 font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
           >
-            <span className="italic text-sand" style={{ fontFamily: "'Dancing Script', 'Pacifico', cursive" }}>Science In the</span>
-            <span className="block italic text-accent" style={{ fontFamily: "'Dancing Script', 'Pacifico', cursive" }}>Shadow of War</span>
+            {EVENT_SHORT_TITLE}
           </Motion.h1>
 
           <Motion.p
