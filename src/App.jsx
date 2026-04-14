@@ -3,6 +3,8 @@ import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
 import Register from './pages/Register'
+import SubEventRegister from './pages/SubEventRegister'
+import EventPassPage from './pages/EventPassPage'
 import Speakers from './pages/Speakers'
 import Schedule from './pages/Schedule'
 import GulfWar from './pages/GulfWar'
@@ -43,6 +45,22 @@ function App() {
         element={
           <AppLayout>
             <Register />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/register/:eventId"
+        element={
+          <AppLayout>
+            <SubEventRegister />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/pass/:passId"
+        element={
+          <AppLayout>
+            <EventPassPage />
           </AppLayout>
         }
       />

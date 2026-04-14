@@ -8,12 +8,14 @@ import AdminSpeakers from '../components/admin/AdminSpeakers'
 import AdminSchedule from '../components/admin/AdminSchedule'
 import AdminSettings from '../components/admin/AdminSettings'
 import AdminOrganisers from '../components/admin/AdminOrganisers'
+import SubEventRegistrationsTab from '../components/admin/SubEventRegistrationsTab'
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { sendVerificationEmail } from '../lib/emailService'
 
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
+  { id: 'sub_events', label: 'Sub-Events' },
   { id: 'speakers', label: 'Guests' },
   { id: 'schedule', label: 'Schedule' },
   { id: 'settings', label: 'Event Settings' },
@@ -399,6 +401,7 @@ function AdminDashboard() {
         </>
       )}
 
+      {activeTab === 'sub_events' && <SubEventRegistrationsTab />}
       {activeTab === 'speakers' && <AdminSpeakers />}
       {activeTab === 'schedule' && <AdminSchedule />}
       {activeTab === 'settings' && <AdminSettings />}

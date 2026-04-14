@@ -7,6 +7,7 @@ import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { useAppData } from '../context/useAppData'
+import { SUB_EVENTS } from '../config/subEvents'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
 
@@ -151,6 +152,49 @@ function Home() {
               </article>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* ── Sub-Events: Choose Your Battleground ── */}
+      <section id="sub-events" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="font-display text-4xl leading-none text-sand sm:text-5xl">
+            Choose Your <span className="text-accent">Battleground</span>
+          </h2>
+          <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-sand/55">
+            4 sub-events — pick yours and register
+          </p>
+          <div className="mt-2 h-px w-20 bg-primary/70" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SUB_EVENTS.map((ev) => (
+            <article
+              key={ev.id}
+              className="topic-card flex flex-col p-5 transition-all"
+              style={{ borderColor: `${ev.color}33` }}
+            >
+              <span className="text-3xl">{ev.icon}</span>
+              <h3
+                className="mt-3 font-display text-2xl leading-none sm:text-3xl"
+                style={{ color: ev.color }}
+              >
+                {ev.name}
+              </h3>
+              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-sand/55">
+                {ev.fullName}
+              </p>
+              <p className="mt-2 flex-1 text-xs italic text-sand/80">{ev.tagline}</p>
+              <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {ev.venue}</p>
+              <button
+                className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                onClick={() => navigate(`/register/${ev.id}`)}
+                style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
+                type="button"
+              >
+                Register →
+              </button>
+            </article>
+          ))}
         </div>
       </section>
 

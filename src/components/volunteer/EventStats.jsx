@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { supabase } from '../../lib/supabaseClient'
+import { SUB_EVENTS } from '../../config/subEvents'
 
 const REFRESH_INTERVAL = 15_000
 
@@ -75,18 +76,31 @@ function exportCSV(records) {
 function EventStats() {
   const [records, setRecords] = useState([])
   const [totalReg, setTotalReg] = useState(0)
+  const [subEventCounts, setSubEventCounts] = useState([])
   const [loading, setLoading] = useState(true)
   const intervalRef = useRef(null)
 
   useEffect(() => {
     const doFetch = async () => {
       if (!supabase) { setLoading(false); return }
-      const [attRes, regRes] = await Promise.all([
+      const [attRes, regRes, subRes] = await Promise.all([
         supabase.from('attendance').select('*').order('checked_in_at', { ascending: true }),
         supabase.from('registrations').select('id', { count: 'exact', head: true }),
+        supabase.from('sub_event_registrations').select('sub_event_id, sub_event_name'),
       ])
       if (attRes.data) setRecords(attRes.data)
       if (regRes.count != null) setTotalReg(regRes.count)
+
+      if (subRes.data) {
+        const counts = SUB_EVENTS.map((ev) => ({
+          id: ev.id,
+          name: ev.name,
+          icon: ev.icon,
+          color: ev.color,
+          count: subRes.data.filter((r) => r.sub_event_id === ev.id).length,
+        }))
+        setSubEventCounts(counts)
+      }
       setLoading(false)
     }
 
@@ -96,6 +110,7 @@ function EventStats() {
       const channels = [
         supabase.channel('stats-attendance').on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch).subscribe(),
         supabase.channel('stats-registrations').on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, doFetch).subscribe(),
+        supabase.channel('stats-sub-events').on('postgres_changes', { event: '*', schema: 'public', table: 'sub_event_registrations' }, doFetch).subscribe(),
       ]
       return () => {
         clearInterval(intervalRef.current)
@@ -145,6 +160,24 @@ function EventStats() {
           <StatBox color="#2563eb" emoji="🚪" label="Checked Out" value={checkedOut} />
           <StatBox color="#94a3b8" emoji="⏳" label="Not Arrived" value={notArrived < 0 ? 0 : notArrived} />
         </div>
+
+        {/* Sub-event breakdown */}
+        {subEventCounts.length > 0 && (
+          <div style={{ background: '#1e293b', borderRadius: '14px', padding: '16px', marginBottom: '16px' }}>
+            <div style={{ color: '#94a3b8', fontSize: '12px', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.08em' }}>
+              Sub-Event Registrations
+            </div>
+            {subEventCounts.map((ev) => (
+              <div key={ev.id} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #334155' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '16px' }}>{ev.icon}</span>
+                  <span style={{ color: '#f1f5f9', fontSize: '13px', fontWeight: 600 }}>{ev.name}</span>
+                </div>
+                <span style={{ color: ev.color, fontSize: '16px', fontWeight: 800 }}>{ev.count}</span>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Attendance ring */}
         <div style={{ background: '#1e293b', borderRadius: '14px', padding: '16px', marginBottom: '16px', textAlign: 'center' }}>
