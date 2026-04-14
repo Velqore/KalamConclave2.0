@@ -1,4 +1,4 @@
-function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance }) {
+function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit, onDelete }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-blue-900">
       <table className="min-w-full divide-y divide-blue-900 text-left text-sm">
@@ -14,6 +14,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance }) {
             <th className="px-3 py-3">Payment</th>
             <th className="px-3 py-3">Attendance</th>
             <th className="px-3 py-3">Registered At</th>
+            <th className="px-3 py-3">Actions</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-blue-950 bg-navyLight/40">
@@ -54,6 +55,24 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance }) {
               </td>
               <td className="px-3 py-3">
                 {new Date(attendee.created_at).toLocaleString()}
+              </td>
+              <td className="px-3 py-3">
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    className="rounded bg-electricBlue/20 px-3 py-1 text-xs font-semibold text-electricBlue"
+                    onClick={() => onEdit(attendee)}
+                    type="button"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    className="rounded bg-rose-600/20 px-3 py-1 text-xs font-semibold text-rose-300"
+                    onClick={() => onDelete(attendee)}
+                    type="button"
+                  >
+                    Delete
+                  </button>
+                </div>
               </td>
             </tr>
           ))}
