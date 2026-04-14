@@ -159,6 +159,7 @@ function RegistrationForm() {
   }
 
   if (confirmation) {
+    const dept = [confirmation.course, confirmation.college].filter(Boolean).join(' • ')
     const passData = {
       eventName: settings.event_short_title || 'Kalam Conclave 2.0',
       eventDate: `${settings.event_date_label} | ${settings.event_time_label}`,
@@ -166,7 +167,7 @@ function RegistrationForm() {
       eventOrganizer: 'K.R. Mangalam University',
       participantName: confirmation.full_name,
       participantId: confirmation.reg_id,
-      participantDepartment: `${confirmation.course ?? ''} • ${confirmation.college ?? ''}`.replace(/^•\s*|•\s*$/, '').trim() || confirmation.college,
+      participantDepartment: dept,
       participantYear: confirmation.year_of_study,
       passId: confirmation.reg_id,
       passType: 'Participant',
