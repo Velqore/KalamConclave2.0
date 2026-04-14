@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
-import { EVENT_SHORT_TITLE } from '../config/branding'
+import { EVENT_SHORT_TITLE, EVENT_THEME } from '../config/branding'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -46,15 +46,20 @@ function Navbar() {
           onClick={() => setOpen(false)}
           className="min-w-0 flex-1 overflow-hidden"
         >
-          <div className="flex items-center gap-2 sm:flex-col sm:items-center sm:gap-0.5">
+          <div className="flex items-center gap-2">
             <img
               src="/event_logo.svg"
               alt="Kalam Conclave 2.0 logos"
               className="h-14 w-auto max-w-full object-contain sm:h-12 sm:max-w-[240px]"
             />
-            <span className="truncate font-display text-base font-bold leading-none tracking-[0.02em] text-accent sm:text-xl">
-              {EVENT_SHORT_TITLE}
-            </span>
+            <div className="flex min-w-0 flex-col">
+              <span className="truncate font-display text-base font-bold leading-none tracking-[0.02em] text-accent sm:text-xl">
+                {EVENT_SHORT_TITLE}
+              </span>
+              <span className="truncate font-mono text-[0.58rem] uppercase tracking-[0.12em] text-sand/80 sm:text-[0.62rem]">
+                {EVENT_THEME}
+              </span>
+            </div>
           </div>
         </NavLink>
 
