@@ -69,26 +69,26 @@ function Home() {
               'radial-gradient(circle at 70% 40%, rgba(16,80,180,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(0,100,160,0.28), transparent 48%), rgba(10,18,35,0.70)',
           }}
         >
-          <Motion.div
+          <Motion.h1
             custom={0}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-subtitle text-base text-sand/90 sm:text-lg"
-          >
-            <span className="italic">Theme : Science In the</span>
-            <span className="block italic text-accent">Shadow of War</span>
-          </Motion.div>
-
-          <Motion.h1
-            custom={0.3}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="mt-4 font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
+            className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
           >
             {EVENT_SHORT_TITLE}
           </Motion.h1>
+
+          <Motion.div
+            custom={0.2}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mt-2 font-subtitle text-base text-sand/90 sm:text-lg"
+          >
+            <span className="italic">Theme : Science In the </span>
+            <span className="italic text-accent">Shadow of War</span>
+          </Motion.div>
 
           <Motion.p
             custom={0.5}
