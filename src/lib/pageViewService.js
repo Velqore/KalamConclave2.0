@@ -80,7 +80,17 @@ export async function fetchPageViewSummary() {
     .from('page_views')
     .select('path, visitor_id')
 
-  if (error) throw error
+  if (error) {
+    // Gracefully handle cases where the table doesn't exist yet (42P01) or
+    // the anon role lacks SELECT permission (42501). In both cases return an
+    // empty summary so the UI shows zeros instead of an error banner.
+    const nonFatalCodes = new Set(['42P01', '42501', 'PGRST116'])
+    if (nonFatalCodes.has(error.code)) {
+      console.warn('Page view analytics unavailable:', error.message)
+      return { total: 0, unique: 0, byPath: [] }
+    }
+    throw error
+  }
 
   const pathMap = new Map()
   const visitors = new Set()
