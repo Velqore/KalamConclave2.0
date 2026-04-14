@@ -162,3 +162,44 @@ The static config files (`/src/config/speakers.js`, `/src/config/schedule.js`) s
   "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
 }
 ```
+
+## Volunteer Portal
+
+Access: `yourdomain.com/volunteer`
+
+### Setup
+
+1. Set `VITE_VOLUNTEER_SECRET_CODE` in Vercel to any code you choose (e.g. `VOLPASS2025`).
+2. Optionally set `VITE_EMERGENCY_CONTACTS` as a JSON array, e.g.:
+   ```
+   [{"name":"Event Head","phone":"9999999999"},{"name":"Security","phone":"8888888888"}]
+   ```
+3. Share the secret code privately with volunteers before the event (WhatsApp / email).
+4. Volunteers open `/volunteer` on their phone, enter their name and the code.
+5. They can now scan QR passes, track attendance, and view live stats.
+
+The portal session expires when the browser tab is closed. No Supabase account is needed for volunteers.
+
+### Volunteer Portal Features
+
+| Tab | Function |
+|-----|----------|
+| **Scanner** | Camera QR scanner with 5 scan states (valid/checked-in/exited/invalid/duplicate), check-in/check-out, sound + vibration feedback |
+| **Attendees** | Live participant list with search, filter by status, tap for manual override |
+| **Stats** | Live stat cards, attendance % ring, hourly bar chart, last 5 scans, CSV export |
+| **Info** | Event details, volunteer guidelines, emergency contacts, session info + logout |
+
+### Required Supabase Table
+
+Create an `attendance` table (see `supabase/schema.sql` for the full schema):
+
+- `id` (uuid, primary key)
+- `pass_id` (text) — registration ID from `registrations.reg_id`
+- `participant_name`, `participant_id`, `department`, `pass_type` (text)
+- `checked_in_at`, `checked_out_at` (timestamptz, nullable)
+- `status` (text) — `not_arrived` | `checked_in` | `checked_out`
+- `scanned_by` (text) — volunteer name
+- `scan_count` (integer)
+- `created_at` (timestamptz)
+
+Enable Row Level Security with an open policy (volunteers are not Supabase-authenticated users).
