@@ -1,7 +1,11 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
+import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
 import { ensureSupabase } from '../lib/supabaseClient'
+import { useAppData } from '../context/useAppData'
+import { generateQRCode } from '../lib/generateQRCode'
+import EventPassCard from './EventPassCard'
 
 const initialForm = {
   full_name: '',
@@ -27,10 +31,15 @@ const generateRegId = () => {
 }
 
 function RegistrationForm() {
+  const { settings } = useAppData()
+  const ticketPrice = settings.ticket_price || '149'
   const [formData, setFormData] = useState(initialForm)
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
+  const [qrCodeDataUrl, setQrCodeDataUrl] = useState(null)
+  const [downloadingPass, setDownloadingPass] = useState(false)
+  const passCardRef = useRef(null)
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -114,6 +123,9 @@ function RegistrationForm() {
       setFormData(initialForm)
       setScreenshot(null)
 
+      // Generate QR code for the pass
+      generateQRCode(data.reg_id, data.full_name).then(setQrCodeDataUrl).catch(() => {})
+
       sendConfirmationEmail(data).catch(() => {
         toast.error('Registration saved, but confirmation email failed. Please contact us if needed.')
       })
@@ -124,46 +136,78 @@ function RegistrationForm() {
     }
   }
 
-  const downloadConfirmation = () => {
-    if (!confirmation) return
-
-    const doc = new jsPDF()
-    doc.setFontSize(16)
-    doc.text('1st Kalam Conclave 2.0 - Registration Confirmation', 10, 20)
-    doc.setFontSize(12)
-    doc.text(`Registration ID: ${confirmation.reg_id}`, 10, 35)
-    doc.text(`Name: ${confirmation.full_name}`, 10, 45)
-    doc.text(`Email: ${confirmation.email}`, 10, 55)
-    doc.text('Date: 21st April 2026 | Time: 10:00 AM Onwards', 10, 65)
-    doc.text('Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University', 10, 75)
-    doc.save(`KalamConclave-${confirmation.reg_id}.pdf`)
+  const downloadPass = async () => {
+    if (!confirmation || !passCardRef.current) return
+    setDownloadingPass(true)
+    try {
+      const canvas = await html2canvas(passCardRef.current, {
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+      })
+      const imgData = canvas.toDataURL('image/png')
+      // 85mm × 135mm portrait
+      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [85, 135] })
+      pdf.addImage(imgData, 'PNG', 0, 0, 85, 135)
+      pdf.save(`KalamConclave-Pass-${confirmation.reg_id}.pdf`)
+    } catch {
+      toast.error('Could not generate pass. Please try again.')
+    } finally {
+      setDownloadingPass(false)
+    }
   }
 
   if (confirmation) {
+    const dept = [confirmation.course, confirmation.college].filter(Boolean).join(' • ')
+    const passData = {
+      eventName: settings.event_short_title || 'Kalam Conclave 2.0',
+      eventDate: `${settings.event_date_label} | ${settings.event_time_label}`,
+      eventVenue: settings.event_venue,
+      eventOrganizer: 'K.R. Mangalam University',
+      participantName: confirmation.full_name,
+      participantId: confirmation.reg_id,
+      participantDepartment: dept,
+      participantYear: confirmation.year_of_study,
+      passId: confirmation.reg_id,
+      passType: 'Participant',
+    }
+
     return (
       <section className="mx-auto w-full max-w-2xl rounded-2xl border border-blue-900 bg-navyLight/70 p-8 shadow-soft">
-        <h2 className="text-2xl font-bold text-gold">Registration Confirmed</h2>
-        <p className="mt-4 text-lg text-electricBlue">Your Registration ID: {confirmation.reg_id}</p>
-        <div className="mt-4 space-y-2 text-sm text-slate-300">
-          <p>Name: {confirmation.full_name}</p>
-          <p>Email: {confirmation.email}</p>
-          <p>Date: 21st April 2026 | Time: 10:00 AM Onwards</p>
-          <p>Venue: MultiPurpose Hall, A-Block, K.R. Mangalam University</p>
+        <h2 className="text-2xl font-bold text-gold">Registration Confirmed! 🎉</h2>
+        <p className="mt-2 text-sm text-slate-300">
+          Your event pass is ready. Download it as a PDF to bring on the day of the event.
+        </p>
+
+        {/* Pass card preview — centered */}
+        <div className="mt-6 flex justify-center overflow-x-auto">
+          <EventPassCard pass={passData} qrCodeDataUrl={qrCodeDataUrl} ref={passCardRef} />
         </div>
-        <button
-          className="mt-6 rounded bg-gold px-5 py-2 font-semibold text-navy transition hover:bg-amber-400"
-          onClick={downloadConfirmation}
-          type="button"
-        >
-          Download Confirmation
-        </button>
+
+        <div className="mt-6 flex flex-wrap gap-3">
+          <button
+            className="rounded bg-gold px-5 py-2 font-semibold text-navy transition hover:bg-amber-400 disabled:opacity-60"
+            disabled={downloadingPass}
+            onClick={downloadPass}
+            type="button"
+          >
+            {downloadingPass ? 'Generating PDF…' : '⬇ Download Event Pass (PDF)'}
+          </button>
+        </div>
+
+        <div className="mt-4 space-y-1 text-xs text-slate-400">
+          <p>Registration ID: <span className="font-mono text-electricBlue">{confirmation.reg_id}</span></p>
+          <p>Email: {confirmation.email}</p>
+          <p>Your payment is pending verification. You will be notified once confirmed.</p>
+        </div>
       </section>
     )
   }
 
   return (
     <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-6 shadow-soft sm:grid-cols-2" onSubmit={handleSubmit}>
-      <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹149 (Standard Ticket)</h2>
+      <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
 
       <label className="text-sm">
         Full Name *
@@ -211,10 +255,17 @@ function RegistrationForm() {
       </label>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
-        <p className="font-semibold text-gold">Scan to Pay ₹149 via UPI</p>
-        <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
-          UPI QR Placeholder
-        </div>
+        <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
+        {settings.upi_qr_url ? (
+          <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
+        ) : (
+          <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
+            UPI QR Placeholder
+          </div>
+        )}
+        {settings.upi_id && (
+          <p className="mt-2 font-mono text-xs text-slate-300">{settings.upi_id}</p>
+        )}
       </div>
 
       <label className="col-span-full text-sm">

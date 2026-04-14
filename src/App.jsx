@@ -8,6 +8,8 @@ import Schedule from './pages/Schedule'
 import GulfWar from './pages/GulfWar'
 import Admin from './pages/Admin'
 import AdminDashboard from './pages/AdminDashboard'
+import VolunteerLogin from './pages/VolunteerLogin'
+import VolunteerDashboard from './pages/VolunteerDashboard'
 import { useAdmin } from './hooks/useAdmin'
 
 function ProtectedRoute({ children }) {
@@ -86,6 +88,8 @@ function App() {
           </ProtectedRoute>
         }
       />
+      <Route path="/volunteer" element={<VolunteerLogin />} />
+      <Route path="/volunteer/dashboard" element={<VolunteerDashboard />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )

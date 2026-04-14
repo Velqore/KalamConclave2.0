@@ -1,12 +1,13 @@
-import schedule from '../config/schedule'
+import { useAppData } from '../context/useAppData'
 
 function Schedule() {
+  const { schedule, settings } = useAppData()
   return (
     <section className="mx-auto w-full max-w-6xl px-4 py-14">
       <div className="topic-card p-8">
         <h1 className="font-display text-6xl leading-none text-accent">Events Timeline</h1>
         <p className="mt-3 font-mono text-xs uppercase tracking-[0.2em] text-sand/75">
-          21st April 2026 • 10:00 AM Onwards
+          {settings.event_date_label} • {settings.event_time_label}
         </p>
       </div>
 
