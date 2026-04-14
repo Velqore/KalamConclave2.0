@@ -1,4 +1,36 @@
-# Confirmation Email Setup
+# Supabase Setup & Confirmation Email
+
+This document covers **two things**:
+1. Running the database schema (required before any admin edits work)
+2. Setting up the confirmation email edge function (required for emails)
+
+---
+
+## Part 1 — Database Schema (do this first)
+
+All admin sections (Guests, Schedule, Organisers, Settings, Registrations) require the database tables to exist.  If you see an error like _"Could not find the table 'public.speakers' in the schema cache"_, it means the tables haven't been created yet.
+
+### How to apply the schema
+
+1. Open your [Supabase Dashboard](https://app.supabase.com) → select your project.
+2. Go to **SQL Editor** (left sidebar).
+3. Click **New query**.
+4. Open `supabase/schema.sql` from this repo and paste the **entire file** contents into the editor.
+5. Click **Run**.
+
+That's it — all tables, indexes, RLS policies, and default settings are created in one shot.  It is safe to run again (every statement uses `IF NOT EXISTS` or `ON CONFLICT DO NOTHING`).
+
+### Storage bucket (payment screenshots)
+
+The registration form lets users upload a payment screenshot.  To enable this:
+
+1. In your Supabase Dashboard → **Storage** → **New bucket**.
+2. Name it exactly `payment-screenshots` and tick **Public bucket**.
+3. Click **Save**.
+
+---
+
+## Part 2 — Confirmation Email Setup
 
 After a successful registration, the app automatically sends a branded confirmation email to the registrant using a **Supabase Edge Function** backed by [Resend](https://resend.com).
 

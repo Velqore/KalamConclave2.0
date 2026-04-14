@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
+import { EVENT_SHORT_TITLE } from '../../config/branding'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const SETTING_LABELS = {
@@ -19,7 +20,7 @@ const SETTING_HELPERS = {
   event_date_label: 'Human readable date shown on site, e.g. 21st April 2026',
   event_time_label: 'Time shown on site, e.g. 10:00 AM Onwards',
   event_venue: 'Venue text shown on site and in confirmation PDF',
-  event_short_title: 'Short event title used in PDF, e.g. 1st Kalam Conclave 2.0',
+  event_short_title: `Short event title used in PDF, e.g. ${EVENT_SHORT_TITLE}`,
   upi_qr_url: 'Public URL of the QR code image shown on the registration form',
   upi_id: 'UPI ID shown below QR code on registration form',
   ticket_price: 'Registration fee in INR (number only, no ₹ symbol)',

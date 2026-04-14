@@ -50,12 +50,12 @@ function AdminSpeakers() {
         const { error } = await supabase.from('speakers').update(form).eq('id', editId)
         if (error) throw error
         setSpeakers((prev) => prev.map((s) => (s.id === editId ? { ...s, ...form } : s)))
-        toast.success('Speaker updated')
+        toast.success('Guest updated')
       } else {
         const { data, error } = await supabase.from('speakers').insert(form).select().single()
         if (error) throw error
         setSpeakers((prev) => [...prev, data])
-        toast.success('Speaker added')
+        toast.success('Guest added')
       }
       closeForm()
     } catch (err) {
@@ -66,13 +66,13 @@ function AdminSpeakers() {
   }
 
   const handleDelete = async (speaker) => {
-    if (!window.confirm(`Delete speaker "${speaker.name}"?`)) return
+    if (!window.confirm(`Delete guest "${speaker.name}"?`)) return
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('speakers').delete().eq('id', speaker.id)
       if (error) throw error
       setSpeakers((prev) => prev.filter((s) => s.id !== speaker.id))
-      toast.success('Speaker deleted')
+      toast.success('Guest deleted')
     } catch (err) {
       toast.error(err.message)
     }
@@ -81,15 +81,15 @@ function AdminSpeakers() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h2 className="text-xl font-bold text-gold">Speakers</h2>
+        <h2 className="text-xl font-bold text-gold">Guests</h2>
         <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={openCreate} type="button">
-          Add Speaker
+          Add Guest
         </button>
       </div>
 
       {open && (
         <form className="mb-6 grid gap-3 rounded-xl border border-blue-900 bg-navyLight/70 p-4 sm:grid-cols-2" onSubmit={handleSave}>
-          <h3 className="col-span-full text-lg font-semibold text-gold">{editId ? 'Edit Speaker' : 'Add Speaker'}</h3>
+          <h3 className="col-span-full text-lg font-semibold text-gold">{editId ? 'Edit Guest' : 'Add Guest'}</h3>
           <label className="text-sm">
             Name *
             <input className="input" name="name" onChange={handleChange} required value={form.name} />
@@ -146,7 +146,7 @@ function AdminSpeakers() {
             </div>
           </div>
         ))}
-        {speakers.length === 0 && <p className="text-sm text-slate-400">No speakers added yet.</p>}
+        {speakers.length === 0 && <p className="text-sm text-slate-400">No guests added yet.</p>}
       </div>
     </div>
   )

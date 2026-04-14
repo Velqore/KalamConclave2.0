@@ -13,7 +13,7 @@ import { ensureSupabase } from '../lib/supabaseClient'
 
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
-  { id: 'speakers', label: 'Speakers' },
+  { id: 'speakers', label: 'Guests' },
   { id: 'schedule', label: 'Schedule' },
   { id: 'settings', label: 'Event Settings' },
   { id: 'organisers', label: 'Organisers' },
@@ -196,9 +196,19 @@ function AdminDashboard() {
     }
   }
 
-  const handleTogglePayment = (attendee) => {
+  const handleTogglePayment = async (attendee) => {
     const nextStatus = attendee.payment_status === 'verified' ? 'pending' : 'verified'
-    updateRegistration(attendee.id, { payment_status: nextStatus })
+    await updateRegistration(attendee.id, { payment_status: nextStatus })
+    if (nextStatus === 'verified') {
+      try {
+        const supabase = ensureSupabase()
+        await supabase.functions.invoke('send-confirmation', {
+          body: { name: attendee.full_name, email: attendee.email, reg_id: attendee.reg_id, type: 'verified' },
+        })
+      } catch {
+        toast.error('Payment verified, but confirmation email could not be sent.')
+      }
+    }
   }
 
   const handleToggleAttendance = (attendee) => {

@@ -4,6 +4,7 @@ import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { useAppData } from '../context/useAppData'
+import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { generateQRCode } from '../lib/generateQRCode'
 import EventPassCard from './EventPassCard'
 
@@ -161,10 +162,11 @@ function RegistrationForm() {
   if (confirmation) {
     const dept = [confirmation.course, confirmation.college].filter(Boolean).join(' • ')
     const passData = {
-      eventName: settings.event_short_title || 'Kalam Conclave 2.0',
+      eventName: settings.event_short_title || EVENT_SHORT_TITLE,
       eventDate: `${settings.event_date_label} | ${settings.event_time_label}`,
       eventVenue: settings.event_venue,
       eventOrganizer: 'K.R. Mangalam University',
+      eventLogo: settings.event_logo_url || EVENT_LOGO_URL,
       participantName: confirmation.full_name,
       participantId: confirmation.reg_id,
       participantDepartment: dept,

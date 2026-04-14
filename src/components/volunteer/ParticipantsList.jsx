@@ -154,18 +154,24 @@ function ParticipantsList() {
 
     doFetch()
     intervalRef.current = setInterval(doFetch, REFRESH_INTERVAL)
+    window.addEventListener('attendance-updated', doFetch)
 
-    // Supabase realtime
+    // Supabase realtime — attendance + registrations (admin add/delete)
     if (supabase) {
-      const ch = supabase.channel('attendance-list')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch)
-        .subscribe()
+      const channels = [
+        supabase.channel('attendance-list').on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch).subscribe(),
+        supabase.channel('participants-registrations').on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, doFetch).subscribe(),
+      ]
       return () => {
         clearInterval(intervalRef.current)
-        supabase.removeChannel(ch)
+        window.removeEventListener('attendance-updated', doFetch)
+        channels.forEach((ch) => supabase.removeChannel(ch))
       }
     }
-    return () => clearInterval(intervalRef.current)
+    return () => {
+      clearInterval(intervalRef.current)
+      window.removeEventListener('attendance-updated', doFetch)
+    }
   }, [refreshKey])
 
   const filtered = records.filter((r) => {

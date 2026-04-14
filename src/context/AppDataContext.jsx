@@ -1,6 +1,7 @@
 import { createElement, useEffect, useState } from 'react'
 import staticSpeakers from '../config/speakers'
 import staticSchedule from '../config/schedule'
+import { normalizeEventShortTitle } from '../config/branding'
 import { supabase } from '../lib/supabaseClient'
 import { AppDataContext, defaultSettings } from './_appDataContext'
 
@@ -13,34 +14,44 @@ export function AppDataProvider({ children }) {
   useEffect(() => {
     if (!supabase) return
 
-    const loadAll = async () => {
-      const results = await Promise.allSettled([
-        supabase.from('speakers').select('*').order('sort_order', { ascending: true }),
-        supabase.from('schedule').select('*').order('sort_order', { ascending: true }),
-        supabase.from('app_settings').select('key, value'),
-        supabase.from('organisers').select('*').order('sort_order', { ascending: true }),
-      ])
+    const loadSpeakers = async () => {
+      const { data } = await supabase.from('speakers').select('*').order('sort_order', { ascending: true })
+      if (data?.length) setSpeakers(data)
+    }
 
-      const [speakersRes, scheduleRes, settingsRes, organisersRes] = results
+    const loadSchedule = async () => {
+      const { data } = await supabase.from('schedule').select('*').order('sort_order', { ascending: true })
+      if (data?.length) setSchedule(data)
+    }
 
-      if (speakersRes.status === 'fulfilled' && speakersRes.value.data?.length) {
-        setSpeakers(speakersRes.value.data)
-      }
-      if (scheduleRes.status === 'fulfilled' && scheduleRes.value.data?.length) {
-        setSchedule(scheduleRes.value.data)
-      }
-      if (settingsRes.status === 'fulfilled' && settingsRes.value.data?.length) {
-        const obj = Object.fromEntries(
-          settingsRes.value.data.map(({ key, value }) => [key, value]),
-        )
+    const loadSettings = async () => {
+      const { data } = await supabase.from('app_settings').select('key, value')
+      if (data?.length) {
+        const obj = Object.fromEntries(data.map(({ key, value }) => [key, value]))
+        obj.event_short_title = normalizeEventShortTitle(obj.event_short_title)
         setSettings((prev) => ({ ...prev, ...obj }))
-      }
-      if (organisersRes.status === 'fulfilled' && organisersRes.value.data) {
-        setOrganisers(organisersRes.value.data)
       }
     }
 
-    loadAll()
+    const loadOrganisers = async () => {
+      const { data } = await supabase.from('organisers').select('*').order('sort_order', { ascending: true })
+      if (data) setOrganisers(data)
+    }
+
+    // Initial load
+    Promise.all([loadSpeakers(), loadSchedule(), loadSettings(), loadOrganisers()])
+
+    // Realtime: re-fetch each table whenever admin makes changes
+    const channels = [
+      supabase.channel('ctx-settings').on('postgres_changes', { event: '*', schema: 'public', table: 'app_settings' }, loadSettings).subscribe(),
+      supabase.channel('ctx-schedule').on('postgres_changes', { event: '*', schema: 'public', table: 'schedule' }, loadSchedule).subscribe(),
+      supabase.channel('ctx-speakers').on('postgres_changes', { event: '*', schema: 'public', table: 'speakers' }, loadSpeakers).subscribe(),
+      supabase.channel('ctx-organisers').on('postgres_changes', { event: '*', schema: 'public', table: 'organisers' }, loadOrganisers).subscribe(),
+    ]
+
+    return () => {
+      channels.forEach((ch) => supabase.removeChannel(ch))
+    }
   }, [])
 
   const value = {
@@ -56,4 +67,3 @@ export function AppDataProvider({ children }) {
 
   return createElement(AppDataContext.Provider, { value }, children)
 }
-

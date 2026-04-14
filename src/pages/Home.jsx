@@ -5,6 +5,7 @@ import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
+import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { useAppData } from '../context/useAppData'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
@@ -54,15 +55,16 @@ function Home() {
               'radial-gradient(circle at 70% 40%, rgba(160,16,16,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(80,74,34,0.32), transparent 48%), rgba(42,37,24,0.56)',
           }}
         >
-          <Motion.p
+          <Motion.div
             custom={0}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="font-mono text-xs uppercase tracking-[0.25em] text-primary"
+            className="flex items-center gap-2.5 font-mono text-xs uppercase tracking-[0.25em] text-primary"
           >
-            Kalam Conclave 2.0 — Theme 2025
-          </Motion.p>
+            <img alt="Kalam Conclave logo" className="h-9 w-auto rounded-sm object-contain" src={EVENT_LOGO_URL} />
+            <span>{EVENT_SHORT_TITLE} — Theme 2025</span>
+          </Motion.div>
 
           <Motion.h1
             custom={0.3}
@@ -154,7 +156,7 @@ function Home() {
 
       <section id="speakers" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10">
         <div className="mb-8">
-          <h2 className="font-display text-5xl leading-none text-accent">Featured Speakers</h2>
+          <h2 className="font-display text-5xl leading-none text-accent">Featured Guests</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
         <div className="grid gap-5 md:grid-cols-3">
