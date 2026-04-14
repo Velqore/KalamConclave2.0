@@ -449,7 +449,8 @@ function QRScanner({ volunteerName }) {
       const sc = parseInt(sessionStorage.getItem('volunteerScanCount') || '0', 10)
       sessionStorage.setItem('volunteerScanCount', String(sc + 1))
       window.dispatchEvent(new Event('attendance-updated'))
-    } catch {
+    } catch (error) {
+      console.error('Attendance confirmation failed:', error)
       beepError()
       if (navigator.vibrate) navigator.vibrate([100, 50, 100])
       return
