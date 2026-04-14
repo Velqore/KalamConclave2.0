@@ -56,6 +56,8 @@ function VolunteerDashboard() {
       }
     }
     loadPageViews()
+    const interval = setInterval(loadPageViews, 30_000)
+    return () => clearInterval(interval)
   }, [])
 
   const handleExit = () => {
