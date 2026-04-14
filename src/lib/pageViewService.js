@@ -3,7 +3,6 @@ import { ensureSupabase, supabase } from './supabaseClient'
 const VISITOR_STORAGE_KEY = 'appVisitorId'
 const LAST_TRACK_STORAGE_KEY = 'lastTrackedPageView'
 const TRACK_DEDUPE_WINDOW_MS = 1_500
-let fallbackVisitorId = null
 
 const toRole = (pathname = '/') => {
   if (pathname.startsWith('/admin')) return 'admin'
@@ -16,16 +15,26 @@ const getVisitorId = () => {
     const existing = localStorage.getItem(VISITOR_STORAGE_KEY)
     if (existing) return existing
   } catch {
-    // continue with fallback
+    // continue with session fallback
   }
 
-  const next = fallbackVisitorId ?? (globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`)
-  fallbackVisitorId = next
+  try {
+    const existing = sessionStorage.getItem(VISITOR_STORAGE_KEY)
+    if (existing) return existing
+  } catch {
+    // continue with generated fallback
+  }
+
+  const next = globalThis.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`
 
   try {
     localStorage.setItem(VISITOR_STORAGE_KEY, next)
   } catch {
-    // ignore storage write failures
+    try {
+      sessionStorage.setItem(VISITOR_STORAGE_KEY, next)
+    } catch {
+      // ignore storage write failures
+    }
   }
 
   return next
