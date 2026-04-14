@@ -5,11 +5,17 @@ import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
-import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
+import { EVENT_SHORT_TITLE } from '../config/branding'
 import { useAppData } from '../context/useAppData'
 import { SUB_EVENTS } from '../config/subEvents'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
+
+const ILLUSTRATION_ITEMS = [
+  { icon: '🛰️', title: 'Orbital Intelligence', description: 'Satellite sensing and live conflict mapping' },
+  { icon: '🧪', title: 'Rapid Science Labs', description: 'Field diagnostics and crisis bio-innovation' },
+  { icon: '🛡️', title: 'Defence Engineering', description: 'Resilience systems for critical infrastructure' },
+]
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -61,10 +67,9 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="flex items-center gap-2.5 font-mono text-[0.62rem] uppercase tracking-[0.16em] text-primary sm:text-xs sm:tracking-[0.25em]"
+            className="font-mono text-sm uppercase tracking-[0.16em] text-primary sm:text-base sm:tracking-[0.2em]"
           >
-            <img alt="Kalam Conclave logo" className="h-9 w-auto rounded-sm object-contain" src={EVENT_LOGO_URL} />
-            <span>{EVENT_SHORT_TITLE} — Theme 2025</span>
+            <span>{EVENT_SHORT_TITLE} — Theme 2026</span>
           </Motion.div>
 
           <Motion.h1
@@ -72,7 +77,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 font-display text-[clamp(2.4rem,11vw,8rem)] leading-[0.84]"
+            className="mt-4 font-display text-[clamp(2rem,9vw,6.4rem)] leading-[0.86]"
           >
             <span className="text-sand">Science In the</span>
             <span className="block text-accent">Shadow of War</span>
@@ -116,6 +121,20 @@ function Home() {
             Register Now →
           </Motion.button>
         </Motion.div>
+      </section>
+
+      <section className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 pb-4 sm:pb-8">
+        <div className="grid gap-4 sm:grid-cols-3">
+          {ILLUSTRATION_ITEMS.map((item) => (
+            <article key={item.title} className="topic-card p-4">
+              <div className="flex items-center gap-3">
+                <span className="text-2xl" aria-hidden="true">{item.icon}</span>
+                <h3 className="font-display text-2xl leading-none text-accent">{item.title}</h3>
+              </div>
+              <p className="mt-2 text-sm italic text-sand/84">{item.description}</p>
+            </article>
+          ))}
+        </div>
       </section>
 
       <Ticker />

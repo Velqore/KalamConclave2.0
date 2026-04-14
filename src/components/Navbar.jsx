@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { NavLink } from 'react-router-dom'
-import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
+import { EVENT_SHORT_TITLE } from '../config/branding'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -21,10 +21,9 @@ function Navbar() {
         <NavLink
           to="/"
           onClick={() => setOpen(false)}
-          className="flex min-w-0 items-center gap-2.5 font-display text-xl leading-none tracking-[0.03em] text-accent sm:text-2xl md:text-3xl"
+          className="shrink-0 font-display text-lg leading-none tracking-[0.02em] text-accent sm:text-xl md:text-2xl"
         >
-          <img alt="Kalam Conclave logo" className="h-8 w-auto rounded-sm object-contain sm:h-10" src={EVENT_LOGO_URL} />
-          <span className="truncate">{EVENT_SHORT_TITLE}</span>
+          <span>{EVENT_SHORT_TITLE}</span>
         </NavLink>
 
         {/* Hamburger / close button — mobile only */}
@@ -49,12 +48,12 @@ function Navbar() {
         </button>
 
         {/* Desktop nav */}
-        <ul className="hidden items-center gap-5 md:flex">
+        <ul className="hidden items-center gap-3 lg:gap-5 md:flex">
           {links.map((link) => (
             <li key={link.to}>
               <NavLink
                 className={({ isActive }) =>
-                  `font-mono text-xs uppercase tracking-[0.18em] transition ${
+                  `font-mono text-[0.68rem] uppercase tracking-[0.14em] transition lg:text-xs lg:tracking-[0.18em] ${
                     isActive ? 'text-accent' : 'text-sand/80 hover:text-sand'
                   }`
                 }

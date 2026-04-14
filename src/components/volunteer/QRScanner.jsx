@@ -66,11 +66,12 @@ function ResultCard({ result, onConfirm, onDismiss }) {
       style={{
         position: 'absolute',
         inset: 0,
-        zIndex: 20,
+        zIndex: 2000,
         display: 'flex',
         alignItems: 'flex-end',
         padding: '16px',
         background: 'rgba(0,0,0,0.65)',
+        pointerEvents: 'auto',
       }}
     >
       <div
@@ -489,7 +490,7 @@ function QRScanner({ volunteerName }) {
         <div
           id="qr-reader-volunteer"
           ref={scannerRef}
-          style={{ width: '100%', height: '100%' }}
+          style={{ width: '100%', height: '100%', pointerEvents: scanResult ? 'none' : 'auto' }}
         />
 
         {/* Corner overlay frame */}
