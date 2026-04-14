@@ -6,7 +6,7 @@ function SpeakerCard({ speaker }) {
       <div className="flex items-center gap-3">
         <span className="text-xl">🎙️</span>
         <span className="font-mono text-[0.65rem] uppercase tracking-[0.2em] text-sand/75">
-          Speaker Brief
+          Guest Brief
         </span>
       </div>
 
