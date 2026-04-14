@@ -7,8 +7,19 @@ import StatCard from '../components/StatCard'
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
 
-const registrationTemplate = {
-  reg_id: '',
+const generateRegId = () => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const buffer = new Uint32Array(4)
+  crypto.getRandomValues(buffer)
+  const suffix = Array.from(buffer, (value) => chars[value % chars.length]).join('')
+  return `KCC2-${suffix}`
+}
+
+const yearOfStudyOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
+const heardFromOptions = ['Instagram', 'LinkedIn', 'WhatsApp', 'Friend/Faculty', 'Poster', 'Other']
+
+const createRegistrationTemplate = () => ({
+  reg_id: generateRegId(),
   full_name: '',
   email: '',
   phone: '',
@@ -20,7 +31,7 @@ const registrationTemplate = {
   utr_id: '',
   payment_status: 'pending',
   attendance: false,
-}
+})
 
 function AdminDashboard() {
   const navigate = useNavigate()
@@ -31,7 +42,7 @@ function AdminDashboard() {
   const [submitting, setSubmitting] = useState(false)
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
-  const [formData, setFormData] = useState(registrationTemplate)
+  const [formData, setFormData] = useState(createRegistrationTemplate)
 
   const fetchRegistrations = async () => {
     try {
@@ -92,7 +103,7 @@ function AdminDashboard() {
   }
 
   const resetForm = () => {
-    setFormData(registrationTemplate)
+    setFormData(createRegistrationTemplate())
     setEditingId(null)
     setFormOpen(false)
   }
@@ -106,7 +117,7 @@ function AdminDashboard() {
   }
 
   const handleCreateNew = () => {
-    setFormData(registrationTemplate)
+    setFormData(createRegistrationTemplate())
     setEditingId(null)
     setFormOpen(true)
   }
@@ -244,7 +255,14 @@ function AdminDashboard() {
 
           <label className="text-sm">
             Registration ID
-            <input className="input" name="reg_id" onChange={handleFormChange} required value={formData.reg_id} />
+            <input
+              className="input"
+              name="reg_id"
+              onChange={handleFormChange}
+              readOnly
+              required
+              value={formData.reg_id}
+            />
           </label>
           <label className="text-sm">
             Full Name
@@ -268,7 +286,13 @@ function AdminDashboard() {
           </label>
           <label className="text-sm">
             Year Of Study
-            <input className="input" name="year_of_study" onChange={handleFormChange} required value={formData.year_of_study} />
+            <select className="input" name="year_of_study" onChange={handleFormChange} value={formData.year_of_study}>
+              {yearOfStudyOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="text-sm">
             City
@@ -276,11 +300,23 @@ function AdminDashboard() {
           </label>
           <label className="text-sm">
             Heard From
-            <input className="input" name="heard_from" onChange={handleFormChange} required value={formData.heard_from} />
+            <select className="input" name="heard_from" onChange={handleFormChange} value={formData.heard_from}>
+              {heardFromOptions.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="text-sm">
             UTR ID
-            <input className="input" name="utr_id" onChange={handleFormChange} required value={formData.utr_id} />
+            <input
+              className="input"
+              name="utr_id"
+              onChange={handleFormChange}
+              required={formData.payment_status === 'verified'}
+              value={formData.utr_id}
+            />
           </label>
           <label className="text-sm">
             Payment Status
