@@ -10,6 +10,7 @@ import AdminSettings from '../components/admin/AdminSettings'
 import AdminOrganisers from '../components/admin/AdminOrganisers'
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
+import { sendVerificationEmail } from '../lib/emailService'
 
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
@@ -201,11 +202,7 @@ function AdminDashboard() {
     await updateRegistration(attendee.id, { payment_status: nextStatus })
     if (nextStatus === 'verified') {
       try {
-        const supabase = ensureSupabase()
-        const { error } = await supabase.functions.invoke('send-confirmation', {
-          body: { name: attendee.full_name, email: attendee.email, reg_id: attendee.reg_id, type: 'verified' },
-        })
-        if (error) throw error
+        await sendVerificationEmail(attendee.full_name, attendee.email, attendee.reg_id)
         toast.success('Verification email sent')
       } catch (error) {
         toast.error(error?.message || 'Payment verified, but confirmation email could not be sent.')

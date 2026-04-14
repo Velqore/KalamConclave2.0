@@ -3,6 +3,7 @@ import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
 import { ensureSupabase } from '../lib/supabaseClient'
+import { sendRegistrationEmail } from '../lib/emailService'
 import { useAppData } from '../context/useAppData'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
 import { generateQRCode } from '../lib/generateQRCode'
@@ -98,13 +99,7 @@ function RegistrationForm() {
   }
 
   const sendConfirmationEmail = async ({ full_name, email, reg_id }) => {
-    const supabase = ensureSupabase()
-    const { error } = await supabase.functions.invoke('send-confirmation', {
-      body: { name: full_name, email, reg_id },
-    })
-    if (error) {
-      throw new Error(error.message || 'Confirmation email could not be sent.')
-    }
+    await sendRegistrationEmail(full_name, email, reg_id)
   }
 
   const handleSubmit = async (event) => {
