@@ -1,4 +1,5 @@
-import { Navigate, Route, Routes } from 'react-router-dom'
+import { useEffect } from 'react'
+import { Navigate, Route, Routes, useLocation } from 'react-router-dom'
 import Navbar from './components/Navbar'
 import Footer from './components/Footer'
 import Home from './pages/Home'
@@ -13,6 +14,7 @@ import AdminDashboard from './pages/AdminDashboard'
 import VolunteerLogin from './pages/VolunteerLogin'
 import VolunteerDashboard from './pages/VolunteerDashboard'
 import { useAdmin } from './hooks/useAdmin'
+import { trackPageView } from './lib/pageViewService'
 
 function ProtectedRoute({ children }) {
   const { isAuthenticated } = useAdmin()
@@ -30,6 +32,12 @@ function AppLayout({ children, hideFooter = false }) {
 }
 
 function App() {
+  const location = useLocation()
+
+  useEffect(() => {
+    trackPageView(location.pathname)
+  }, [location.pathname])
+
   return (
     <Routes>
       <Route

@@ -12,6 +12,7 @@ import SubEventRegistrationsTab from '../components/admin/SubEventRegistrationsT
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { sendVerificationEmail } from '../lib/emailService'
+import { fetchPageViewSummary } from '../lib/pageViewService'
 
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
@@ -46,6 +47,8 @@ const createRegistrationTemplate = () => ({
   utr_id: '',
   payment_status: 'pending',
   attendance: false,
+  payment_screenshot_url: '',
+  verification_email_sent: false,
 })
 
 function AdminDashboard() {
@@ -59,6 +62,7 @@ function AdminDashboard() {
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [formData, setFormData] = useState(createRegistrationTemplate)
+  const [pageViews, setPageViews] = useState({ total: 0, unique: 0, byPath: [] })
 
   const fetchRegistrations = async () => {
     try {
@@ -79,6 +83,18 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchRegistrations()
+  }, [])
+
+  useEffect(() => {
+    const loadPageViews = async () => {
+      try {
+        const summary = await fetchPageViewSummary()
+        setPageViews(summary)
+      } catch {
+        // fail silently in dashboard UI
+      }
+    }
+    loadPageViews()
   }, [])
 
   const filteredAttendees = useMemo(
@@ -106,15 +122,18 @@ function AdminDashboard() {
     }
   }, [attendees])
 
-  const updateRegistration = async (id, updates) => {
+  const updateRegistration = async (id, updates, options = {}) => {
+    const { showToast = true, successMessage = 'Updated successfully' } = options
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('registrations').update(updates).eq('id', id)
       if (error) throw error
       setAttendees((prev) => prev.map((entry) => (entry.id === id ? { ...entry, ...updates } : entry)))
-      toast.success('Updated successfully')
+      if (showToast) toast.success(successMessage)
+      return true
     } catch (error) {
       toast.error(error.message)
+      return false
     }
   }
 
@@ -152,6 +171,8 @@ function AdminDashboard() {
       utr_id: attendee.utr_id ?? '',
       payment_status: attendee.payment_status ?? 'pending',
       attendance: Boolean(attendee.attendance),
+      payment_screenshot_url: attendee.payment_screenshot_url ?? '',
+      verification_email_sent: Boolean(attendee.verification_email_sent),
     })
     setEditingId(attendee.id)
     setFormOpen(true)
@@ -201,15 +222,29 @@ function AdminDashboard() {
 
   const handleTogglePayment = async (attendee) => {
     const nextStatus = attendee.payment_status === 'verified' ? 'pending' : 'verified'
-    await updateRegistration(attendee.id, { payment_status: nextStatus })
-    if (nextStatus === 'verified') {
+    const updated = await updateRegistration(
+      attendee.id,
+      { payment_status: nextStatus },
+      { showToast: false },
+    )
+    if (!updated) return
+
+    if (nextStatus === 'verified' && !attendee.verification_email_sent) {
       try {
         await sendVerificationEmail(attendee.full_name, attendee.email, attendee.reg_id)
-        toast.success('Verification email sent')
+        await updateRegistration(
+          attendee.id,
+          { verification_email_sent: true, verification_email_sent_at: new Date().toISOString() },
+          { showToast: false },
+        )
+        toast.success('Payment verified and confirmation email sent')
       } catch (error) {
         toast.error(error?.message || 'Payment verified, but confirmation email could not be sent.')
       }
+      return
     }
+
+    toast.success(nextStatus === 'verified' ? 'Payment verified' : 'Payment marked pending')
   }
 
   const handleToggleAttendance = (attendee) => {
@@ -285,6 +320,22 @@ function AdminDashboard() {
             <StatCard title="Verified Payments" value={stats.verified} />
             <StatCard title="Pending Verification" value={stats.pending} />
             <StatCard title="Total Revenue (₹)" value={stats.revenue} />
+          </div>
+
+          <div className="mt-4 rounded-xl border border-blue-900 bg-navyLight/60 p-4">
+            <h3 className="text-sm font-semibold text-gold">Page View Analytics</h3>
+            <p className="mt-1 text-xs text-slate-400">
+              Total views: <span className="text-slate-200">{pageViews.total}</span> • Unique visitors:{' '}
+              <span className="text-slate-200">{pageViews.unique}</span>
+            </p>
+            <div className="mt-3 grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {pageViews.byPath.slice(0, 6).map((entry) => (
+                <div key={entry.path} className="rounded-lg border border-blue-900/80 bg-blue-950/40 px-3 py-2 text-xs">
+                  <p className="font-mono text-slate-300">{entry.path}</p>
+                  <p className="mt-1 text-gold">{entry.count} views</p>
+                </div>
+              ))}
+            </div>
           </div>
 
           <div className="my-6">

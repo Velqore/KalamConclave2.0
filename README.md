@@ -5,7 +5,7 @@ Production-ready event portal built with **React + Vite + TailwindCSS + Supabase
 ## Features
 
 - Public landing page with hero, countdown, speakers, agenda placeholder, and event details
-- Registration page with payment info, UTR capture, optional screenshot upload, and confirmation PDF download
+- Registration page with payment info, UTR capture, mandatory screenshot upload, and confirmation PDF download
 - Dedicated speakers and schedule pages driven by editable config arrays
 - Admin login (simple credentials, no social auth)
 - Admin dashboard with:
@@ -76,7 +76,7 @@ Create a table named `registrations`:
 - `attendance` (boolean, default: `false`)
 - `created_at` (timestamp, default: `now()`)
 
-Also create a public storage bucket named `payment-screenshots` for optional payment screenshots.
+Also create a public storage bucket named `payment-screenshots` for payment screenshots.
 
 ### Admin-Managed Content Tables
 
@@ -121,6 +121,9 @@ Supported setting keys and their defaults:
 | `upi_qr_url` | _(empty)_ | Public URL of UPI QR code image |
 | `upi_id` | _(empty)_ | UPI ID shown below QR on registration form |
 | `ticket_price` | `149` | Registration fee in INR |
+| `social_instagram_url` | _(empty)_ | Club Instagram profile URL |
+| `social_linkedin_url` | _(empty)_ | Club LinkedIn page URL |
+| `social_youtube_url` | _(empty)_ | Club YouTube channel URL |
 
 > If these tables don't exist, the app falls back to the static default values in `src/config/` and `src/context/AppDataContext.jsx`.
 

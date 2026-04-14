@@ -11,6 +11,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
             <th className="px-3 py-3">College</th>
             <th className="px-3 py-3">City</th>
             <th className="px-3 py-3">UTR ID</th>
+            <th className="px-3 py-3">Screenshot</th>
             <th className="px-3 py-3">Payment</th>
             <th className="px-3 py-3">Attendance</th>
             <th className="px-3 py-3">Registered At</th>
@@ -27,6 +28,23 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
               <td className="px-3 py-3">{attendee.college}</td>
               <td className="px-3 py-3">{attendee.city}</td>
               <td className="px-3 py-3">{attendee.utr_id}</td>
+              <td className="px-3 py-3">
+                {attendee.payment_screenshot_url ? (
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs font-semibold text-emerald-300">Shared</span>
+                    <a
+                      className="text-xs text-electricBlue underline"
+                      href={attendee.payment_screenshot_url}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      View
+                    </a>
+                  </div>
+                ) : (
+                  <span className="text-xs font-semibold text-rose-300">Not shared</span>
+                )}
+              </td>
               <td className="px-3 py-3">
                 <button
                   className={`rounded px-3 py-1 text-xs font-semibold ${
