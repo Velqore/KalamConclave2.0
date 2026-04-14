@@ -155,14 +155,14 @@ function Home() {
         </div>
       </section>
 
-      {/* ── Sub-Events: Choose Your Battleground ── */}
-      <section id="sub-events" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+      {/* ── Events: Choose Your Battleground ── */}
+      <section id="events" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
         <div className="mb-6 sm:mb-8">
           <h2 className="font-display text-4xl leading-none text-sand sm:text-5xl">
             Choose Your <span className="text-accent">Battleground</span>
           </h2>
           <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-sand/55">
-            4 sub-events — pick yours and register
+            4 events — pick yours and register
           </p>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>

@@ -15,7 +15,7 @@ import { sendVerificationEmail } from '../lib/emailService'
 
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
-  { id: 'sub_events', label: 'Sub-Events' },
+  { id: 'sub_events', label: 'Events' },
   { id: 'speakers', label: 'Guests' },
   { id: 'schedule', label: 'Schedule' },
   { id: 'settings', label: 'Event Settings' },

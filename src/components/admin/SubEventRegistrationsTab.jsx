@@ -4,13 +4,13 @@ import toast from 'react-hot-toast'
 import { ensureSupabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
 
-const SUB_EVENT_OPTIONS = ['All', ...SUB_EVENTS.map((e) => e.name)]
+const SUB_EVENT_OPTIONS = ['All Events', ...SUB_EVENTS.map((e) => e.name)]
 
 function SubEventRegistrationsTab() {
   const [registrations, setRegistrations] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filterEvent, setFilterEvent] = useState('All')
+  const [filterEvent, setFilterEvent] = useState('All Events')
   const [filterUniversity, setFilterUniversity] = useState('All')
 
   useEffect(() => {
@@ -40,7 +40,7 @@ function SubEventRegistrationsTab() {
   const filtered = useMemo(() => {
     const term = search.toLowerCase()
     return registrations.filter((r) => {
-      const eventMatch = filterEvent === 'All' || r.sub_event_name?.includes(filterEvent) || SUB_EVENTS.find((e) => e.name === filterEvent)?.id === r.sub_event_id
+      const eventMatch = filterEvent === 'All Events' || r.sub_event_name?.includes(filterEvent) || SUB_EVENTS.find((e) => e.name === filterEvent)?.id === r.sub_event_id
       const uniMatch = filterUniversity === 'All' || r.participant_university === filterUniversity
       const textMatch =
         !term ||
@@ -81,7 +81,7 @@ function SubEventRegistrationsTab() {
     const url = URL.createObjectURL(blob)
     const a = document.createElement('a')
     a.href = url
-    a.download = `sub-event-registrations-${new Date().toISOString().slice(0, 10)}.csv`
+    a.download = `event-registrations-${new Date().toISOString().slice(0, 10)}.csv`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
@@ -90,7 +90,7 @@ function SubEventRegistrationsTab() {
 
   return (
     <div>
-      {/* Per-sub-event stats */}
+      {/* Per-event stats */}
       <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {statsByEvent.map((ev) => (
           <div
@@ -141,7 +141,7 @@ function SubEventRegistrationsTab() {
             <thead>
               <tr className="border-b border-sand/10 bg-surface/60 text-left text-xs font-semibold uppercase tracking-wide text-sand/55">
                 <th className="px-3 py-3">Pass ID</th>
-                <th className="px-3 py-3">Sub-Event</th>
+                <th className="px-3 py-3">Event</th>
                 <th className="px-3 py-3">Name</th>
                 <th className="px-3 py-3">Roll</th>
                 <th className="px-3 py-3">Email</th>
