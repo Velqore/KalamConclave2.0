@@ -93,12 +93,13 @@ function EventStats() {
     doFetch()
     intervalRef.current = setInterval(doFetch, REFRESH_INTERVAL)
     if (supabase) {
-      const ch = supabase.channel('stats-channel')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch)
-        .subscribe()
+      const channels = [
+        supabase.channel('stats-attendance').on('postgres_changes', { event: '*', schema: 'public', table: 'attendance' }, doFetch).subscribe(),
+        supabase.channel('stats-registrations').on('postgres_changes', { event: '*', schema: 'public', table: 'registrations' }, doFetch).subscribe(),
+      ]
       return () => {
         clearInterval(intervalRef.current)
-        supabase.removeChannel(ch)
+        channels.forEach((ch) => supabase.removeChannel(ch))
       }
     }
     return () => clearInterval(intervalRef.current)
