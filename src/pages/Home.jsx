@@ -5,6 +5,7 @@ import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
+import { EVENT_SHORT_TITLE } from '../config/branding'
 import { useAppData } from '../context/useAppData'
 import { SUB_EVENTS } from '../config/subEvents'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
@@ -68,12 +69,33 @@ function Home() {
               'radial-gradient(circle at 70% 40%, rgba(16,80,180,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(0,100,160,0.28), transparent 48%), rgba(10,18,35,0.70)',
           }}
         >
+          <Motion.h1
+            custom={0}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
+          >
+            {EVENT_SHORT_TITLE}
+          </Motion.h1>
+
+          <Motion.div
+            custom={0.2}
+            initial="hidden"
+            animate="visible"
+            variants={fadeUp}
+            className="mt-2 font-subtitle text-base text-sand/90 sm:text-lg"
+          >
+            <span className="italic">Theme : Science In the </span>
+            <span className="italic text-accent">Shadow of War</span>
+          </Motion.div>
+
           <Motion.p
             custom={0.5}
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="max-w-3xl font-subtitle text-base text-sand/90 sm:text-xl"
+            className="mt-4 max-w-3xl font-subtitle text-base text-sand/90 sm:text-xl"
           >
             When conflict reshapes civilisation, science becomes both weapon and lifeline. Explore
             how the ongoing Gulf War is redefining research, medicine, and innovation.
