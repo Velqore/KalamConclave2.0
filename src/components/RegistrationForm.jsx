@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { useAppData } from '../context/useAppData'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
@@ -10,6 +10,9 @@ import { generateQRCode } from '../lib/generateQRCode'
 import { SUB_EVENTS } from '../config/subEvents'
 import EventPassCard from './EventPassCard'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
+
+const DEBATE_TOPICS = ['Scientists', 'UN Delegates', 'Policy Makers']
+const DEBATE_EVENT_ID = 'war_room_debate'
 
 const initialForm = {
   full_name: '',
@@ -36,11 +39,13 @@ const generateRegId = () => {
 
 function RegistrationForm() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { settings } = useAppData()
   const ticketPrice = settings.ticket_price || '149'
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
+  const [debateTopic, setDebateTopic] = useState('')
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
@@ -48,15 +53,31 @@ function RegistrationForm() {
   const [downloadingPass, setDownloadingPass] = useState(false)
   const passCardRef = useRef(null)
 
+  useEffect(() => {
+    const selectedEvent = searchParams.get('event')
+    if (!selectedEvent) return
+    const isValidEvent = SUB_EVENTS.some((event) => event.id === selectedEvent)
+    if (!isValidEvent) return
+    setSelectedEvents((prev) => (prev.includes(selectedEvent) ? prev : [...prev, selectedEvent]))
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('event')
+    setSearchParams(nextParams, { replace: true })
+  }, [searchParams, setSearchParams])
+
   const handleChange = (event) => {
     const { name, value } = event.target
     setFormData((prev) => ({ ...prev, [name]: value }))
   }
 
   const handleEventToggle = (eventId) => {
-    setSelectedEvents((prev) =>
-      prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId],
-    )
+    setSelectedEvents((prev) => {
+      const next = prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
+      // Clear debate topic if the debate event is deselected
+      if (eventId === DEBATE_EVENT_ID && !next.includes(DEBATE_EVENT_ID)) {
+        setDebateTopic('')
+      }
+      return next
+    })
   }
 
   const uploadScreenshot = async (regId) => {
@@ -112,10 +133,23 @@ function RegistrationForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (selectedEvents.length === 0) {
+      toast.error('Please select at least one event.')
+      return
+    }
+    if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateTopic) {
+      toast.error('Please select a debate topic for The War Room Debate.')
+      return
+    }
     setSubmitting(true)
 
     try {
-      const data = await saveRegistration(formData)
+      const payload = {
+        ...formData,
+        selected_events: selectedEvents,
+        debate_topic: selectedEvents.includes(DEBATE_EVENT_ID) ? debateTopic : null,
+      }
+      const data = await saveRegistration(payload)
       setConfirmation(data)
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
@@ -207,7 +241,7 @@ function RegistrationForm() {
                   <button
                     key={event.id}
                     className="rounded px-3 py-1.5 text-xs font-semibold text-white"
-                    onClick={() => navigate(`/register/${event.id}`)}
+                    onClick={() => navigate(`/register?event=${event.id}`)}
                     style={{ background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})` }}
                     type="button"
                   >
@@ -288,10 +322,10 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-accent/30 bg-surface/40 p-4">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-accent">
-          Event Selection (Optional)
+          Event Selection (Mandatory)
         </p>
         <p className="mt-2 text-xs text-slate-300">
-          Select event(s) now. After main registration, you can complete each event&apos;s separate form.
+          Select at least one event to continue your registration.
         </p>
         <div className="mt-3 grid gap-2 sm:grid-cols-2">
           {SUB_EVENTS.map((event) => (
@@ -306,6 +340,39 @@ function RegistrationForm() {
             </label>
           ))}
         </div>
+
+        {selectedEvents.includes(DEBATE_EVENT_ID) && (
+          <div className="mt-4 rounded-lg border border-red-800/40 bg-red-950/20 p-3">
+            <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-red-400">
+              Debate Topic *
+            </p>
+            <p className="mt-1 text-xs text-slate-400">
+              Select the perspective you will represent in The War Room Debate.
+            </p>
+            <div className="mt-2 grid gap-2 sm:grid-cols-3">
+              {DEBATE_TOPICS.map((topic) => (
+                <label
+                  key={topic}
+                  className={`flex cursor-pointer items-center gap-2 rounded border px-3 py-2 text-sm transition ${
+                    debateTopic === topic
+                      ? 'border-red-500 bg-red-900/30 text-red-300'
+                      : 'border-sand/15 text-sand/80 hover:border-red-700/60'
+                  }`}
+                >
+                  <input
+                    checked={debateTopic === topic}
+                    className="accent-red-500"
+                    name="debate_topic"
+                    onChange={() => setDebateTopic(topic)}
+                    type="radio"
+                    value={topic}
+                  />
+                  <span>{topic}</span>
+                </label>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">

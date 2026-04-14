@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { NavLink, useLocation, useNavigate } from 'react-router-dom'
+import { EVENT_LOGO_URL } from '../config/branding'
 
 const links = [
   { to: '/', label: 'Home' },
@@ -46,7 +47,7 @@ function Navbar() {
           className="min-w-0 flex-1 overflow-hidden"
         >
           <img
-            src="/event_logo.svg"
+            src={EVENT_LOGO_URL}
             alt="Kalam Conclave 2.0 logos"
             className="h-14 w-auto max-w-full object-contain sm:h-12 sm:max-w-[240px]"
           />

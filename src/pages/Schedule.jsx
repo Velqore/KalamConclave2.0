@@ -32,7 +32,7 @@ function Schedule() {
             <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {event.venue}</p>
             <button
               className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-              onClick={() => navigate(`/register/${event.id}`)}
+              onClick={() => navigate(`/register?event=${event.id}`)}
               style={{ background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})` }}
               type="button"
             >
