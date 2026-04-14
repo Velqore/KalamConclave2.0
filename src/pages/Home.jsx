@@ -216,12 +216,12 @@ function Home() {
               </p>
               <p className="mt-2 flex-1 text-xs italic text-sand/80">{ev.tagline}</p>
               <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {ev.venue}</p>
-              <button
-                className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-                onClick={() => navigate(`/register/${ev.id}`)}
-                style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
-                type="button"
-              >
+                <button
+                  className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                  onClick={() => navigate(`/register?event=${ev.id}`)}
+                  style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
+                  type="button"
+                >
                 Register →
               </button>
             </article>

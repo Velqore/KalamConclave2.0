@@ -1,8 +1,8 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import html2canvas from 'html2canvas'
 import { jsPDF } from 'jspdf'
 import toast from 'react-hot-toast'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { ensureSupabase } from '../lib/supabaseClient'
 import { useAppData } from '../context/useAppData'
 import { EVENT_LOGO_URL, EVENT_SHORT_TITLE } from '../config/branding'
@@ -36,6 +36,7 @@ const generateRegId = () => {
 
 function RegistrationForm() {
   const navigate = useNavigate()
+  const [searchParams, setSearchParams] = useSearchParams()
   const { settings } = useAppData()
   const ticketPrice = settings.ticket_price || '149'
   const regDeadline = getRegistrationDeadline(settings.event_date)
@@ -47,6 +48,17 @@ function RegistrationForm() {
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState(null)
   const [downloadingPass, setDownloadingPass] = useState(false)
   const passCardRef = useRef(null)
+
+  useEffect(() => {
+    const selectedEvent = searchParams.get('event')
+    if (!selectedEvent) return
+    const isValidEvent = SUB_EVENTS.some((event) => event.id === selectedEvent)
+    if (!isValidEvent) return
+    setSelectedEvents((prev) => (prev.includes(selectedEvent) ? prev : [...prev, selectedEvent]))
+    const nextParams = new URLSearchParams(searchParams)
+    nextParams.delete('event')
+    setSearchParams(nextParams, { replace: true })
+  }, [searchParams, setSearchParams])
 
   const handleChange = (event) => {
     const { name, value } = event.target
@@ -112,6 +124,10 @@ function RegistrationForm() {
 
   const handleSubmit = async (event) => {
     event.preventDefault()
+    if (selectedEvents.length === 0) {
+      toast.error('Please select at least one event.')
+      return
+    }
     setSubmitting(true)
 
     try {
@@ -207,7 +223,7 @@ function RegistrationForm() {
                   <button
                     key={event.id}
                     className="rounded px-3 py-1.5 text-xs font-semibold text-white"
-                    onClick={() => navigate(`/register/${event.id}`)}
+                    onClick={() => navigate(`/register?event=${event.id}`)}
                     style={{ background: `linear-gradient(135deg, ${event.gradientFrom}, ${event.gradientTo})` }}
                     type="button"
                   >
@@ -288,7 +304,7 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-accent/30 bg-surface/40 p-4">
         <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-accent">
-          Event Selection (Optional)
+          Event Selection (Mandatory)
         </p>
         <p className="mt-2 text-xs text-slate-300">
           Select event(s) now. After main registration, you can complete each event&apos;s separate form.
