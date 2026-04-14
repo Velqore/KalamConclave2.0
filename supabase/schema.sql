@@ -195,14 +195,6 @@ CREATE TABLE IF NOT EXISTS public.sub_event_registrations (
 
 ALTER TABLE public.sub_event_registrations ENABLE ROW LEVEL SECURITY;
 
-CREATE POLICY "Anyone can register sub event"
-  ON public.sub_event_registrations
-  FOR INSERT WITH CHECK (true);
-
-CREATE POLICY "Anyone can view sub event registration"
-  ON public.sub_event_registrations
-  FOR SELECT USING (true);
-
 CREATE POLICY "Allow all sub event operations"
   ON public.sub_event_registrations
   FOR ALL USING (true) WITH CHECK (true);
