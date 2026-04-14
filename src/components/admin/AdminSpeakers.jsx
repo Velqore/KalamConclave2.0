@@ -49,7 +49,7 @@ function AdminSpeakers() {
       const supabase = ensureSupabase()
       if (editId) {
         if (!isUuid(editId)) {
-          toast.error('This is a local placeholder guest. Add a new guest to create a database record.')
+          toast.error('Cannot update local placeholder. Please add a new guest instead.')
           return
         }
         const { error } = await supabase.from('speakers').update(form).eq('id', editId)
@@ -73,7 +73,7 @@ function AdminSpeakers() {
   const handleDelete = async (speaker) => {
     if (!window.confirm(`Delete guest "${speaker.name}"?`)) return
     if (!isUuid(speaker.id)) {
-      toast.error('This is a local placeholder guest and cannot be deleted from database.')
+      toast.error('Cannot delete local placeholder. Please add and manage database guests.')
       return
     }
     try {

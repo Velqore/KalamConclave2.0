@@ -48,7 +48,7 @@ function AdminSchedule() {
       const supabase = ensureSupabase()
       if (editId) {
         if (!isUuid(editId)) {
-          toast.error('This is a local placeholder item. Add a new agenda item to create a database record.')
+          toast.error('Cannot update local placeholder. Please add a new agenda item instead.')
           return
         }
         const { error } = await supabase.from('schedule').update(form).eq('id', editId)
@@ -72,7 +72,7 @@ function AdminSchedule() {
   const handleDelete = async (item) => {
     if (!window.confirm(`Delete agenda item "${item.title}"?`)) return
     if (!isUuid(item.id)) {
-      toast.error('This is a local placeholder item and cannot be deleted from database.')
+      toast.error('Cannot delete local placeholder. Please add and manage database agenda items.')
       return
     }
     try {
