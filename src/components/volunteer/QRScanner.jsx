@@ -443,7 +443,7 @@ function QRScanner({ volunteerName }) {
       const { error: regError } = await supabase
         .from('registrations')
         .update({ attendance: true })
-        .eq('reg_id', record.participant_id || record.pass_id)
+        .eq('reg_id', record.pass_id)
       if (regError) throw regError
       // Update session scan count
       const sc = parseInt(sessionStorage.getItem('volunteerScanCount') || '0', 10)
