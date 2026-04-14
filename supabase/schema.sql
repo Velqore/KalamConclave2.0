@@ -141,7 +141,8 @@ ALTER TABLE public.registrations
 ALTER TABLE public.registrations
   ADD COLUMN IF NOT EXISTS verification_email_sent_at timestamptz;
 
--- Participation mode and team details (added for solo/team selection feature)
+-- Participation mode and team detail columns retained for data compatibility;
+-- the main registration UI no longer collects team information (solo-only).
 ALTER TABLE public.registrations
   ADD COLUMN IF NOT EXISTS participation_mode text NOT NULL DEFAULT 'solo';
 ALTER TABLE public.registrations

@@ -6,6 +6,35 @@ import { SUB_EVENTS } from '../../config/subEvents'
 
 const SUB_EVENT_OPTIONS = ['All Events', ...SUB_EVENTS.map((e) => e.name)]
 
+function ConfirmDeleteModal({ onConfirm, onCancel }) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 p-4">
+      <div className="w-full max-w-sm rounded-2xl border border-red-500/40 bg-surface p-6 shadow-xl">
+        <h3 className="text-lg font-bold text-red-400">Delete Registration?</h3>
+        <p className="mt-2 text-sm text-sand/70">
+          This action cannot be undone. The registration record will be permanently removed.
+        </p>
+        <div className="mt-5 flex justify-end gap-3">
+          <button
+            className="rounded border border-sand/30 px-4 py-2 text-sm text-sand/70 hover:border-sand/60"
+            onClick={onCancel}
+            type="button"
+          >
+            Cancel
+          </button>
+          <button
+            className="rounded bg-red-600 px-5 py-2 text-sm font-semibold text-white hover:bg-red-500"
+            onClick={onConfirm}
+            type="button"
+          >
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 function EditModal({ reg, onClose, onSaved }) {
   const [fields, setFields] = useState({
     participant_name: reg.participant_name ?? '',
@@ -100,6 +129,7 @@ function SubEventRegistrationsTab() {
   const [filterEvent, setFilterEvent] = useState('All Events')
   const [filterUniversity, setFilterUniversity] = useState('All')
   const [editReg, setEditReg] = useState(null)
+  const [deleteTarget, setDeleteTarget] = useState(null)
 
   useEffect(() => {
     const fetch = async () => {
@@ -125,7 +155,6 @@ function SubEventRegistrationsTab() {
   }
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Delete this registration? This cannot be undone.')) return
     try {
       const supabase = ensureSupabase()
       const { error } = await supabase.from('sub_event_registrations').delete().eq('id', id)
@@ -134,6 +163,8 @@ function SubEventRegistrationsTab() {
       toast.success('Registration deleted.')
     } catch (err) {
       toast.error(err.message)
+    } finally {
+      setDeleteTarget(null)
     }
   }
 
@@ -200,6 +231,13 @@ function SubEventRegistrationsTab() {
           onClose={() => setEditReg(null)}
           onSaved={handleSaved}
           reg={editReg}
+        />
+      )}
+
+      {deleteTarget && (
+        <ConfirmDeleteModal
+          onCancel={() => setDeleteTarget(null)}
+          onConfirm={() => handleDelete(deleteTarget)}
         />
       )}
 
@@ -296,7 +334,7 @@ function SubEventRegistrationsTab() {
                         </button>
                         <button
                           className="rounded border border-red-500/50 px-2 py-1 text-xs text-red-400 hover:bg-red-500/10"
-                          onClick={() => handleDelete(r.id)}
+                          onClick={() => setDeleteTarget(r.id)}
                           type="button"
                         >
                           Delete

@@ -530,8 +530,14 @@ function ConfirmationView({ passData, qrCodeDataUrl, passCardRef, onDownload, do
 }
 
 // ─── Main page component ──────────────────────────────────────────────
-const isPaymentLink = (str) =>
-  typeof str === 'string' && (str.startsWith('http://') || str.startsWith('https://'))
+const isPaymentLink = (str) => {
+  try {
+    const url = new URL(str)
+    return url.protocol === 'http:' || url.protocol === 'https:'
+  } catch {
+    return false
+  }
+}
 
 function SubEventRegister() {
   const { eventId } = useParams()
@@ -625,7 +631,9 @@ function SubEventRegister() {
       }
 
       // Start generating QR in background regardless of which step shows next
-      generateQRCode(data.pass_id, data.participant_name).then(setQrCodeDataUrl).catch(() => {})
+      generateQRCode(data.pass_id, data.participant_name)
+        .then(setQrCodeDataUrl)
+        .catch(() => { toast.error('QR code generation failed. Your pass is still valid.') })
 
       // If admin has set a payment link in the UPI ID field, gate the pass behind it
       if (isPaymentLink(settings.upi_id)) {
