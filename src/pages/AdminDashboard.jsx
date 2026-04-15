@@ -8,6 +8,7 @@ import AdminSpeakers from '../components/admin/AdminSpeakers'
 import AdminSchedule from '../components/admin/AdminSchedule'
 import AdminSettings from '../components/admin/AdminSettings'
 import AdminOrganisers from '../components/admin/AdminOrganisers'
+import AdminSubEventRules from '../components/admin/AdminSubEventRules'
 import SubEventRegistrationsTab from '../components/admin/SubEventRegistrationsTab'
 import { useAdmin } from '../hooks/useAdmin'
 import { ensureSupabase } from '../lib/supabaseClient'
@@ -17,6 +18,7 @@ import { fetchPageViewSummary } from '../lib/pageViewService'
 const TABS = [
   { id: 'registrations', label: 'Registrations' },
   { id: 'sub_events', label: 'Events' },
+  { id: 'sub_event_rules', label: 'Event Rules' },
   { id: 'speakers', label: 'Guests' },
   { id: 'schedule', label: 'Schedule' },
   { id: 'settings', label: 'Event Settings' },
@@ -464,6 +466,7 @@ function AdminDashboard() {
       )}
 
       {activeTab === 'sub_events' && <SubEventRegistrationsTab />}
+      {activeTab === 'sub_event_rules' && <AdminSubEventRules />}
       {activeTab === 'speakers' && <AdminSpeakers />}
       {activeTab === 'schedule' && <AdminSchedule />}
       {activeTab === 'settings' && <AdminSettings />}

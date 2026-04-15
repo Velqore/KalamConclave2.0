@@ -127,10 +127,9 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-2 font-subtitle text-base text-sand/90 sm:text-lg"
+            className="mt-2 font-subtitle text-base text-accent sm:text-lg"
           >
-            <span className="italic">Theme : Science In the </span>
-            <span className="italic text-accent">Shadow of War</span>
+            Science in the Shadow of war
           </Motion.div>
 
           <Motion.p
@@ -138,7 +137,7 @@ function Home() {
             initial="hidden"
             animate="visible"
             variants={fadeUp}
-            className="mt-4 max-w-3xl font-subtitle text-base text-sand/90 sm:text-xl"
+            className="mt-4 max-w-3xl text-base font-bold not-italic text-sand/90 sm:text-xl"
           >
             When conflict reshapes civilisation, science becomes both weapon and lifeline. Explore
             how the ongoing Gulf War is redefining research, medicine, and innovation.
@@ -155,7 +154,7 @@ function Home() {
             <p>📍 {settings.event_venue}</p>
             {regDeadline && (
               <p className="mt-1 font-semibold text-primary">
-                🗓️ Registration closes: {regDeadline}
+                🗓️ Registration Closes on {regDeadline}
               </p>
             )}
           </Motion.div>
@@ -195,6 +194,81 @@ function Home() {
       <Ticker />
       <GulfWarBanner />
 
+      {/* ── Events: Choose Your Battleground ── */}
+      <section id="events" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
+        <div className="mb-6 sm:mb-8">
+          <h2 className="font-display text-4xl leading-none text-sand sm:text-5xl">
+            Choose Your <span className="text-accent">Battleground</span>
+          </h2>
+          <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-sand/55">
+            4 events — pick yours and register
+          </p>
+          <div className="mt-2 h-px w-20 bg-primary/70" />
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {SUB_EVENTS.map((ev) => {
+            const liveRules = (() => {
+              try {
+                const raw = settings[`sub_event_rules_${ev.id}`]
+                if (raw) return JSON.parse(raw)
+              } catch (err) {
+                console.warn(`[KalamConclave] Failed to parse rules for sub-event "${ev.id}":`, err)
+              }
+              return null
+            })()
+            const rules = liveRules ?? []
+            return (
+              <article
+                key={ev.id}
+                className="topic-card flex flex-col p-5 transition-all"
+                style={{ borderColor: `${ev.color}33` }}
+              >
+                <span className="text-3xl">{ev.icon}</span>
+                <h3
+                  className="mt-3 font-display text-2xl leading-none sm:text-3xl"
+                  style={{ color: ev.color }}
+                >
+                  {ev.name}
+                </h3>
+                <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-sand/55">
+                  {ev.fullName}
+                </p>
+                <p className="mt-2 flex-1 text-xs italic text-sand/80">{ev.tagline}</p>
+                <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {ev.venue}</p>
+
+                {rules.length > 0 && (
+                  <details className="mt-3 rounded-lg border border-current/10 p-2" style={{ borderColor: `${ev.color}28` }}>
+                    <summary
+                      className="cursor-pointer select-none text-xs font-semibold uppercase tracking-wide"
+                      style={{ color: ev.color }}
+                    >
+                      📋 Rules
+                    </summary>
+                    <ul className="mt-2 space-y-1">
+                      {rules.map((rule, idx) => (
+                        <li key={idx} className="flex gap-1.5 text-[0.65rem] leading-snug text-sand/75">
+                          <span className="shrink-0 text-sand/40">·</span>
+                          {rule}
+                        </li>
+                      ))}
+                    </ul>
+                  </details>
+                )}
+
+                <button
+                  className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
+                  onClick={() => navigate(`/register?event=${ev.id}`)}
+                  style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
+                  type="button"
+                >
+                  Register →
+                </button>
+              </article>
+            )
+          })}
+        </div>
+      </section>
+
       <section id="about" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
         <div className="mb-6 sm:mb-8">
           <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">About the Conclave</h2>
@@ -226,49 +300,6 @@ function Home() {
               </article>
             ))}
           </div>
-        </div>
-      </section>
-
-      {/* ── Events: Choose Your Battleground ── */}
-      <section id="events" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-12">
-        <div className="mb-6 sm:mb-8">
-          <h2 className="font-display text-4xl leading-none text-sand sm:text-5xl">
-            Choose Your <span className="text-accent">Battleground</span>
-          </h2>
-          <p className="mt-2 font-mono text-xs uppercase tracking-[0.2em] text-sand/55">
-            4 events — pick yours and register
-          </p>
-          <div className="mt-2 h-px w-20 bg-primary/70" />
-        </div>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SUB_EVENTS.map((ev) => (
-            <article
-              key={ev.id}
-              className="topic-card flex flex-col p-5 transition-all"
-              style={{ borderColor: `${ev.color}33` }}
-            >
-              <span className="text-3xl">{ev.icon}</span>
-              <h3
-                className="mt-3 font-display text-2xl leading-none sm:text-3xl"
-                style={{ color: ev.color }}
-              >
-                {ev.name}
-              </h3>
-              <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.18em] text-sand/55">
-                {ev.fullName}
-              </p>
-              <p className="mt-2 flex-1 text-xs italic text-sand/80">{ev.tagline}</p>
-              <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {ev.venue}</p>
-                <button
-                  className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
-                  onClick={() => navigate(`/register?event=${ev.id}`)}
-                  style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
-                  type="button"
-                >
-                Register →
-              </button>
-            </article>
-          ))}
         </div>
       </section>
 
