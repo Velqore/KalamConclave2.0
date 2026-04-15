@@ -216,7 +216,7 @@ function Home() {
               }
               return null
             })()
-            const rules = liveRules ?? ev.rules ?? []
+            const rules = liveRules ?? []
             return (
               <article
                 key={ev.id}

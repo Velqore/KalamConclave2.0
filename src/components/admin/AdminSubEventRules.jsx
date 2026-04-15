@@ -6,40 +6,34 @@ import { SUB_EVENTS } from '../../config/subEvents'
 
 const rulesKey = (id) => `sub_event_rules_${id}`
 
-function parseRules(value, fallback) {
+function parseRules(value) {
   try {
     if (value) return JSON.parse(value)
-  } catch {}
-  return fallback ?? []
+  } catch (err) {
+    console.warn('[KalamConclave] Failed to parse sub-event rules from settings:', err)
+  }
+  return []
 }
 
 function AdminSubEventRules() {
   const { settings, setSettings } = useAppData()
 
-  // Local state: one textarea string per sub-event (rules joined by newlines)
+  // Local textarea state: initialized from live app_settings only (no static defaults)
   const [drafts, setDrafts] = useState(() =>
     Object.fromEntries(
-      SUB_EVENTS.map((ev) => [
-        ev.id,
-        parseRules(settings[rulesKey(ev.id)], ev.rules).join('\n'),
-      ]),
+      SUB_EVENTS.map((ev) => [ev.id, parseRules(settings[rulesKey(ev.id)]).join('\n')]),
     ),
   )
   const [saving, setSaving] = useState({})
+  const [clearing, setClearing] = useState({})
 
-  // Sync when live settings arrive (e.g. after realtime push from another admin)
+  // Sync when realtime pushes a settings update from another admin session
   useEffect(() => {
     setDrafts((prev) =>
       Object.fromEntries(
         SUB_EVENTS.map((ev) => {
-          const key = rulesKey(ev.id)
-          // Only update if there's a live value we haven't locally edited yet
-          const liveRules = parseRules(settings[key], ev.rules)
-          const liveText = liveRules.join('\n')
-          // Preserve any unsaved local edits — only overwrite if the key wasn't
-          // touched since last mount (i.e. draft equals the static default).
-          const staticDefault = (ev.rules ?? []).join('\n')
-          const isUnedited = prev[ev.id] === staticDefault
+          const liveText = parseRules(settings[rulesKey(ev.id)]).join('\n')
+          const isUnedited = prev[ev.id] === liveText
           return [ev.id, isUnedited ? liveText : prev[ev.id]]
         }),
       ),
@@ -74,13 +68,38 @@ function AdminSubEventRules() {
     }
   }
 
+  const handleClear = async (ev) => {
+    const confirmed = window.confirm(
+      `Clear all rules for "${ev.name}"? They will no longer appear on the home page.`,
+    )
+    if (!confirmed) return
+    setClearing((prev) => ({ ...prev, [ev.id]: true }))
+    try {
+      const supabase = ensureSupabase()
+      const key = rulesKey(ev.id)
+      const { error } = await supabase
+        .from('app_settings')
+        .upsert({ key, value: '[]' }, { onConflict: 'key' })
+      if (error) throw error
+      setSettings((prev) => ({ ...prev, [key]: '[]' }))
+      setDrafts((prev) => ({ ...prev, [ev.id]: '' }))
+      toast.success(`Rules cleared for ${ev.name}`)
+    } catch (err) {
+      toast.error(err.message)
+    } finally {
+      setClearing((prev) => ({ ...prev, [ev.id]: false }))
+    }
+  }
+
   return (
     <div>
       <div className="mb-4">
         <h2 className="text-xl font-bold text-gold">Sub-Event Rules</h2>
         <p className="mt-1 text-sm text-slate-400">
-          Edit the rules displayed on each sub-event card. Enter one rule per line. Changes
-          update the live site immediately.
+          Add or edit rules for each sub-event. Enter one rule per line and click{' '}
+          <strong>Save Rules</strong>. Rules appear live on the home page immediately. Leave the
+          textarea blank (or click <strong>Clear Rules</strong>) to hide the rules panel for that
+          event.
         </p>
       </div>
 
@@ -106,15 +125,25 @@ function AdminSubEventRules() {
               placeholder="Enter each rule on a new line…"
               value={drafts[ev.id]}
             />
-            <button
-              className="mt-3 rounded px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
-              disabled={saving[ev.id]}
-              onClick={() => handleSave(ev)}
-              style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
-              type="button"
-            >
-              {saving[ev.id] ? 'Saving…' : 'Save Rules'}
-            </button>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                className="rounded px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+                disabled={saving[ev.id]}
+                onClick={() => handleSave(ev)}
+                style={{ background: `linear-gradient(135deg, ${ev.gradientFrom}, ${ev.gradientTo})` }}
+                type="button"
+              >
+                {saving[ev.id] ? 'Saving…' : 'Save Rules'}
+              </button>
+              <button
+                className="rounded border border-rose-700/50 px-4 py-2 text-sm font-semibold text-rose-400 hover:bg-rose-700/20 disabled:opacity-60"
+                disabled={clearing[ev.id]}
+                onClick={() => handleClear(ev)}
+                type="button"
+              >
+                {clearing[ev.id] ? 'Clearing…' : 'Clear Rules'}
+              </button>
+            </div>
           </div>
         ))}
       </div>
