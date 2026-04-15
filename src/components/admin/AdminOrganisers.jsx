@@ -1,11 +1,19 @@
-import { useMemo, useState } from 'react'
+import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const emptyForm = { name: '', role: '', image: '', bio: '', sort_order: 0 }
 const sortOrganisers = (items) =>
-  [...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.name ?? '').localeCompare(b.name ?? ''))
+  [...items].sort((a, b) => {
+    const orderA = a.sort_order ?? 0
+    const orderB = b.sort_order ?? 0
+    if (orderA !== orderB) return orderA - orderB
+
+    const nameA = a.name ?? ''
+    const nameB = b.name ?? ''
+    return nameA.localeCompare(nameB)
+  })
 
 function AdminOrganisers() {
   const { organisers, setOrganisers } = useAppData()
@@ -13,7 +21,6 @@ function AdminOrganisers() {
   const [editId, setEditId] = useState(null)
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
-  const sortedOrganisers = useMemo(() => sortOrganisers(organisers), [organisers])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -132,7 +139,7 @@ function AdminOrganisers() {
       )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {sortedOrganisers.map((org) => (
+        {organisers.map((org) => (
           <div key={org.id} className="rounded-xl border border-blue-900 bg-navyLight/40 p-4">
             <div className="flex items-center gap-3">
               {org.image ? (
@@ -157,7 +164,7 @@ function AdminOrganisers() {
             </div>
           </div>
         ))}
-        {sortedOrganisers.length === 0 && <p className="col-span-full text-sm text-slate-400">No organisers added yet.</p>}
+        {organisers.length === 0 && <p className="col-span-full text-sm text-slate-400">No organisers added yet.</p>}
       </div>
     </div>
   )
