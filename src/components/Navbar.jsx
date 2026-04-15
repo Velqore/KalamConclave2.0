@@ -4,7 +4,7 @@ import { EVENT_LOGO_URL } from '../config/branding'
 
 const links = [
   { to: '/', label: 'Home' },
-  { to: '/schedule', label: 'Events' },
+  { to: '/schedule', label: 'Schedule' },
   { to: '/gulf-war', label: 'Gulf War' },
   { to: '/register', label: 'Register' },
   { to: '/guests', label: 'Guests' },
