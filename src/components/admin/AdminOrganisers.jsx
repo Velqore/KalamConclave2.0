@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { ORGANISING_HIERARCHY } from '../../config/organisingHierarchy'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
@@ -164,7 +165,28 @@ function AdminOrganisers() {
             </div>
           </div>
         ))}
-        {organisers.length === 0 && <p className="col-span-full text-sm text-slate-400">No organisers added yet.</p>}
+        {organisers.length === 0 && (
+          <div className="col-span-full rounded-xl border border-blue-900 bg-navyLight/40 p-4">
+            <p className="font-semibold text-gold">No organisers added yet.</p>
+            <p className="mt-1 text-sm text-slate-300">
+              Current organiser details shown on the website are listed below as default committee information.
+            </p>
+            <div className="mt-4 grid gap-3 md:grid-cols-2">
+              {ORGANISING_HIERARCHY.map((group) => (
+                <article key={group.title} className="rounded-lg border border-blue-900/80 bg-navyLight/50 p-3">
+                  <p className="text-[11px] uppercase tracking-[0.12em] text-electricBlue">{group.level}</p>
+                  <h3 className="mt-1 text-sm font-semibold text-gold">{group.title}</h3>
+                  <p className="mt-1 text-xs italic text-slate-400">{group.description}</p>
+                  <ul className="mt-2 space-y-1 text-xs text-slate-300">
+                    {group.members.map((member) => (
+                      <li key={member}>• {member}</li>
+                    ))}
+                  </ul>
+                </article>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   )

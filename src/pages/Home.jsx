@@ -6,6 +6,7 @@ import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
 import { EVENT_SHORT_TITLE } from '../config/branding'
+import { ORGANISING_HIERARCHY } from '../config/organisingHierarchy'
 import { useAppData } from '../context/useAppData'
 import { SUB_EVENTS } from '../config/subEvents'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
@@ -16,49 +17,6 @@ const ILLUSTRATION_ITEMS = [
   { icon: '🛰️', title: 'Orbital Intelligence', description: 'Satellite sensing and live conflict mapping' },
   { icon: '🧪', title: 'Rapid Science Labs', description: 'Field diagnostics and crisis bio-innovation' },
   { icon: '🛡️', title: 'Defence Engineering', description: 'Resilience systems for critical infrastructure' },
-]
-
-const ORGANISING_HIERARCHY = [
-  {
-    title: 'Convenors (DSW)',
-    level: 'Overseeing Body',
-    description: 'Department of Student Welfare (DSW) provides institutional oversight and patronage.',
-    members: [
-      'Prof. (Dr.) Shweta Bansal — Dean, DSW',
-      'Dr. Shivani Sehgal — Assistant Dean, DSW',
-    ],
-  },
-  {
-    title: 'Club Convenors (Dr. A.P.J. Abdul Kalam Science Club)',
-    level: 'Primary Organiser',
-    description: 'The Dr. A.P.J. Abdul Kalam Science Club is the principal organising body for this event.',
-    members: [
-      'Dr. Divyanshi Mangla — Club Convenor',
-      'Dr. Saba Rashid — Co-Convenor',
-    ],
-  },
-  {
-    title: 'Faculty Co-ordinators',
-    level: 'Academic Guidance',
-    description: 'Faculty co-ordinators support planning, mentoring, and academic alignment.',
-    members: [
-      'Dr. Monika Phoughat',
-      'Dr. Rishi Ranjan Kumar',
-      'Dr. Saloni Pathee',
-      'Dr. Vaibhav',
-    ],
-  },
-  {
-    title: 'Student Co-ordinator & Council',
-    level: 'Operational Execution',
-    description: 'Student leadership and council execute on-ground operations and coordination.',
-    members: [
-      'Priyanshi Kharbanda — President',
-      'Gitesh Yadav — Vice President',
-      'Anjali Yadav — Ops Lead',
-      'Sakshi, Ishan, Tanvee — Student Council',
-    ],
-  },
 ]
 
 const fadeUp = {
