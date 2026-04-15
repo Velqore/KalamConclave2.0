@@ -11,14 +11,10 @@ function Schedule() {
         </p>
       </div>
 
-      {/* Agenda / time-based schedule */}
+      {/* Schedule items */}
       {schedule.length > 0 && (
         <section className="mt-8 sm:mt-12">
-          <h2 className="font-display text-3xl leading-none text-sand sm:text-4xl">
-            Day <span className="text-accent">Agenda</span>
-          </h2>
-          <div className="mt-2 h-px w-16 bg-primary/70" />
-          <div className="mt-6 space-y-3">
+          <div className="space-y-3">
             {schedule.map((item) => {
               const isParallel = item.title === 'PARALLEL SESSIONS'
               // For parallel sessions, description is 4 lines: trackA, venueA, trackB, venueB
