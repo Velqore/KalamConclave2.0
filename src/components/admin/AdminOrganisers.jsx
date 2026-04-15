@@ -1,9 +1,11 @@
-import { useState } from 'react'
+import { useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const emptyForm = { name: '', role: '', image: '', bio: '', sort_order: 0 }
+const sortOrganisers = (items) =>
+  [...items].sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0) || (a.name ?? '').localeCompare(b.name ?? ''))
 
 function AdminOrganisers() {
   const { organisers, setOrganisers } = useAppData()
@@ -11,6 +13,7 @@ function AdminOrganisers() {
   const [editId, setEditId] = useState(null)
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
+  const sortedOrganisers = useMemo(() => sortOrganisers(organisers), [organisers])
 
   const handleChange = (e) => {
     const { name, value } = e.target
@@ -47,14 +50,14 @@ function AdminOrganisers() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
-        const { error } = await supabase.from('organisers').update(form).eq('id', editId)
+        const { data, error } = await supabase.from('organisers').update(form).eq('id', editId).select().single()
         if (error) throw error
-        setOrganisers((prev) => prev.map((o) => (o.id === editId ? { ...o, ...form } : o)))
+        setOrganisers((prev) => sortOrganisers(prev.map((o) => (o.id === editId ? data : o))))
         toast.success('Organiser updated')
       } else {
         const { data, error } = await supabase.from('organisers').insert(form).select().single()
         if (error) throw error
-        setOrganisers((prev) => [...prev, data])
+        setOrganisers((prev) => sortOrganisers([...prev, data]))
         toast.success('Organiser added')
       }
       closeForm()
@@ -129,7 +132,7 @@ function AdminOrganisers() {
       )}
 
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-        {organisers.map((org) => (
+        {sortedOrganisers.map((org) => (
           <div key={org.id} className="rounded-xl border border-blue-900 bg-navyLight/40 p-4">
             <div className="flex items-center gap-3">
               {org.image ? (
@@ -143,6 +146,7 @@ function AdminOrganisers() {
               </div>
             </div>
             {org.bio && <p className="mt-2 text-xs italic text-slate-500">{org.bio}</p>}
+            <p className="mt-1 text-[11px] text-slate-500">Order: {org.sort_order ?? 0}</p>
             <div className="mt-3 flex gap-2">
               <button className="rounded bg-electricBlue/20 px-3 py-1 text-xs font-semibold text-electricBlue" onClick={() => openEdit(org)} type="button">
                 Edit
@@ -153,7 +157,7 @@ function AdminOrganisers() {
             </div>
           </div>
         ))}
-        {organisers.length === 0 && <p className="col-span-full text-sm text-slate-400">No organisers added yet.</p>}
+        {sortedOrganisers.length === 0 && <p className="col-span-full text-sm text-slate-400">No organisers added yet.</p>}
       </div>
     </div>
   )
