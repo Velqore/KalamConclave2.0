@@ -138,7 +138,7 @@ function RegistrationForm() {
       return
     }
     if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateTopic) {
-      toast.error('Please select a debate topic for The War Room Debate.')
+      toast.error('Please select a debate topic for The War Room - Debate Battle.')
       return
     }
     setSubmitting(true)
@@ -347,7 +347,7 @@ function RegistrationForm() {
               Debate Topic *
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              Select the perspective you will represent in The War Room Debate.
+              Select the perspective you will represent in The War Room - Debate Battle.
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
               {DEBATE_TOPICS.map((topic) => (

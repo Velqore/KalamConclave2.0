@@ -1,8 +1,8 @@
 export const SUB_EVENTS = [
   {
     id: 'war_room_debate',
-    name: 'The War Room Debate',
-    fullName: 'The War Room Debate',
+    name: 'The War Room - Debate Battle',
+    fullName: 'The War Room - Debate Battle',
     tagline: 'Three Perspectives. One Conflict.',
     description:
       'Debate tracks: Scientists, UN Delegates, and Policy Makers. Choose your position and defend your perspective in the war room.',
