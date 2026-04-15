@@ -153,7 +153,7 @@ function AdminOrganisers() {
               </div>
             </div>
             {org.bio && <p className="mt-2 text-xs italic text-slate-500">{org.bio}</p>}
-            <p className="mt-1 text-[11px] text-slate-500">Order: {org.sort_order ?? 0}</p>
+            <p className="mt-1 text-[11px] text-slate-500">Display order: {org.sort_order ?? 0}</p>
             <div className="mt-3 flex gap-2">
               <button className="rounded bg-electricBlue/20 px-3 py-1 text-xs font-semibold text-electricBlue" onClick={() => openEdit(org)} type="button">
                 Edit
