@@ -18,6 +18,49 @@ const ILLUSTRATION_ITEMS = [
   { icon: '🛡️', title: 'Defence Engineering', description: 'Resilience systems for critical infrastructure' },
 ]
 
+const ORGANISING_HIERARCHY = [
+  {
+    title: 'Convenors (DSW)',
+    level: 'Overseeing Body',
+    description: 'Department of Student Welfare (DSW) provides institutional oversight and patronage.',
+    members: [
+      'Prof. (Dr.) Shweta Bansal — Dean, DSW',
+      'Dr. Shivani Sehgal — Assistant Dean, DSW',
+    ],
+  },
+  {
+    title: 'Club Convenors (Dr. A.P.J. Abdul Kalam Science Club)',
+    level: 'Primary Organiser',
+    description: 'The Dr. A.P.J. Abdul Kalam Science Club is the principal organising body for this event.',
+    members: [
+      'Dr. Divyanshi Mangla — Club Convenor',
+      'Dr. Saba Rashid — Co-Convenor',
+    ],
+  },
+  {
+    title: 'Faculty Co-ordinators',
+    level: 'Academic Guidance',
+    description: 'Faculty co-ordinators support planning, mentoring, and academic alignment.',
+    members: [
+      'Dr. Monika Phoughat',
+      'Dr. Rishi Ranjan Kumar',
+      'Dr. Saloni Pathee',
+      'Dr. Vaibhav',
+    ],
+  },
+  {
+    title: 'Student Co-ordinator & Council',
+    level: 'Operational Execution',
+    description: 'Student leadership and council execute on-ground operations and coordination.',
+    members: [
+      'Priyanshi Kharbanda — President',
+      'Gitesh Yadav — Vice President',
+      'Anjali Yadav — Ops Lead',
+      'Sakshi, Ishan, Tanvee — Student Council',
+    ],
+  },
+]
+
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
   visible: (delay = 0) => ({
@@ -29,7 +72,7 @@ const fadeUp = {
 
 function Home() {
   const navigate = useNavigate()
-  const { speakers, settings, organisers } = useAppData()
+  const { speakers, settings } = useAppData()
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const socialLinks = [
     { key: 'instagram', label: 'Instagram', icon: '📸', url: settings.social_instagram_url },
@@ -246,32 +289,35 @@ function Home() {
           <h2 className="font-display text-4xl leading-none text-accent sm:text-5xl">Organisers</h2>
           <div className="mt-2 h-px w-20 bg-primary/70" />
         </div>
-        {organisers.length > 0 ? (
-          <div className="grid gap-5 sm:grid-cols-2 md:grid-cols-3">
-            {organisers.map((org) => (
-              <article key={org.id} className="topic-card p-5">
-                <div className="flex items-center gap-3">
-                  {org.image ? (
-                    <img alt={org.name} className="h-14 w-14 rounded-full border border-sand/25 object-cover" src={org.image} />
-                  ) : (
-                    <span className="flex h-14 w-14 items-center justify-center rounded-full bg-surface/70 text-2xl">👤</span>
-                  )}
-                  <div>
-                     <h3 className="font-display text-xl leading-none text-accent sm:text-2xl">{org.name}</h3>
-                    <p className="mt-1 font-mono text-[0.63rem] uppercase tracking-[0.16em] text-primary/90">{org.role}</p>
-                  </div>
-                </div>
-                {org.bio && <p className="mt-3 text-sm italic text-sand/86">{org.bio}</p>}
+        <div className="topic-card p-4 sm:p-7">
+          <p className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-sand/72">Organising Body</p>
+          <p className="mt-3 leading-relaxed text-sand/90">
+            This event is organised by the Dr. A.P.J. Abdul Kalam Science Club of K.R. Mangalam
+            University, under the aegis of the Department of Student Welfare (DSW), K.R. Mangalam
+            University.
+          </p>
+          <p className="mt-3 leading-relaxed text-sand/86">
+            The Science Club operates under the guidance and patronage of the DSW, which provides
+            institutional oversight for the event.
+          </p>
+          <div className="mt-6">
+            <h3 className="font-display text-3xl leading-none text-accent sm:text-4xl">Organising Committee</h3>
+          </div>
+          <div className="mt-4 grid gap-4 md:grid-cols-2">
+            {ORGANISING_HIERARCHY.map((group) => (
+              <article key={group.title} className="topic-card p-4">
+                <p className="font-mono text-[0.62rem] uppercase tracking-[0.2em] text-primary/90">{group.level}</p>
+                <h4 className="mt-2 font-display text-2xl leading-none text-accent">{group.title}</h4>
+                <p className="mt-2 text-sm italic text-sand/84">{group.description}</p>
+                <ul className="mt-3 space-y-1 text-sm text-sand/90">
+                  {group.members.map((member) => (
+                    <li key={member}>• {member}</li>
+                  ))}
+                </ul>
               </article>
             ))}
           </div>
-        ) : (
-          <div className="topic-card p-8 text-center">
-            <p className="font-mono text-[0.66rem] uppercase tracking-[0.2em] text-sand/72">Situation Brief</p>
-            <p className="mt-3 font-display text-3xl leading-none text-accent sm:text-4xl">Team Dossier Incoming</p>
-            <p className="mt-3 text-sm italic text-sand/84">Organising team details will be published shortly.</p>
-          </div>
-        )}
+        </div>
       </section>
 
       <section id="social-media" className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 py-8 sm:py-10">
