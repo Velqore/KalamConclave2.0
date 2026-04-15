@@ -4,6 +4,16 @@ import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 
 const emptyForm = { name: '', role: '', image: '', bio: '', sort_order: 0 }
+const sortOrganisers = (items) =>
+  [...items].sort((a, b) => {
+    const orderA = a.sort_order ?? 0
+    const orderB = b.sort_order ?? 0
+    if (orderA !== orderB) return orderA - orderB
+
+    const nameA = a.name ?? ''
+    const nameB = b.name ?? ''
+    return nameA.localeCompare(nameB)
+  })
 
 function AdminOrganisers() {
   const { organisers, setOrganisers } = useAppData()
@@ -47,14 +57,14 @@ function AdminOrganisers() {
     try {
       const supabase = ensureSupabase()
       if (editId) {
-        const { error } = await supabase.from('organisers').update(form).eq('id', editId)
+        const { data, error } = await supabase.from('organisers').update(form).eq('id', editId).select().single()
         if (error) throw error
-        setOrganisers((prev) => prev.map((o) => (o.id === editId ? { ...o, ...form } : o)))
+        setOrganisers((prev) => sortOrganisers(prev.map((o) => (o.id === editId ? data : o))))
         toast.success('Organiser updated')
       } else {
         const { data, error } = await supabase.from('organisers').insert(form).select().single()
         if (error) throw error
-        setOrganisers((prev) => [...prev, data])
+        setOrganisers((prev) => sortOrganisers([...prev, data]))
         toast.success('Organiser added')
       }
       closeForm()
@@ -143,6 +153,7 @@ function AdminOrganisers() {
               </div>
             </div>
             {org.bio && <p className="mt-2 text-xs italic text-slate-500">{org.bio}</p>}
+            <p className="mt-1 text-[11px] text-slate-500">Display order: {org.sort_order ?? 0}</p>
             <div className="mt-3 flex gap-2">
               <button className="rounded bg-electricBlue/20 px-3 py-1 text-xs font-semibold text-electricBlue" onClick={() => openEdit(org)} type="button">
                 Edit
