@@ -51,6 +51,22 @@ DROP POLICY IF EXISTS "Allow all schedule operations" ON public.schedule;
 CREATE POLICY "Allow all schedule operations"
   ON public.schedule FOR ALL USING (true) WITH CHECK (true);
 
+-- Seed event schedule (safe to re-run — upserts are skipped if title already exists at same sort_order)
+INSERT INTO public.schedule (time, title, description, sort_order) VALUES
+  ('09:00 – 09:45 AM', 'Registration & Welcome',                         '📍 Multi-Purpose Hall & Moot Court, KRMU', 1),
+  ('09:45 – 10:00 AM', 'Inaugural Session',                              '', 2),
+  ('10:00 – 10:20 AM', 'Opening Dance Performance',                      '', 3),
+  ('10:20 – 12:20 PM', 'PARALLEL SESSIONS',
+   E'"Echoes of War, Eyes of Science" — Poster Making Competition\n📍 Moot Court\n"Whispers of Hope, Suffering and Survival" — Monoact · Poem · Open Mic (The Science Slam)\n📍 Multi-Purpose Hall',
+   4),
+  ('12:20 – 12:40 PM', 'Refreshments',                                   '', 5),
+  ('12:40 – 01:00 PM', '"Voices of Power" — Special Theatre Performance', '📍 Multi-Purpose Hall', 6),
+  ('01:00 – 02:30 PM', 'PARALLEL SESSIONS',
+   E'"The War Zone – Debate Battle" — Debate Competition\n📍 Moot Court\n"Science in Conflict" — War Tech Quiz\n📍 Multi-Purpose Hall',
+   7),
+  ('02:30 – 03:10 PM', 'Valedictory & Prize Distribution',                '', 8)
+ON CONFLICT DO NOTHING;
+
 -- ─────────────────────────────────────────────────────────────
 -- 3. organisers
 -- ─────────────────────────────────────────────────────────────

@@ -22,22 +22,55 @@ function Schedule() {
           </h2>
           <div className="mt-2 h-px w-16 bg-primary/70" />
           <div className="mt-6 space-y-3">
-            {schedule.map((item) => (
-              <div
-                key={item.id}
-                className="topic-card flex flex-col gap-1 p-4 sm:flex-row sm:items-start sm:gap-6"
-              >
-                <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-primary/90 sm:w-28 sm:pt-0.5">
-                  {item.time}
-                </span>
-                <div>
-                  <p className="font-semibold text-sand">{item.title}</p>
-                  {item.description && (
-                    <p className="mt-1 text-sm italic text-sand/70">{item.description}</p>
+            {schedule.map((item) => {
+              const isParallel = item.title === 'PARALLEL SESSIONS'
+              // For parallel sessions, description is 4 lines: trackA, venueA, trackB, venueB
+              const tracks = isParallel
+                ? (() => {
+                    const lines = item.description.split('\n')
+                    return [
+                      { label: lines[0] ?? '', venue: lines[1] ?? '' },
+                      { label: lines[2] ?? '', venue: lines[3] ?? '' },
+                    ]
+                  })()
+                : null
+
+              return (
+                <div
+                  key={item.id}
+                  className="topic-card flex flex-col gap-1 p-4 sm:flex-row sm:items-start sm:gap-6"
+                >
+                  <span className="shrink-0 font-mono text-xs uppercase tracking-[0.18em] text-primary/90 sm:w-28 sm:pt-0.5">
+                    {item.time}
+                  </span>
+                  {isParallel ? (
+                    <div className="flex-1">
+                      <p className="mb-2 font-semibold text-sand">{item.title}</p>
+                      <div className="grid gap-2 sm:grid-cols-2">
+                        {tracks.map((track, i) => (
+                          <div
+                            key={i}
+                            className="rounded-lg border border-primary/25 bg-primary/5 px-3 py-2"
+                          >
+                            <p className="text-sm font-medium text-sand/95">{track.label}</p>
+                            <p className="mt-0.5 font-mono text-[0.6rem] uppercase tracking-[0.14em] text-primary/80">
+                              {track.venue}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div>
+                      <p className="font-semibold text-sand">{item.title}</p>
+                      {item.description && (
+                        <p className="mt-1 text-sm italic text-sand/70">{item.description}</p>
+                      )}
+                    </div>
                   )}
                 </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </section>
       )}
