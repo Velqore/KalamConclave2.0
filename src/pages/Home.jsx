@@ -154,7 +154,7 @@ function Home() {
             <p>📍 {settings.event_venue}</p>
             {regDeadline && (
               <p className="mt-1 font-semibold text-primary">
-                🗓️ Registration Closses on {regDeadline}
+                🗓️ Registration Closes on {regDeadline}
               </p>
             )}
           </Motion.div>
@@ -211,7 +211,9 @@ function Home() {
               try {
                 const raw = settings[`sub_event_rules_${ev.id}`]
                 if (raw) return JSON.parse(raw)
-              } catch {}
+              } catch (err) {
+                console.warn(`[KalamConclave] Failed to parse rules for sub-event "${ev.id}":`, err)
+              }
               return null
             })()
             const rules = liveRules ?? ev.rules ?? []
