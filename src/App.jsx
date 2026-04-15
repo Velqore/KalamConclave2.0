@@ -8,6 +8,7 @@ import SubEventRegister from './pages/SubEventRegister'
 import EventPassPage from './pages/EventPassPage'
 import Speakers from './pages/Speakers'
 import Schedule from './pages/Schedule'
+import Events from './pages/Events'
 import GulfWar from './pages/GulfWar'
 import Admin from './pages/Admin'
 import AdminDashboard from './pages/AdminDashboard'
@@ -86,6 +87,14 @@ function App() {
         element={
           <AppLayout>
             <Schedule />
+          </AppLayout>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <AppLayout>
+            <Events />
           </AppLayout>
         }
       />
