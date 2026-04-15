@@ -5,9 +5,23 @@ import { normalizeEventShortTitle } from '../config/branding'
 import { supabase } from '../lib/supabaseClient'
 import { AppDataContext, defaultSettings } from './_appDataContext'
 
+const normalizeScheduleItems = (items) =>
+  items
+    .map((item) => ({
+      id: item.id,
+      time: item.time ?? item.timings ?? '',
+      title: item.title ?? item.event ?? item.name ?? '',
+      description: item.description ?? item.details ?? '',
+      sort_order: item.sort_order ?? 0,
+      created_at: item.created_at,
+    }))
+    .sort((a, b) => a.sort_order - b.sort_order)
+
+const normalizedStaticSchedule = normalizeScheduleItems(staticSchedule)
+
 export function AppDataProvider({ children }) {
   const [speakers, setSpeakers] = useState(staticSpeakers)
-  const [schedule, setSchedule] = useState(staticSchedule)
+  const [schedule, setSchedule] = useState(normalizedStaticSchedule)
   const [settings, setSettings] = useState(defaultSettings)
   const [organisers, setOrganisers] = useState([])
 
@@ -21,7 +35,11 @@ export function AppDataProvider({ children }) {
 
     const loadSchedule = async () => {
       const { data } = await supabase.from('schedule').select('*').order('sort_order', { ascending: true })
-      if (Array.isArray(data)) setSchedule(data)
+      if (Array.isArray(data) && data.length > 0) {
+        setSchedule(normalizeScheduleItems(data))
+        return
+      }
+      setSchedule(normalizedStaticSchedule)
     }
 
     const loadSettings = async () => {
