@@ -24,8 +24,8 @@ export const ORGANISING_HIERARCHY = [
     members: [
       'Dr. Monika Phoughat',
       'Dr. Rishi Ranjan Kumar',
-      'Dr. Saloni Pathee',
-      'Dr. Vaibhav',
+      'Saloni Rathee',
+      'Mr. Vaibhav',
     ],
   },
   {
