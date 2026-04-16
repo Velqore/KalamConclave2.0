@@ -11,11 +11,11 @@ function SubEventRulesSlider({ rules, event }) {
   useEffect(() => {
     if (normalizedRules.length <= 1) return undefined
 
-    const id = window.setInterval(() => {
+    const intervalId = window.setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % normalizedRules.length)
     }, 4200)
 
-    return () => window.clearInterval(id)
+    return () => window.clearInterval(intervalId)
   }, [normalizedRules.length])
 
   if (normalizedRules.length === 0) return null

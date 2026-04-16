@@ -15,7 +15,7 @@ export function parseRules(value) {
 }
 
 const markdownDropPatterns = [
-  /^science slam rulebook$/i,
+  /^.+\s+rulebook$/i,
   /^\d+\.\s*(about the event|theme|nature of the competition|eligibility criteria|general rules|time limit|performance guidelines|awards and recognition)\s*$/i,
   /^format$/i,
   /^duration$/i,
