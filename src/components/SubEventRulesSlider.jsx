@@ -32,7 +32,7 @@ function SubEventRulesSlider({ rules, event }) {
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <p className="text-[0.64rem] font-semibold uppercase tracking-[0.16em]" style={{ color: event.color }}>
-          📋 Rules Slide
+          📋 Rules
         </p>
         <p className="font-mono text-[0.58rem] text-sand/60">
           {safeIndex + 1}/{normalizedRules.length}

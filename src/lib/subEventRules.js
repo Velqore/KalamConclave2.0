@@ -43,7 +43,7 @@ async function loadRulesFromFile(path) {
   if (!path || typeof fetch !== 'function') return []
 
   try {
-    const response = await fetch(path, { cache: 'no-store' })
+    const response = await fetch(path)
     if (!response.ok) return []
     const markdownText = await response.text()
     return parseRulesMarkdown(markdownText)
