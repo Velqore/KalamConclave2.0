@@ -40,6 +40,7 @@ export const SUB_EVENTS = [
     maxTeamSize: 1,
     minTeamSize: 1,
     isTeamEvent: false,
+    rulesFile: '/Rules/ScienceSlamrule.md',
     registrationFields: [
       'participant_name',
       'roll_number',

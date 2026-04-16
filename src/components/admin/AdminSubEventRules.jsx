@@ -3,45 +3,47 @@ import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
-
-const rulesKey = (id) => `sub_event_rules_${id}`
-
-function parseRules(value) {
-  try {
-    if (value) return JSON.parse(value)
-  } catch (err) {
-    console.warn('[KalamConclave] Failed to parse sub-event rules from settings:', err)
-  }
-  return []
-}
+import { getEffectiveRules, loadDefaultRulesMap, parseRules, rulesKey } from '../../lib/subEventRules'
 
 function AdminSubEventRules() {
   const { settings, setSettings } = useAppData()
+  const [defaultRulesByEvent, setDefaultRulesByEvent] = useState({})
 
-  // Local textarea state: initialized from live app_settings only (no static defaults)
-  const [drafts, setDrafts] = useState(() =>
-    Object.fromEntries(
-      SUB_EVENTS.map((ev) => [ev.id, parseRules(settings[rulesKey(ev.id)]).join('\n')]),
-    ),
-  )
+  const [drafts, setDrafts] = useState(() => Object.fromEntries(SUB_EVENTS.map((ev) => [ev.id, ''])))
+  const [dirty, setDirty] = useState({})
   const [saving, setSaving] = useState({})
   const [clearing, setClearing] = useState({})
 
-  // Sync when realtime pushes a settings update from another admin session
+  useEffect(() => {
+    let mounted = true
+    loadDefaultRulesMap(SUB_EVENTS).then((map) => {
+      if (!mounted) return
+      setDefaultRulesByEvent(map)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [])
+
+  // Sync when realtime pushes a settings update (or when markdown defaults load)
   useEffect(() => {
     setDrafts((prev) =>
       Object.fromEntries(
         SUB_EVENTS.map((ev) => {
-          const liveText = parseRules(settings[rulesKey(ev.id)]).join('\n')
-          const isUnedited = prev[ev.id] === liveText
-          return [ev.id, isUnedited ? liveText : prev[ev.id]]
+          if (dirty[ev.id]) return [ev.id, prev[ev.id]]
+          const effectiveRules = getEffectiveRules({
+            settings,
+            eventId: ev.id,
+            defaults: defaultRulesByEvent,
+          })
+          return [ev.id, effectiveRules.join('\n')]
         }),
       ),
     )
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [settings])
+  }, [settings, defaultRulesByEvent, dirty])
 
   const handleChange = (id, value) => {
+    setDirty((prev) => ({ ...prev, [id]: true }))
     setDrafts((prev) => ({ ...prev, [id]: value }))
   }
 
@@ -60,6 +62,7 @@ function AdminSubEventRules() {
         .upsert({ key, value }, { onConflict: 'key' })
       if (error) throw error
       setSettings((prev) => ({ ...prev, [key]: value }))
+      setDirty((prev) => ({ ...prev, [ev.id]: false }))
       toast.success(`Rules saved for ${ev.name}`)
     } catch (err) {
       toast.error(err.message)
@@ -83,6 +86,7 @@ function AdminSubEventRules() {
       if (error) throw error
       setSettings((prev) => ({ ...prev, [key]: '[]' }))
       setDrafts((prev) => ({ ...prev, [ev.id]: '' }))
+      setDirty((prev) => ({ ...prev, [ev.id]: false }))
       toast.success(`Rules cleared for ${ev.name}`)
     } catch (err) {
       toast.error(err.message)

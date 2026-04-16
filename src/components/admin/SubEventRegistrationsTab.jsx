@@ -3,6 +3,7 @@ import Papa from 'papaparse'
 import toast from 'react-hot-toast'
 import { ensureSupabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
+import AdminSubEventRules from './AdminSubEventRules'
 
 const SUB_EVENT_OPTIONS = ['All Events', ...SUB_EVENTS.map((e) => e.name)]
 const yearOptions = ['1st', '2nd', '3rd', '4th', '5th', 'Working Professional', 'Other']
@@ -413,6 +414,10 @@ function SubEventRegistrationsTab() {
           </table>
         </div>
       )}
+
+      <div className="mt-8 border-t border-sand/10 pt-8">
+        <AdminSubEventRules />
+      </div>
     </div>
   )
 }
