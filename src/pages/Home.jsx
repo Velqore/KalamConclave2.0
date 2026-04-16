@@ -1,14 +1,16 @@
-import { lazy, Suspense, useEffect } from 'react'
+import { lazy, Suspense, useEffect, useState } from 'react'
 import { motion as Motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
 import GulfWarBanner from '../components/GulfWarBanner'
 import Ticker from '../components/Ticker'
+import SubEventRulesSlider from '../components/SubEventRulesSlider'
 import { EVENT_SHORT_TITLE } from '../config/branding'
 import { ORGANISING_HIERARCHY } from '../config/organisingHierarchy'
 import { useAppData } from '../context/useAppData'
 import { SUB_EVENTS } from '../config/subEvents'
+import { getEffectiveRules, loadDefaultRulesMap } from '../lib/subEventRules'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
 
 const RocketEffect = lazy(() => import('../components/RocketEffect'))
@@ -31,6 +33,7 @@ const fadeUp = {
 function Home() {
   const navigate = useNavigate()
   const { speakers, settings, organisers } = useAppData()
+  const [defaultRulesByEvent, setDefaultRulesByEvent] = useState({})
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const socialLinks = [
     { key: 'instagram', label: 'Instagram', icon: '📸', url: settings.social_instagram_url },
@@ -54,6 +57,17 @@ function Home() {
 
     revealElements.forEach((item) => observer.observe(item))
     return () => observer.disconnect()
+  }, [])
+
+  useEffect(() => {
+    let mounted = true
+    loadDefaultRulesMap(SUB_EVENTS).then((map) => {
+      if (!mounted) return
+      setDefaultRulesByEvent(map)
+    })
+    return () => {
+      mounted = false
+    }
   }, [])
 
   return (
@@ -165,16 +179,11 @@ function Home() {
         </div>
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {SUB_EVENTS.map((ev) => {
-            const liveRules = (() => {
-              try {
-                const raw = settings[`sub_event_rules_${ev.id}`]
-                if (raw) return JSON.parse(raw)
-              } catch (err) {
-                console.warn(`[KalamConclave] Failed to parse rules for sub-event "${ev.id}":`, err)
-              }
-              return null
-            })()
-            const rules = liveRules ?? []
+            const rules = getEffectiveRules({
+              settings,
+              eventId: ev.id,
+              defaults: defaultRulesByEvent,
+            })
             return (
               <article
                 key={ev.id}
@@ -194,24 +203,7 @@ function Home() {
                 <p className="mt-2 flex-1 text-xs italic text-sand/80">{ev.tagline}</p>
                 <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {ev.venue}</p>
 
-                {rules.length > 0 && (
-                  <details className="mt-3 rounded-lg border border-current/10 p-2" style={{ borderColor: `${ev.color}28` }}>
-                    <summary
-                      className="cursor-pointer select-none text-xs font-semibold uppercase tracking-wide"
-                      style={{ color: ev.color }}
-                    >
-                      📋 Rules
-                    </summary>
-                    <ul className="mt-2 space-y-1">
-                      {rules.map((rule, idx) => (
-                        <li key={idx} className="flex gap-1.5 text-[0.65rem] leading-snug text-sand/75">
-                          <span className="shrink-0 text-sand/40">·</span>
-                          {rule}
-                        </li>
-                      ))}
-                    </ul>
-                  </details>
-                )}
+                <SubEventRulesSlider event={ev} rules={rules} />
 
                 <button
                   className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
