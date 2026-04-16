@@ -40,7 +40,11 @@ export function parseRulesMarkdown(markdownText) {
 }
 
 async function loadRulesFromFile(path) {
-  if (!path || typeof fetch !== 'function') return []
+  if (!path) return []
+  if (typeof fetch !== 'function') {
+    console.warn(`[KalamConclave] Fetch is unavailable, cannot load rules file "${path}".`)
+    return []
+  }
 
   try {
     const response = await fetch(path)

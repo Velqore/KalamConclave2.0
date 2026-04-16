@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from 'react'
 import { AnimatePresence, motion as Motion } from 'framer-motion'
 
+const RULE_ROTATION_INTERVAL_MS = 4200
+
 function SubEventRulesSlider({ rules, event }) {
   const normalizedRules = useMemo(
     () => rules.map((rule) => String(rule).trim()).filter(Boolean),
@@ -13,7 +15,7 @@ function SubEventRulesSlider({ rules, event }) {
 
     const intervalId = window.setInterval(() => {
       setActiveIndex((prev) => (prev + 1) % normalizedRules.length)
-    }, 4200)
+    }, RULE_ROTATION_INTERVAL_MS)
 
     return () => window.clearInterval(intervalId)
   }, [normalizedRules.length])
