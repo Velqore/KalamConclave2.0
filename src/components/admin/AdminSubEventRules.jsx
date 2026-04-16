@@ -3,7 +3,7 @@ import toast from 'react-hot-toast'
 import { useAppData } from '../../context/useAppData'
 import { ensureSupabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
-import { getEffectiveRules, loadDefaultRulesMap, parseRules, rulesKey } from '../../lib/subEventRules'
+import { getEffectiveRules, loadDefaultRulesMap, rulesKey } from '../../lib/subEventRules'
 
 function AdminSubEventRules() {
   const { settings, setSettings } = useAppData()

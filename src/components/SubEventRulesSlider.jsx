@@ -9,10 +9,6 @@ function SubEventRulesSlider({ rules, event }) {
   const [activeIndex, setActiveIndex] = useState(0)
 
   useEffect(() => {
-    setActiveIndex(0)
-  }, [normalizedRules.length])
-
-  useEffect(() => {
     if (normalizedRules.length <= 1) return undefined
 
     const id = window.setInterval(() => {
@@ -24,7 +20,7 @@ function SubEventRulesSlider({ rules, event }) {
 
   if (normalizedRules.length === 0) return null
 
-  const safeIndex = Math.min(activeIndex, normalizedRules.length - 1)
+  const safeIndex = activeIndex % normalizedRules.length
 
   return (
     <div
