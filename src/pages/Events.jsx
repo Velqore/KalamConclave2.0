@@ -1,8 +1,25 @@
+import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import SubEventRulesSlider from '../components/SubEventRulesSlider'
 import { SUB_EVENTS } from '../config/subEvents'
+import { useAppData } from '../context/useAppData'
+import { getEffectiveRules, loadDefaultRulesMap } from '../lib/subEventRules'
 
 function Events() {
   const navigate = useNavigate()
+  const { settings } = useAppData()
+  const [defaultRulesByEvent, setDefaultRulesByEvent] = useState({})
+
+  useEffect(() => {
+    let mounted = true
+    loadDefaultRulesMap(SUB_EVENTS).then((map) => {
+      if (!mounted) return
+      setDefaultRulesByEvent(map)
+    })
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-10 sm:py-14">
@@ -17,9 +34,15 @@ function Events() {
 
       <section className="mt-10 sm:mt-14">
         <div className="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {SUB_EVENTS.map((event) => (
-            <article
-              key={event.id}
+          {SUB_EVENTS.map((event) => {
+            const rules = getEffectiveRules({
+              settings,
+              eventId: event.id,
+              defaults: defaultRulesByEvent,
+            })
+            return (
+              <article
+                key={event.id}
               className="topic-card flex flex-col p-5 transition-all"
               style={{ borderColor: `${event.color}33` }}
             >
@@ -32,6 +55,7 @@ function Events() {
               </p>
               <p className="mt-2 flex-1 text-xs italic text-sand/80">{event.tagline}</p>
               <p className="mt-2 font-mono text-[0.6rem] text-sand/45">📍 {event.venue}</p>
+              <SubEventRulesSlider event={event} rules={rules} />
               <button
                 className="mt-4 w-full rounded px-4 py-2.5 text-sm font-semibold text-white transition hover:brightness-110"
                 onClick={() => navigate(`/register?event=${event.id}`)}
@@ -41,7 +65,8 @@ function Events() {
                 Register →
               </button>
             </article>
-          ))}
+            )
+          })}
         </div>
       </section>
     </div>
