@@ -91,7 +91,7 @@ function Home() {
             variants={fadeUp}
             className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
           >
-            {EVENT_SHORT_TITLE}
+            <span className="dots-text-hero">{EVENT_SHORT_TITLE}</span>
           </Motion.h1>
 
           <Motion.div

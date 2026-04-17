@@ -42,6 +42,9 @@ function RegistrationForm() {
   const [searchParams, setSearchParams] = useSearchParams()
   const { settings } = useAppData()
   const ticketPrice = settings.ticket_price || '149'
+  const upiPaymentUrl = settings.upi_id
+    ? `upi://pay?pa=${encodeURIComponent(settings.upi_id)}&pn=${encodeURIComponent(settings.event_short_title || EVENT_SHORT_TITLE)}&am=${encodeURIComponent(ticketPrice)}&cu=INR`
+    : ''
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
@@ -377,8 +380,21 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
         <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
+        <p className="mt-1 text-xs text-slate-300">Click/Scan to Pay</p>
         {settings.upi_qr_url ? (
-          <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
+          upiPaymentUrl ? (
+            <a
+              aria-label="Open UPI payment link in new tab"
+              className="inline-block"
+              href={upiPaymentUrl}
+              rel="noopener noreferrer"
+              target="_blank"
+            >
+              <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1 transition hover:brightness-110" src={settings.upi_qr_url} />
+            </a>
+          ) : (
+            <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
+          )
         ) : (
           <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
             UPI QR Placeholder
