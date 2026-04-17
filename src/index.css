@@ -144,6 +144,20 @@
     font-weight: 300;
   }
 
+  .dots-text-hero {
+    display: inline-block;
+    color: transparent;
+    background-image: radial-gradient(circle, rgba(34, 211, 238, 0.95) 1.2px, transparent 1.6px);
+    background-size: 14px 14px;
+    background-position: 0 0;
+    -webkit-background-clip: text;
+    background-clip: text;
+    text-shadow: 0 0 18px rgba(34, 211, 238, 0.2);
+    animation:
+      dots-to-text 2.4s cubic-bezier(0.16, 1, 0.3, 1) both,
+      dots-drift 8s linear infinite;
+  }
+
   .ticker-track {
     animation: ticker-scroll 28s linear infinite;
   }
@@ -186,6 +200,39 @@
   }
 }
 
+@keyframes dots-to-text {
+  0% {
+    opacity: 0.45;
+    filter: blur(2px);
+    letter-spacing: 0.12em;
+    background-size: 24px 24px;
+  }
+
+  70% {
+    opacity: 0.95;
+    filter: blur(0.4px);
+    letter-spacing: 0.03em;
+    background-size: 11px 11px;
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    letter-spacing: 0;
+    background-size: 7px 7px;
+  }
+}
+
+@keyframes dots-drift {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 70px 70px;
+  }
+}
+
 @keyframes guide-persuade {
   0% {
     opacity: 0;
@@ -215,7 +262,8 @@
 
 @media (prefers-reduced-motion: reduce) {
   .reveal,
-  .guide-persuade-flow {
+  .guide-persuade-flow,
+  .dots-text-hero {
     transition: none !important;
     animation: none !important;
     transform: none !important;
