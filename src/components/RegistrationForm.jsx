@@ -380,7 +380,7 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
         <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
-        <p className="mt-1 text-xs text-slate-300">Click/Scan to Pay</p>
+        <p className="mt-1 text-xs text-slate-300">{upiPaymentUrl ? 'Click/Scan to Pay' : 'Scan to Pay'}</p>
         {settings.upi_qr_url ? (
           upiPaymentUrl ? (
             <a
@@ -390,7 +390,7 @@ function RegistrationForm() {
               rel="noopener noreferrer"
               target="_blank"
             >
-              <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1 transition hover:brightness-110" src={settings.upi_qr_url} />
+              <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 cursor-pointer rounded border border-blue-700 object-contain bg-white p-1 transition hover:brightness-110" src={settings.upi_qr_url} />
             </a>
           ) : (
             <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
