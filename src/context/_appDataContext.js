@@ -10,6 +10,7 @@ export const defaultSettings = {
   event_logo_url: EVENT_LOGO_URL,
   upi_qr_url: '',
   upi_id: '',
+  payment_url: '',
   ticket_price: '149',
   social_instagram_url: '',
   social_linkedin_url: '',

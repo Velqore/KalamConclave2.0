@@ -45,6 +45,8 @@ function RegistrationForm() {
   const upiPaymentUrl = settings.upi_id
     ? `upi://pay?pa=${encodeURIComponent(settings.upi_id)}&pn=${encodeURIComponent(settings.event_short_title || EVENT_SHORT_TITLE)}&am=${encodeURIComponent(ticketPrice)}&cu=INR`
     : ''
+  // Prefer the explicit payment URL from admin; fall back to constructed UPI deep-link
+  const paymentClickUrl = settings.payment_url || upiPaymentUrl
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
@@ -266,13 +268,13 @@ function RegistrationForm() {
   }
 
   return (
-    <form className="mx-auto grid w-full max-w-3xl gap-4 rounded-2xl border border-blue-900 bg-navyLight/70 p-4 shadow-soft sm:grid-cols-2 sm:p-6" onSubmit={handleSubmit}>
-      <h2 className="col-span-full text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
+    <form className="mx-auto grid w-full max-w-3xl grid-cols-1 gap-4 overflow-hidden rounded-2xl border border-blue-900 bg-navyLight/70 p-4 shadow-soft sm:grid-cols-2 sm:p-6" onSubmit={handleSubmit}>
+      <h2 className="col-span-full break-words text-2xl font-bold text-gold">Register for ₹{ticketPrice} (Standard Ticket)</h2>
 
       {regDeadline && (
-        <div className="col-span-full flex items-center gap-2 rounded-lg border border-primary/50 bg-primary/10 px-4 py-2.5">
-          <span className="text-lg">🗓️</span>
-          <p className="text-sm font-semibold text-primary">
+        <div className="col-span-full flex min-w-0 items-start gap-2 rounded-lg border border-primary/50 bg-primary/10 px-3 py-2.5 sm:items-center sm:px-4">
+          <span className="shrink-0 text-lg">🗓️</span>
+          <p className="min-w-0 text-sm font-semibold text-primary">
             Registration closes on <span className="text-accent">{regDeadline}</span> — 2 days before the event.
           </p>
         </div>
@@ -380,28 +382,36 @@ function RegistrationForm() {
 
       <div className="col-span-full rounded-xl border border-blue-900 bg-navy p-4 text-center">
         <p className="font-semibold text-gold">Scan to Pay ₹{ticketPrice} via UPI</p>
-        <p className="mt-1 text-xs text-slate-300">{upiPaymentUrl ? 'Click/Scan to Pay' : 'Scan to Pay'}</p>
+        <p className="mt-1 text-xs text-slate-300">{paymentClickUrl ? 'Click/Scan to Pay' : 'Scan to Pay'}</p>
         {settings.upi_qr_url ? (
-          upiPaymentUrl ? (
+          paymentClickUrl ? (
             <a
-              aria-label="Open UPI payment link in new tab"
+              aria-label="Open payment link in new tab"
               className="inline-block"
-              href={upiPaymentUrl}
+              href={paymentClickUrl}
               rel="noopener noreferrer"
               target="_blank"
             >
-              <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 cursor-pointer rounded border border-blue-700 object-contain bg-white p-1 transition hover:brightness-110" src={settings.upi_qr_url} />
+              <img
+                alt="UPI QR Code"
+                className="mx-auto mt-3 w-40 max-w-[min(160px,60vw)] cursor-pointer rounded border border-blue-700 bg-white p-1 transition hover:brightness-110"
+                src={settings.upi_qr_url}
+              />
             </a>
           ) : (
-            <img alt="UPI QR Code" className="mx-auto mt-3 h-40 w-40 rounded border border-blue-700 object-contain bg-white p-1" src={settings.upi_qr_url} />
+            <img
+              alt="UPI QR Code"
+              className="mx-auto mt-3 w-40 max-w-[min(160px,60vw)] rounded border border-blue-700 bg-white p-1"
+              src={settings.upi_qr_url}
+            />
           )
         ) : (
-          <div className="mx-auto mt-3 flex h-40 w-40 items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
+          <div className="mx-auto mt-3 flex h-40 w-40 max-w-[min(160px,60vw)] items-center justify-center rounded border border-dashed border-blue-700 bg-blue-950/30 text-xs text-slate-400">
             UPI QR Placeholder
           </div>
         )}
         {settings.upi_id && (
-          <p className="mt-2 font-mono text-xs text-slate-300">{settings.upi_id}</p>
+          <p className="mt-2 break-all font-mono text-xs text-slate-300">{settings.upi_id}</p>
         )}
       </div>
 

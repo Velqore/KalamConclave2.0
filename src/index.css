@@ -147,15 +147,15 @@
   .dots-text-hero {
     display: inline-block;
     color: transparent;
-    background-image: radial-gradient(circle, rgba(34, 211, 238, 0.95) 1.2px, transparent 1.6px);
-    background-size: 14px 14px;
+    background-image: radial-gradient(circle, rgba(34, 211, 238, 1) 1.6px, transparent 1.6px);
+    background-size: 28px 28px;
     background-position: 0 0;
     -webkit-background-clip: text;
     background-clip: text;
-    text-shadow: 0 0 18px rgba(34, 211, 238, 0.2);
+    text-shadow: none;
     animation:
-      dots-to-text 2.4s cubic-bezier(0.16, 1, 0.3, 1) both,
-      dots-drift 8s linear infinite;
+      dots-to-text 2.8s cubic-bezier(0.16, 1, 0.3, 1) both,
+      dots-drift 10s linear infinite;
   }
 
   .ticker-track {
@@ -202,24 +202,38 @@
 
 @keyframes dots-to-text {
   0% {
-    opacity: 0.45;
-    filter: blur(2px);
-    letter-spacing: 0.12em;
-    background-size: 24px 24px;
+    opacity: 0.15;
+    filter: blur(6px);
+    letter-spacing: 0.22em;
+    background-size: 28px 28px;
   }
 
-  70% {
-    opacity: 0.95;
-    filter: blur(0.4px);
-    letter-spacing: 0.03em;
+  20% {
+    opacity: 0.55;
+    filter: blur(3.5px);
+    letter-spacing: 0.14em;
+    background-size: 20px 20px;
+  }
+
+  55% {
+    opacity: 0.85;
+    filter: blur(1.2px);
+    letter-spacing: 0.05em;
     background-size: 11px 11px;
+  }
+
+  80% {
+    opacity: 0.97;
+    filter: blur(0.3px);
+    letter-spacing: 0.01em;
+    background-size: 7px 7px;
   }
 
   100% {
     opacity: 1;
     filter: blur(0);
     letter-spacing: 0;
-    background-size: 7px 7px;
+    background-size: 5px 5px;
   }
 }
 
@@ -229,7 +243,7 @@
   }
 
   to {
-    background-position: 70px 70px;
+    background-position: 50px 50px;
   }
 }
 
