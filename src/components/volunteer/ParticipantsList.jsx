@@ -50,7 +50,7 @@ function AvatarInitials({ name, passType }) {
   )
 }
 
-function ParticipantModal({ record, onClose, onUpdate, onDelete }) {
+function ParticipantModal({ record, debateRole, onClose, onUpdate, onDelete }) {
   const [saving, setSaving] = useState(false)
 
   const update = async (status) => {
@@ -91,6 +91,11 @@ function ParticipantModal({ record, onClose, onUpdate, onDelete }) {
         </div>
 
         <div style={{ color: '#94a3b8', fontSize: '13px', marginBottom: '6px' }}>{record.department}</div>
+        {debateRole && (
+          <div style={{ display: 'inline-flex', alignItems: 'center', marginBottom: '8px', background: 'rgba(127,29,29,0.4)', borderRadius: '6px', padding: '4px 10px', fontSize: '12px', color: '#fca5a5', fontWeight: 600 }}>
+            🗣️ War Room Role: {debateRole}
+          </div>
+        )}
         <div style={{ marginBottom: '16px' }}><StatusBadge status={record.status} /></div>
 
         {record.checked_in_at && (
@@ -164,15 +169,17 @@ function ParticipantsList() {
   const [totalReg, setTotalReg] = useState(0)
   const [refreshKey, setRefreshKey] = useState(0)
   const [subEventMap, setSubEventMap] = useState({}) // pass_id → sub_event_name
+  const [debateRoleMap, setDebateRoleMap] = useState({}) // reg_id → debate_topic
   const intervalRef = useRef(null)
 
   useEffect(() => {
     const doFetch = async () => {
       if (!supabase) { setLoading(false); return }
-      const [attRes, regRes, subRes] = await Promise.all([
+      const [attRes, regRes, subRes, roleRes] = await Promise.all([
         supabase.from('attendance').select('*').order('created_at', { ascending: false }),
         supabase.from('registrations').select('id', { count: 'exact', head: true }),
         supabase.from('sub_event_registrations').select('pass_id, sub_event_name, sub_event_id'),
+        supabase.from('registrations').select('reg_id, debate_topic').not('debate_topic', 'is', null),
       ])
       if (attRes.data) setRecords(attRes.data)
       if (regRes.count != null) setTotalReg(regRes.count)
@@ -180,6 +187,11 @@ function ParticipantsList() {
         const map = {}
         subRes.data.forEach((r) => { map[r.pass_id] = r.sub_event_name })
         setSubEventMap(map)
+      }
+      if (roleRes.data) {
+        const map = {}
+        roleRes.data.forEach((r) => { if (r.debate_topic) map[r.reg_id] = r.debate_topic })
+        setDebateRoleMap(map)
       }
       setLoading(false)
     }
@@ -336,6 +348,11 @@ function ParticipantsList() {
                     {subEventMap[r.participant_id]}
                   </div>
                 )}
+                {debateRoleMap[r.participant_id] && (
+                  <div style={{ display: 'inline-flex', alignItems: 'center', marginTop: '2px', background: 'rgba(127,29,29,0.4)', borderRadius: '4px', padding: '1px 6px', fontSize: '10px', color: '#fca5a5', fontWeight: 600 }}>
+                    🗣️ {debateRoleMap[r.participant_id]}
+                  </div>
+                )}
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px', flexShrink: 0 }}>
                 <StatusBadge status={r.status} />
@@ -355,6 +372,7 @@ function ParticipantsList() {
         {selected && (
           <ParticipantModal
             key="modal"
+            debateRole={debateRoleMap[selected?.participant_id]}
             onClose={() => setSelected(null)}
             onDelete={handleDelete}
             onUpdate={() => { setRefreshKey((k) => k + 1); setSelected(null) }}

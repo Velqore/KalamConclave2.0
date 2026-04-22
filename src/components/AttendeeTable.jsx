@@ -10,6 +10,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
             <th className="px-3 py-3">Phone</th>
             <th className="px-3 py-3">College</th>
             <th className="px-3 py-3">City</th>
+            <th className="px-3 py-3">Role</th>
             <th className="px-3 py-3">UTR ID</th>
             <th className="px-3 py-3">Screenshot</th>
             <th className="px-3 py-3">Payment</th>
@@ -27,6 +28,11 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
               <td className="px-3 py-3">{attendee.phone}</td>
               <td className="px-3 py-3">{attendee.college}</td>
               <td className="px-3 py-3">{attendee.city}</td>
+              <td className="px-3 py-3">
+                {attendee.debate_topic
+                  ? <span className="rounded bg-red-900/30 px-2 py-0.5 text-xs font-semibold text-red-300">{attendee.debate_topic}</span>
+                  : <span className="text-slate-500">—</span>}
+              </td>
               <td className="px-3 py-3">{attendee.utr_id}</td>
               <td className="px-3 py-3">
                 {attendee.payment_screenshot_url ? (

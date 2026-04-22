@@ -50,6 +50,7 @@ const createRegistrationTemplate = () => ({
   attendance: false,
   payment_screenshot_url: '',
   verification_email_sent: false,
+  debate_topic: '',
 })
 
 function AdminDashboard() {
@@ -179,6 +180,7 @@ function AdminDashboard() {
       attendance: Boolean(attendee.attendance),
       payment_screenshot_url: attendee.payment_screenshot_url ?? '',
       verification_email_sent: Boolean(attendee.verification_email_sent),
+      debate_topic: attendee.debate_topic ?? '',
     })
     setEditingId(attendee.id)
     setFormOpen(true)
@@ -427,6 +429,15 @@ function AdminDashboard() {
                 <select className="input" name="payment_status" onChange={handleFormChange} value={formData.payment_status}>
                   <option value="pending">pending</option>
                   <option value="verified">verified</option>
+                </select>
+              </label>
+              <label className="text-sm">
+                Debate Role (War Room only)
+                <select className="input" name="debate_topic" onChange={handleFormChange} value={formData.debate_topic}>
+                  <option value="">— None —</option>
+                  <option value="Scientists">Scientists</option>
+                  <option value="UN Delegates">UN Delegates</option>
+                  <option value="Policy Makers">Policy Makers</option>
                 </select>
               </label>
               <label className="flex items-center gap-2 pt-7 text-sm">
