@@ -1,5 +1,4 @@
 import { lazy, Suspense, useEffect, useState } from 'react'
-import { motion as Motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import CountdownTimer from '../components/CountdownTimer'
 import SpeakerCard from '../components/SpeakerCard'
@@ -20,15 +19,6 @@ const ILLUSTRATION_ITEMS = [
   { icon: '🧪', title: 'Rapid Science Labs', description: 'Field diagnostics and crisis bio-innovation' },
   { icon: '🛡️', title: 'Defence Engineering', description: 'Resilience systems for critical infrastructure' },
 ]
-
-const fadeUp = {
-  hidden: { opacity: 0, y: 30 },
-  visible: (delay = 0) => ({
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.75, delay, ease: [0.16, 1, 0.3, 1] },
-  }),
-}
 
 const InstagramIcon = () => (
   <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
@@ -112,51 +102,27 @@ function Home() {
       </Suspense>
 
       <section className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-8 pt-10 sm:pb-10 sm:pt-16">
-        <Motion.div
+        <div
           className="overflow-hidden rounded-2xl border border-primary/40 p-5 sm:p-10 lg:p-14"
           style={{
             background:
               'radial-gradient(circle at 70% 40%, rgba(16,80,180,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(0,100,160,0.28), transparent 48%), rgba(10,18,35,0.70)',
           }}
         >
-          <Motion.h1
-            custom={0}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent"
-          >
+          <h1 className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent">
             <span className="negative-mask-hero">{EVENT_SHORT_TITLE}</span>
-          </Motion.h1>
+          </h1>
 
-          <Motion.div
-            custom={0.2}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="mt-2 font-subtitle text-base text-accent sm:text-lg"
-          >
+          <div className="mt-2 font-subtitle text-base text-accent sm:text-lg">
             Science in the Shadow of war
-          </Motion.div>
+          </div>
 
-          <Motion.p
-            custom={0.5}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="mt-4 max-w-3xl text-base font-bold not-italic text-sand/90 sm:text-xl"
-          >
+          <p className="mt-4 max-w-3xl text-base font-bold not-italic text-sand/90 sm:text-xl">
             When conflict reshapes civilisation, science becomes both weapon and lifeline. Explore
             how the ongoing Gulf War is redefining research, medicine, and innovation.
-          </Motion.p>
+          </p>
 
-          <Motion.div
-            custom={0.5}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
-            className="mt-6 space-y-1.5 font-mono text-sm text-sand/80"
-          >
+          <div className="mt-6 space-y-1.5 font-mono text-sm text-sand/80">
             <p>📅 {settings.event_date_label} | {settings.event_time_label}</p>
             <p>📍 {settings.event_venue}</p>
             {regDeadline && (
@@ -164,24 +130,20 @@ function Home() {
                 🗓️ Registration Closes on {regDeadline}
               </p>
             )}
-          </Motion.div>
+          </div>
 
-          <Motion.div custom={0.5} initial="hidden" animate="visible" variants={fadeUp} className="mt-8 max-w-xl">
+          <div className="mt-8 max-w-xl">
             <CountdownTimer />
-          </Motion.div>
+          </div>
 
-          <Motion.button
-            custom={0.5}
-            initial="hidden"
-            animate="visible"
-            variants={fadeUp}
+          <button
             className="mt-8 w-full rounded border border-accent bg-accent px-7 py-3 font-semibold text-bg transition hover:brightness-110 sm:w-auto"
             onClick={() => navigate('/register')}
             type="button"
           >
             Register Now →
-          </Motion.button>
-        </Motion.div>
+          </button>
+        </div>
       </section>
 
       <section className="reveal relative z-10 mx-auto w-full max-w-6xl px-4 pb-4 sm:pb-8">

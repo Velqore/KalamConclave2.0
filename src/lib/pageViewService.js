@@ -76,8 +76,9 @@ export async function resetPageViews() {
   if (!supabase) return
 
   const client = ensureSupabase()
-  // .neq('id', 0) is a filter that matches all rows — Supabase requires at least one filter for DELETE
-  const { error } = await client.from('page_views').delete().neq('id', 0)
+  // Supabase requires at least one filter for DELETE.
+  // Use a type-safe UUID-compatible filter that matches all non-null IDs.
+  const { error } = await client.from('page_views').delete().not('id', 'is', null)
 
   if (error) {
     const nonFatalCodes = new Set(['42P01', '42501', 'PGRST116'])
