@@ -316,7 +316,10 @@ function AdminDashboard() {
   const handleViewPass = (attendee) => {
     setPassModalAttendee(attendee)
     setPassQrCodeDataUrl(null)
-    generateQRCode(attendee.reg_id, attendee.full_name).then(setPassQrCodeDataUrl).catch(() => {})
+    generateQRCode(attendee.reg_id, attendee.full_name).then(setPassQrCodeDataUrl).catch((error) => {
+      console.error('Failed to generate QR code:', error)
+      toast.error('Could not generate QR code for pass.')
+    })
   }
 
   const handleClosePassModal = () => {
@@ -329,7 +332,10 @@ function AdminDashboard() {
     setDownloadingPass(true)
     try {
       const canvas = await html2canvas(passCardRef.current, {
-        scale: 3, useCORS: true, backgroundColor: '#ffffff', logging: false,
+        scale: 3,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
       })
       const imgData = canvas.toDataURL('image/png')
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: [85, 135] })

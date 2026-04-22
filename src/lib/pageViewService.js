@@ -76,6 +76,7 @@ export async function resetPageViews() {
   if (!supabase) return
 
   const client = ensureSupabase()
+  // .neq('id', 0) is a filter that matches all rows — Supabase requires at least one filter for DELETE
   const { error } = await client.from('page_views').delete().neq('id', 0)
 
   if (error) {
