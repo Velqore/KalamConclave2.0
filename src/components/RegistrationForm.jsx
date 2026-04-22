@@ -11,7 +11,7 @@ import { SUB_EVENTS } from '../config/subEvents'
 import EventPassCard from './EventPassCard'
 import { getRegistrationDeadline } from '../utils/dateHelpers'
 
-const DEBATE_TOPICS = ['Scientists', 'UN Delegates', 'Policy Makers']
+const DEBATE_ROLES = ['Scientists', 'UN Delegates', 'Policy Makers']
 const DEBATE_EVENT_ID = 'war_room_debate'
 
 const initialForm = {
@@ -50,7 +50,7 @@ function RegistrationForm() {
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const [formData, setFormData] = useState(initialForm)
   const [selectedEvents, setSelectedEvents] = useState([])
-  const [debateTopic, setDebateTopic] = useState('')
+  const [debateRole, setDebateRole] = useState('')
   const [screenshot, setScreenshot] = useState(null)
   const [submitting, setSubmitting] = useState(false)
   const [confirmation, setConfirmation] = useState(null)
@@ -77,9 +77,9 @@ function RegistrationForm() {
   const handleEventToggle = (eventId) => {
     setSelectedEvents((prev) => {
       const next = prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
-      // Clear debate topic if the debate event is deselected
+      // Clear debate role if the debate event is deselected
       if (eventId === DEBATE_EVENT_ID && !next.includes(DEBATE_EVENT_ID)) {
-        setDebateTopic('')
+        setDebateRole('')
       }
       return next
     })
@@ -142,8 +142,8 @@ function RegistrationForm() {
       toast.error('Please select at least one event.')
       return
     }
-    if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateTopic) {
-      toast.error('Please select a debate topic for The War Room - Debate Battle.')
+    if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateRole) {
+      toast.error('Please select a role for The War Room - Debate Battle.')
       return
     }
     setSubmitting(true)
@@ -152,13 +152,14 @@ function RegistrationForm() {
       const payload = {
         ...formData,
         selected_events: selectedEvents,
-        debate_topic: selectedEvents.includes(DEBATE_EVENT_ID) ? debateTopic : null,
+        debate_topic: selectedEvents.includes(DEBATE_EVENT_ID) ? debateRole : null,
       }
       const data = await saveRegistration(payload)
       setConfirmation(data)
       toast.success('Registration completed successfully!')
       setFormData(initialForm)
       setScreenshot(null)
+      setDebateRole('')
 
       // Generate QR code for the pass
       generateQRCode(data.reg_id, data.full_name).then(setQrCodeDataUrl).catch(() => {})
@@ -349,30 +350,30 @@ function RegistrationForm() {
         {selectedEvents.includes(DEBATE_EVENT_ID) && (
           <div className="mt-4 rounded-lg border border-red-800/40 bg-red-950/20 p-3">
             <p className="font-mono text-[0.65rem] uppercase tracking-[0.18em] text-red-400">
-              Debate Topic *
+              Debate Role *
             </p>
             <p className="mt-1 text-xs text-slate-400">
-              Select the perspective you will represent in The War Room - Debate Battle.
+              Select your role in The War Room - Debate Battle.
             </p>
             <div className="mt-2 grid gap-2 sm:grid-cols-3">
-              {DEBATE_TOPICS.map((topic) => (
+              {DEBATE_ROLES.map((role) => (
                 <label
-                  key={topic}
+                  key={role}
                   className={`flex cursor-pointer items-center gap-2 rounded border px-3 py-2 text-sm transition ${
-                    debateTopic === topic
+                    debateRole === role
                       ? 'border-red-500 bg-red-900/30 text-red-300'
                       : 'border-sand/15 text-sand/80 hover:border-red-700/60'
                   }`}
                 >
                   <input
-                    checked={debateTopic === topic}
+                    checked={debateRole === role}
                     className="accent-red-500"
-                    name="debate_topic"
-                    onChange={() => setDebateTopic(topic)}
+                    name="debate_role"
+                    onChange={() => setDebateRole(role)}
                     type="radio"
-                    value={topic}
+                    value={role}
                   />
-                  <span>{topic}</span>
+                  <span>{role}</span>
                 </label>
               ))}
             </div>

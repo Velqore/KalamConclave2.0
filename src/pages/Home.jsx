@@ -30,15 +30,50 @@ const fadeUp = {
   }),
 }
 
+const InstagramIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
+    <defs>
+      <radialGradient id="ig-grad1" cx="30%" cy="107%" r="120%">
+        <stop offset="0%" stopColor="#ffd600" />
+        <stop offset="50%" stopColor="#ff0069" />
+        <stop offset="100%" stopColor="#d300c5" />
+      </radialGradient>
+      <radialGradient id="ig-grad2" cx="5%" cy="95%" r="60%">
+        <stop offset="0%" stopColor="#ff6600" stopOpacity="0.7" />
+        <stop offset="100%" stopColor="#ff6600" stopOpacity="0" />
+      </radialGradient>
+    </defs>
+    <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig-grad1)" />
+    <rect x="2" y="2" width="20" height="20" rx="6" fill="url(#ig-grad2)" />
+    <circle cx="12" cy="12" r="4.5" stroke="#fff" strokeWidth="1.8" />
+    <circle cx="17.5" cy="6.5" r="1.2" fill="#fff" />
+  </svg>
+)
+
+const LinkedInIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
+    <rect x="2" y="2" width="20" height="20" rx="4" fill="#0A66C2" />
+    <path d="M7.1 10.2h2V17h-2v-6.8ZM8.1 9.1a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4ZM17 17h-2v-3.3c0-.8-.3-1.4-1-1.4-.6 0-.9.4-1 .8V17h-2V10.2h2v.9a2.3 2.3 0 0 1 2.1-1.1c1.5 0 2 1 2 2.7V17Z" fill="#fff" />
+  </svg>
+)
+
+const YouTubeIcon = () => (
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" width="36" height="36" aria-hidden="true">
+    <rect x="2" y="5" width="20" height="14" rx="4" fill="#FF0000" />
+    <path d="M10 9l5 3-5 3V9Z" fill="#fff" />
+  </svg>
+)
+
+
 function Home() {
   const navigate = useNavigate()
   const { speakers, settings, organisers } = useAppData()
   const [defaultRulesByEvent, setDefaultRulesByEvent] = useState({})
   const regDeadline = getRegistrationDeadline(settings.event_date)
   const socialLinks = [
-    { key: 'instagram', label: 'Instagram', icon: '📸', url: settings.social_instagram_url },
-    { key: 'linkedin', label: 'LinkedIn', icon: '💼', url: settings.social_linkedin_url },
-    { key: 'youtube', label: 'YouTube', icon: '🎥', url: settings.social_youtube_url },
+    { key: 'instagram', label: 'Instagram', icon: <InstagramIcon />, url: settings.social_instagram_url },
+    { key: 'linkedin', label: 'LinkedIn', icon: <LinkedInIcon />, url: settings.social_linkedin_url },
+    { key: 'youtube', label: 'YouTube', icon: <YouTubeIcon />, url: settings.social_youtube_url },
   ].filter((item) => item.url)
 
   useEffect(() => {
