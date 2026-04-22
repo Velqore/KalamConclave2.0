@@ -6,11 +6,13 @@ import QRScanner from '../components/volunteer/QRScanner'
 import ParticipantsList from '../components/volunteer/ParticipantsList'
 import EventStats from '../components/volunteer/EventStats'
 import EventInfo from '../components/volunteer/EventInfo'
+import RegistrationManager from '../components/volunteer/RegistrationManager'
 import { fetchPageViewSummary } from '../lib/pageViewService'
 
 const TABS = [
   { key: 'scanner', label: 'Scanner', emoji: '📷' },
   { key: 'participants', label: 'Attendees', emoji: '👥' },
+  { key: 'registrations', label: 'Registrations', emoji: '📝' },
   { key: 'stats', label: 'Stats', emoji: '📊' },
   { key: 'views', label: 'Views', emoji: '👁️' },
   { key: 'info', label: 'Info', emoji: 'ℹ️' },
@@ -74,6 +76,7 @@ function VolunteerDashboard() {
   const tabContent = {
     scanner: <QRScanner volunteerName={volunteerName} />,
     participants: <ParticipantsList />,
+    registrations: <RegistrationManager />,
     stats: <EventStats />,
     views: (
       <div style={{ padding: '16px', overflowY: 'auto', height: '100%' }}>
