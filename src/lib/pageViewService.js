@@ -72,6 +72,22 @@ export async function trackPageView(pathname = '/') {
   }
 }
 
+export async function resetPageViews() {
+  if (!supabase) return
+
+  const client = ensureSupabase()
+  const { error } = await client.from('page_views').delete().neq('id', 0)
+
+  if (error) {
+    const nonFatalCodes = new Set(['42P01', '42501', 'PGRST116'])
+    if (nonFatalCodes.has(error.code)) {
+      console.warn('Page view reset unavailable:', error.message)
+      return
+    }
+    throw error
+  }
+}
+
 export async function fetchPageViewSummary() {
   if (!supabase) return { total: 0, unique: 0, byPath: [] }
 

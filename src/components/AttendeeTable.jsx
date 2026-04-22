@@ -1,4 +1,4 @@
-function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit, onDelete }) {
+function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit, onDelete, onViewPass }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-blue-900">
       <table className="min-w-full divide-y divide-blue-900 text-left text-sm">
@@ -82,6 +82,13 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
               </td>
               <td className="px-3 py-3">
                 <div className="flex flex-wrap gap-2">
+                  <button
+                    className="rounded bg-violet-600/20 px-3 py-1 text-xs font-semibold text-violet-300"
+                    onClick={() => onViewPass(attendee)}
+                    type="button"
+                  >
+                    Pass
+                  </button>
                   <button
                     className="rounded bg-electricBlue/20 px-3 py-1 text-xs font-semibold text-electricBlue"
                     onClick={() => onEdit(attendee)}
