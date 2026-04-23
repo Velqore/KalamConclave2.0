@@ -147,6 +147,10 @@ function RegistrationManager() {
   const togglePaymentStatus = async (row) => {
     if (!supabase) return
     const nextStatus = row.payment_status === 'verified' ? 'pending' : 'verified'
+    if (nextStatus === 'verified' && !row.utr_id?.trim()) {
+      toast.error('Cannot authorize: UTR / Transaction ID is missing. Use Update to add it first.')
+      return
+    }
     const { error } = await supabase
       .from('registrations')
       .update({ payment_status: nextStatus })
@@ -259,11 +263,16 @@ function RegistrationManager() {
               </select>
               <input name="city" onChange={handleFormChange} placeholder="City" required style={inputStyle()} value={formData.city} />
               <input name="heard_from" onChange={handleFormChange} placeholder="Source" style={inputStyle()} value={formData.heard_from} />
-              <input name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" required={formData.payment_status === 'verified'} style={inputStyle()} value={formData.utr_id} />
               <select name="payment_status" onChange={handleFormChange} style={inputStyle()} value={formData.payment_status}>
                 <option value="pending">pending</option>
                 <option value="verified">verified</option>
               </select>
+              <div>
+                <input name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" required style={inputStyle()} value={formData.utr_id} />
+                {formData.payment_status === 'verified' && !formData.utr_id.trim() && (
+                  <p style={{ margin: '4px 0 0', color: '#fca5a5', fontSize: '11px' }}>Required for verified registrations</p>
+                )}
+              </div>
               <label style={{ color: '#cbd5e1', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 <input checked={formData.attendance} name="attendance" onChange={handleFormChange} type="checkbox" />
                 Mark as present
