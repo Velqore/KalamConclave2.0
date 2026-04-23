@@ -101,19 +101,42 @@ function RegistrationManager() {
   const handleSubmit = async (event) => {
     event.preventDefault()
     if (!supabase) return
+
+    if (formData.payment_status === 'verified' && !formData.utr_id.trim()) {
+      toast.error('UTR / Transaction ID is required for verified registrations.')
+      return
+    }
+
     setSaving(true)
     try {
       if (editingId) {
         const { error } = await supabase.from('registrations').update(formData).eq('id', editingId)
         if (error) throw error
         toast.success('Registration updated')
+        resetForm()
+        fetchRegistrations()
       } else {
-        const { error } = await supabase.from('registrations').insert(formData)
-        if (error) throw error
-        toast.success('On-desk registration added')
+        // Retry loop — regenerate reg_id if a unique constraint violation occurs (up to 3 attempts)
+        let lastError = null
+        for (let attempt = 1; attempt <= 3; attempt += 1) {
+          const payload = attempt === 1 ? formData : { ...formData, reg_id: generateRegId() }
+          const { error } = await supabase.from('registrations').insert(payload)
+          if (!error) {
+            if (attempt > 1) {
+              setFormData((prev) => ({ ...prev, reg_id: payload.reg_id }))
+            }
+            toast.success('On-desk registration added')
+            resetForm()
+            fetchRegistrations()
+            lastError = null
+            break
+          }
+          lastError = error
+          // Only retry on unique violation (Postgres error code 23505)
+          if (error.code !== '23505') break
+        }
+        if (lastError) throw lastError
       }
-      resetForm()
-      fetchRegistrations()
     } catch (error) {
       toast.error(error.message)
     } finally {
