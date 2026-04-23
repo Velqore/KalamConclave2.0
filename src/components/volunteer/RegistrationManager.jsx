@@ -4,12 +4,14 @@ import { supabase } from '../../lib/supabaseClient'
 
 const yearOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
 
+const REG_ID_PREFIX = 'KCC2'
+
 const generateRegId = () => {
   const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
   const buffer = new Uint32Array(4)
   crypto.getRandomValues(buffer)
   const suffix = Array.from(buffer, (value) => chars[value % chars.length]).join('')
-  return `KCC2-${suffix}`
+  return `${REG_ID_PREFIX}-${suffix}`
 }
 
 const createDeskRegistrationTemplate = () => ({
@@ -270,13 +272,13 @@ function RegistrationManager() {
                 <option value="verified">verified</option>
               </select>
               <div>
-                <input aria-label="UTR or transaction ID" name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" required style={inputStyle()} value={formData.utr_id} />
+                <input aria-label="UTR or transaction ID" name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" style={inputStyle()} value={formData.utr_id} />
                 {formData.payment_status === 'verified' && !formData.utr_id.trim() && (
                   <p style={{ margin: '4px 0 0', color: '#fca5a5', fontSize: '11px' }}>Required for verified registrations</p>
                 )}
               </div>
               <label style={{ color: '#cbd5e1', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <input checked={formData.attendance} name="attendance" onChange={handleFormChange} type="checkbox" />
+                <input aria-label="Mark as present" checked={formData.attendance} name="attendance" onChange={handleFormChange} type="checkbox" />
                 Mark as present
               </label>
               <div style={{ display: 'flex', gap: '8px' }}>
