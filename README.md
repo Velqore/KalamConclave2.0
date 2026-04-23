@@ -189,6 +189,7 @@ The portal session expires when the browser tab is closed. No Supabase account i
 |-----|----------|
 | **Scanner** | Camera QR scanner with 5 scan states (valid/checked-in/exited/invalid/duplicate), check-in/check-out, sound + vibration feedback |
 | **Attendees** | Live participant list with search, filter by status, tap for manual override |
+| **Registrations** | Authorize registrations (payment status), add on-desk registrations, and update registration details |
 | **Stats** | Live stat cards, attendance % ring, hourly bar chart, last 5 scans, CSV export |
 | **Info** | Event details, volunteer guidelines, emergency contacts, session info + logout |
 
