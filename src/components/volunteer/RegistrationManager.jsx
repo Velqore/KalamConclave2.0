@@ -122,7 +122,7 @@ function RegistrationManager() {
           const payload = attempt === 1 ? formData : { ...formData, reg_id: generateRegId() }
           const { error } = await supabase.from('registrations').insert(payload)
           if (!error) {
-            if (attempt > 1) {
+            if (payload.reg_id !== formData.reg_id) {
               setFormData((prev) => ({ ...prev, reg_id: payload.reg_id }))
             }
             toast.success('On-desk registration added')
@@ -142,6 +142,12 @@ function RegistrationManager() {
     } finally {
       setSaving(false)
     }
+  }
+
+  const openNewRegistrationForm = () => {
+    setFormData(createDeskRegistrationTemplate())
+    setEditingId(null)
+    setFormOpen(true)
   }
 
   const togglePaymentStatus = async (row) => {
@@ -168,11 +174,7 @@ function RegistrationManager() {
       <div style={{ padding: '12px 16px', background: '#1e293b', borderBottom: '1px solid #334155' }}>
         <div style={{ display: 'flex', gap: '8px', marginBottom: '10px' }}>
           <button
-            onClick={() => {
-              setFormData(createDeskRegistrationTemplate())
-              setEditingId(null)
-              setFormOpen(true)
-            }}
+            onClick={openNewRegistrationForm}
             style={{ background: '#7C3AED', border: 'none', borderRadius: '10px', color: '#fff', fontSize: '12px', fontWeight: 700, padding: '10px 12px', cursor: 'pointer', minHeight: '40px' }}
             type="button"
           >
@@ -250,25 +252,25 @@ function RegistrationManager() {
           <div onClick={(e) => e.stopPropagation()} style={{ width: '100%', maxHeight: '90vh', overflowY: 'auto', background: '#1e293b', borderRadius: '20px 20px 0 0', padding: '18px 16px calc(20px + env(safe-area-inset-bottom, 0px))' }}>
             <h3 style={{ color: '#f8fafc', margin: 0, fontSize: '16px' }}>{editingId ? 'Update Registration' : 'Create On-Desk Registration'}</h3>
             <form onSubmit={handleSubmit} style={{ marginTop: '12px', display: 'grid', gap: '10px' }}>
-              <input name="reg_id" onChange={handleFormChange} readOnly style={inputStyle(true)} value={formData.reg_id} />
-              <input name="full_name" onChange={handleFormChange} placeholder="Full name" required style={inputStyle()} value={formData.full_name} />
-              <input name="email" onChange={handleFormChange} placeholder="Email" required style={inputStyle()} type="email" value={formData.email} />
-              <input name="phone" onChange={handleFormChange} placeholder="Phone" required style={inputStyle()} value={formData.phone} />
-              <input name="college" onChange={handleFormChange} placeholder="College" required style={inputStyle()} value={formData.college} />
-              <input name="course" onChange={handleFormChange} placeholder="Course / Designation" required style={inputStyle()} value={formData.course} />
-              <select name="year_of_study" onChange={handleFormChange} style={inputStyle()} value={formData.year_of_study}>
+              <input aria-label="Registration ID" name="reg_id" onChange={handleFormChange} readOnly style={inputStyle(true)} value={formData.reg_id} />
+              <input aria-label="Full name" name="full_name" onChange={handleFormChange} placeholder="Full name" required style={inputStyle()} value={formData.full_name} />
+              <input aria-label="Email" name="email" onChange={handleFormChange} placeholder="Email" required style={inputStyle()} type="email" value={formData.email} />
+              <input aria-label="Phone" name="phone" onChange={handleFormChange} placeholder="Phone" required style={inputStyle()} value={formData.phone} />
+              <input aria-label="College" name="college" onChange={handleFormChange} placeholder="College" required style={inputStyle()} value={formData.college} />
+              <input aria-label="Course or designation" name="course" onChange={handleFormChange} placeholder="Course / Designation" required style={inputStyle()} value={formData.course} />
+              <select aria-label="Year of study" name="year_of_study" onChange={handleFormChange} style={inputStyle()} value={formData.year_of_study}>
                 {yearOptions.map((option) => (
                   <option key={option} value={option}>{option}</option>
                 ))}
               </select>
-              <input name="city" onChange={handleFormChange} placeholder="City" required style={inputStyle()} value={formData.city} />
-              <input name="heard_from" onChange={handleFormChange} placeholder="Source" style={inputStyle()} value={formData.heard_from} />
-              <select name="payment_status" onChange={handleFormChange} style={inputStyle()} value={formData.payment_status}>
+              <input aria-label="City" name="city" onChange={handleFormChange} placeholder="City" required style={inputStyle()} value={formData.city} />
+              <input aria-label="Source (how they heard about the event)" name="heard_from" onChange={handleFormChange} placeholder="Source" style={inputStyle()} value={formData.heard_from} />
+              <select aria-label="Payment status" name="payment_status" onChange={handleFormChange} style={inputStyle()} value={formData.payment_status}>
                 <option value="pending">pending</option>
                 <option value="verified">verified</option>
               </select>
               <div>
-                <input name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" required style={inputStyle()} value={formData.utr_id} />
+                <input aria-label="UTR or transaction ID" name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" required style={inputStyle()} value={formData.utr_id} />
                 {formData.payment_status === 'verified' && !formData.utr_id.trim() && (
                   <p style={{ margin: '4px 0 0', color: '#fca5a5', fontSize: '11px' }}>Required for verified registrations</p>
                 )}
