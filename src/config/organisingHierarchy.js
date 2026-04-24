@@ -39,4 +39,12 @@ export const ORGANISING_HIERARCHY = [
       'Sakshi, Ishan, Tanvee — Student Council',
     ],
   },
+  {
+    title: 'Technical Team',
+    level: 'Web & Technology',
+    description: 'Responsible for the design, development, and deployment of the official Kalam Conclave 2.0 website.',
+    members: [
+      'Ayush Tyagi — Lead Developer',
+    ],
+  },
 ]

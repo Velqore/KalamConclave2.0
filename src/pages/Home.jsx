@@ -103,10 +103,10 @@ function Home() {
 
       <section className="relative z-10 mx-auto w-full max-w-6xl px-4 pb-8 pt-10 sm:pb-10 sm:pt-16">
         <div
-          className="overflow-hidden rounded-2xl border border-primary/40 p-5 sm:p-10 lg:p-14"
+          className="overflow-hidden rounded-2xl border border-primary/30 p-5 sm:p-10 lg:p-14"
           style={{
             background:
-              'radial-gradient(circle at 70% 40%, rgba(16,80,180,0.30), transparent 42%), radial-gradient(circle at 20% 70%, rgba(0,100,160,0.28), transparent 48%), rgba(10,18,35,0.70)',
+              'radial-gradient(circle at 70% 40%, rgba(21,88,168,0.14), transparent 42%), radial-gradient(circle at 20% 70%, rgba(14,165,201,0.10), transparent 48%), rgba(214,232,250,0.70)',
           }}
         >
           <h1 className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent">
