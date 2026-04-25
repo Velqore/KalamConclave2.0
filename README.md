@@ -41,7 +41,7 @@ npm install
 VITE_SUPABASE_URL=your_supabase_project_url
 VITE_SUPABASE_ANON_KEY=your_supabase_anon_key
 VITE_ADMIN_USERNAME=KalamAdmin
-VITE_ADMIN_PASSWORD=Kalam21321@
+VITE_ADMIN_PASSWORD=Kalam21@
 ```
 
 3. Start dev server:
