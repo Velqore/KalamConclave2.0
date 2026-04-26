@@ -41,7 +41,7 @@ function buildRegistrationHtml(name, regId) {
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #1e3a5f;">
                     <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#60a5fa;">📅 Date &amp; Time</span><br/>
-                    <span style="color:#e2e8f0;font-size:15px;">21st April 2026 &nbsp;|&nbsp; 10:00 AM Onwards</span>
+                    <span style="color:#e2e8f0;font-size:15px;">28th April 2026 &nbsp;|&nbsp; 10:00 AM Onwards</span>
                   </td>
                 </tr>
                 <tr>
@@ -115,7 +115,7 @@ function buildVerifiedHtml(name, regId) {
                 <tr>
                   <td style="padding:10px 0;border-bottom:1px solid #1e3a5f;">
                     <span style="font-size:11px;text-transform:uppercase;letter-spacing:1px;color:#60a5fa;">📅 Date &amp; Time</span><br/>
-                    <span style="color:#e2e8f0;font-size:15px;">21st April 2026 &nbsp;|&nbsp; 10:00 AM Onwards</span>
+                    <span style="color:#e2e8f0;font-size:15px;">28th April 2026 &nbsp;|&nbsp; 10:00 AM Onwards</span>
                   </td>
                 </tr>
                 <tr>
