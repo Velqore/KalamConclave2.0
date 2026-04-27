@@ -14,6 +14,22 @@ import { getRegistrationDeadline } from '../utils/dateHelpers'
 const DEBATE_ROLES = ['Scientists', 'UN Delegates', 'Policy Makers']
 const DEBATE_EVENT_ID = 'war_room_debate'
 
+const SUB_EVENT_PASS_PREFIXES = {
+  war_room_debate: 'WRD',
+  science_slam: 'SS',
+  wartech_quiz: 'WQ',
+  poster: 'PM',
+}
+
+const generateSubEventPassId = (subEventId) => {
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const prefix = SUB_EVENT_PASS_PREFIXES[subEventId] ?? 'EV'
+  const buf = new Uint32Array(5)
+  crypto.getRandomValues(buf)
+  const suffix = Array.from(buf, (value) => chars[value % chars.length]).join('')
+  return `KCC2-${prefix}-${suffix}`
+}
+
 const initialForm = {
   full_name: '',
   email: '',
@@ -160,6 +176,31 @@ function RegistrationForm() {
       setFormData(initialForm)
       setScreenshot(null)
       setDebateRole('')
+
+      // Auto-create sub_event_registrations entries for each selected event
+      try {
+        const supabase = ensureSupabase()
+        const subEventRows = selectedEvents.map((eventId) => {
+          const ev = SUB_EVENTS.find((e) => e.id === eventId)
+          return {
+            pass_id: generateSubEventPassId(eventId),
+            sub_event_id: eventId,
+            sub_event_name: ev?.fullName ?? ev?.name ?? eventId,
+            participant_name: data.full_name,
+            participant_roll: '',
+            participant_email: data.email,
+            participant_phone: data.phone,
+            participant_course: data.course,
+            participant_year: data.year_of_study,
+            participant_university: data.college,
+            pass_type: 'Participant',
+          }
+        })
+        await supabase.from('sub_event_registrations').insert(subEventRows)
+      } catch (subEventError) {
+        // Non-fatal: main registration succeeded; admin can add sub event rows manually
+        console.warn('Could not auto-create sub_event_registrations:', subEventError)
+      }
 
       // Generate QR code for the pass
       generateQRCode(data.reg_id, data.full_name).then(setQrCodeDataUrl).catch(() => {})
