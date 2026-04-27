@@ -106,7 +106,7 @@ function Home() {
           className="overflow-hidden rounded-2xl border border-primary/30 p-5 sm:p-10 lg:p-14"
           style={{
             background:
-              'radial-gradient(circle at 70% 40%, rgba(21,88,168,0.14), transparent 42%), radial-gradient(circle at 20% 70%, rgba(14,165,201,0.10), transparent 48%), rgba(214,232,250,0.70)',
+              'radial-gradient(circle at 70% 40%, rgba(30,123,196,0.22), transparent 42%), radial-gradient(circle at 20% 70%, rgba(14,165,201,0.14), transparent 48%), rgba(12,24,40,0.80)',
           }}
         >
           <h1 className="font-display text-[clamp(2.5rem,8vw,5rem)] leading-[0.9] text-accent">

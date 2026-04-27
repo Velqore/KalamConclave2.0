@@ -1,3 +1,5 @@
+import { SUB_EVENTS } from '../config/subEvents'
+
 function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit, onDelete, onViewPass }) {
   return (
     <div className="overflow-x-auto rounded-xl border border-blue-900">
@@ -10,6 +12,7 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
             <th className="px-3 py-3">Phone</th>
             <th className="px-3 py-3">College</th>
             <th className="px-3 py-3">City</th>
+            <th className="px-3 py-3">Events</th>
             <th className="px-3 py-3">Role</th>
             <th className="px-3 py-3">UTR ID</th>
             <th className="px-3 py-3">Screenshot</th>
@@ -28,6 +31,26 @@ function AttendeeTable({ attendees, onTogglePayment, onToggleAttendance, onEdit,
               <td className="px-3 py-3">{attendee.phone}</td>
               <td className="px-3 py-3">{attendee.college}</td>
               <td className="px-3 py-3">{attendee.city}</td>
+              <td className="px-3 py-3">
+                {Array.isArray(attendee.selected_events) && attendee.selected_events.length > 0 ? (
+                  <div className="flex flex-wrap gap-1">
+                    {attendee.selected_events.map((evId) => {
+                      const ev = SUB_EVENTS.find((e) => e.id === evId)
+                      return ev ? (
+                        <span
+                          key={evId}
+                          className="rounded px-1.5 py-0.5 text-[0.6rem] font-semibold text-white"
+                          style={{ background: ev.gradientFrom }}
+                        >
+                          {ev.icon} {ev.name}
+                        </span>
+                      ) : null
+                    })}
+                  </div>
+                ) : (
+                  <span className="text-slate-500">—</span>
+                )}
+              </td>
               <td className="px-3 py-3">
                 {attendee.debate_topic
                   ? <span className="rounded bg-red-900/30 px-2 py-0.5 text-xs font-semibold text-red-300">{attendee.debate_topic}</span>

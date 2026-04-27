@@ -40,7 +40,7 @@ function Navbar() {
   }
 
   return (
-    <header className="sticky top-0 z-50 border-b border-accent/20 bg-[rgba(237,244,252,0.97)] backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-accent/20 bg-[rgba(8,15,26,0.97)] backdrop-blur">
       <nav className="mx-auto flex w-full max-w-6xl items-center justify-between gap-3 px-4 py-3">
         <NavLink
           to="/"
