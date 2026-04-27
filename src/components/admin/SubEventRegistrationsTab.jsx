@@ -45,6 +45,7 @@ function SubEventRegistrationsTab() {
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
+  const [syncing, setSyncing] = useState(false)
   const [formData, setFormData] = useState(createFormTemplate)
 
   const fetchRegistrations = async () => {
@@ -66,6 +67,69 @@ function SubEventRegistrationsTab() {
   useEffect(() => {
     fetchRegistrations()
   }, [])
+
+  const handleSyncFromRegistrations = async () => {
+    setSyncing(true)
+    try {
+      const supabase = ensureSupabase()
+
+      // Fetch all main registrations that have selected_events
+      const { data: mainRegs, error: mainErr } = await supabase
+        .from('registrations')
+        .select('full_name, email, phone, course, year_of_study, college, debate_topic, selected_events')
+      if (mainErr) throw mainErr
+
+      // Fetch existing sub_event_registrations to avoid duplicates
+      const { data: existing, error: existingErr } = await supabase
+        .from('sub_event_registrations')
+        .select('participant_email, sub_event_id')
+      if (existingErr) throw existingErr
+
+      const existingSet = new Set(
+        (existing ?? []).map((r) => `${(r.participant_email ?? '').toLowerCase()}__${r.sub_event_id}`)
+      )
+
+      const rowsToInsert = []
+      for (const reg of mainRegs ?? []) {
+        const events = Array.isArray(reg.selected_events) ? reg.selected_events : []
+        for (const eventId of events) {
+          const key = `${(reg.email ?? '').toLowerCase()}__${eventId}`
+          if (existingSet.has(key)) continue
+          const ev = SUB_EVENTS.find((e) => e.id === eventId)
+          if (!ev) continue
+          rowsToInsert.push({
+            pass_id: generatePassId(eventId),
+            sub_event_id: eventId,
+            sub_event_name: ev.fullName ?? ev.name,
+            participant_name: reg.full_name,
+            participant_roll: '',
+            participant_email: reg.email,
+            participant_phone: reg.phone,
+            participant_course: reg.course,
+            participant_year: reg.year_of_study,
+            participant_university: reg.college,
+            pass_type: 'Participant',
+          })
+        }
+      }
+
+      if (rowsToInsert.length === 0) {
+        toast.success('All registrations are already in sync — nothing to add.')
+        setSyncing(false)
+        return
+      }
+
+      const { error: insertErr } = await supabase.from('sub_event_registrations').insert(rowsToInsert)
+      if (insertErr) throw insertErr
+
+      toast.success(`Synced ${rowsToInsert.length} missing sub-event registration${rowsToInsert.length > 1 ? 's' : ''}.`)
+      await fetchRegistrations()
+    } catch (err) {
+      toast.error(`Sync failed: ${err.message}`)
+    } finally {
+      setSyncing(false)
+    }
+  }
 
   const selectedSubEvent = useMemo(
     () => SUB_EVENTS.find((event) => event.id === formData.sub_event_id) ?? null,
@@ -262,9 +326,20 @@ function SubEventRegistrationsTab() {
       </div>
 
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={handleCreateNew} type="button">
-          Add Event Registration
-        </button>
+        <div className="flex flex-wrap gap-2">
+          <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={handleCreateNew} type="button">
+            Add Event Registration
+          </button>
+          <button
+            className="rounded bg-emerald-600 px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+            disabled={syncing}
+            onClick={handleSyncFromRegistrations}
+            type="button"
+            title="Backfill sub-event rows from existing main registrations"
+          >
+            {syncing ? 'Syncing…' : '🔄 Sync from Registrations'}
+          </button>
+        </div>
       </div>
 
       {formOpen && (

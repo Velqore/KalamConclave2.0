@@ -1,8 +1,11 @@
 import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
+import { SUB_EVENTS } from '../../config/subEvents'
 
 const yearOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
+const DEBATE_ROLES = ['Scientists', 'UN Delegates', 'Policy Makers']
+const DEBATE_EVENT_ID = 'war_room_debate'
 
 const REG_ID_PREFIX = 'KCC2'
 
@@ -12,6 +15,16 @@ const generateRegId = () => {
   crypto.getRandomValues(buffer)
   const suffix = Array.from(buffer, (value) => chars[value % chars.length]).join('')
   return `${REG_ID_PREFIX}-${suffix}`
+}
+
+const generateSubEventPassId = (subEventId) => {
+  const prefixMap = { war_room_debate: 'WRD', science_slam: 'SS', wartech_quiz: 'WQ', poster: 'PM' }
+  const prefix = prefixMap[subEventId] ?? 'EV'
+  const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
+  const buf = new Uint32Array(5)
+  crypto.getRandomValues(buf)
+  const suffix = Array.from(buf, (v) => chars[v % chars.length]).join('')
+  return `KCC2-${prefix}-${suffix}`
 }
 
 const createDeskRegistrationTemplate = () => ({
@@ -37,6 +50,8 @@ function RegistrationManager() {
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
   const [formData, setFormData] = useState(createDeskRegistrationTemplate)
+  const [selectedEvents, setSelectedEvents] = useState([])
+  const [debateRole, setDebateRole] = useState('')
 
   const fetchRegistrations = async () => {
     if (!supabase) {
@@ -45,7 +60,7 @@ function RegistrationManager() {
     }
     const { data, error } = await supabase
       .from('registrations')
-      .select('id, reg_id, full_name, email, phone, college, course, year_of_study, city, heard_from, utr_id, payment_status, attendance, created_at')
+      .select('id, reg_id, full_name, email, phone, college, course, year_of_study, city, heard_from, utr_id, payment_status, attendance, selected_events, debate_topic, created_at')
       .order('created_at', { ascending: false })
     if (error) {
       toast.error(error.message)
@@ -72,6 +87,8 @@ function RegistrationManager() {
 
   const resetForm = () => {
     setFormData(createDeskRegistrationTemplate())
+    setSelectedEvents([])
+    setDebateRole('')
     setEditingId(null)
     setFormOpen(false)
   }
@@ -96,6 +113,8 @@ function RegistrationManager() {
       payment_status: row.payment_status ?? 'pending',
       attendance: Boolean(row.attendance),
     })
+    setSelectedEvents(Array.isArray(row.selected_events) ? row.selected_events : [])
+    setDebateRole(row.debate_topic ?? '')
     setEditingId(row.id)
     setFormOpen(true)
   }
@@ -104,6 +123,14 @@ function RegistrationManager() {
     event.preventDefault()
     if (!supabase) return
 
+    if (selectedEvents.length === 0) {
+      toast.error('Please select at least one event.')
+      return
+    }
+    if (selectedEvents.includes(DEBATE_EVENT_ID) && !debateRole) {
+      toast.error('Please select a role for The War Room - Debate Battle.')
+      return
+    }
     if (formData.payment_status === 'verified' && !formData.utr_id.trim()) {
       toast.error('UTR / Transaction ID is required for verified registrations.')
       return
@@ -111,33 +138,61 @@ function RegistrationManager() {
 
     setSaving(true)
     try {
+      const payload = {
+        ...formData,
+        selected_events: selectedEvents,
+        debate_topic: selectedEvents.includes(DEBATE_EVENT_ID) ? debateRole : null,
+      }
+
       if (editingId) {
-        const { error } = await supabase.from('registrations').update(formData).eq('id', editingId)
+        const { error } = await supabase.from('registrations').update(payload).eq('id', editingId)
         if (error) throw error
         toast.success('Registration updated')
         resetForm()
         fetchRegistrations()
       } else {
-        // Retry loop — regenerate reg_id if a unique constraint violation occurs (up to 3 attempts)
+        // Retry loop — regenerate reg_id on unique constraint violation (up to 3 attempts)
         let lastError = null
+        let insertedData = null
         for (let attempt = 1; attempt <= 3; attempt += 1) {
-          const payload = attempt === 1 ? formData : { ...formData, reg_id: generateRegId() }
-          const { error } = await supabase.from('registrations').insert(payload)
+          const attemptPayload = attempt === 1 ? payload : { ...payload, reg_id: generateRegId() }
+          const { data, error } = await supabase.from('registrations').insert(attemptPayload).select().single()
           if (!error) {
-            if (payload.reg_id !== formData.reg_id) {
-              setFormData((prev) => ({ ...prev, reg_id: payload.reg_id }))
-            }
-            toast.success('On-desk registration added')
-            resetForm()
-            fetchRegistrations()
+            insertedData = data
             lastError = null
             break
           }
           lastError = error
-          // Only retry on unique violation (Postgres error code 23505)
           if (error.code !== '23505') break
         }
         if (lastError) throw lastError
+
+        // Auto-create sub_event_registrations rows
+        try {
+          const subEventRows = selectedEvents.map((eventId) => {
+            const ev = SUB_EVENTS.find((e) => e.id === eventId)
+            return {
+              pass_id: generateSubEventPassId(eventId),
+              sub_event_id: eventId,
+              sub_event_name: ev?.fullName ?? ev?.name ?? eventId,
+              participant_name: insertedData.full_name,
+              participant_roll: '',
+              participant_email: insertedData.email,
+              participant_phone: insertedData.phone,
+              participant_course: insertedData.course,
+              participant_year: insertedData.year_of_study,
+              participant_university: insertedData.college,
+              pass_type: 'Participant',
+            }
+          })
+          await supabase.from('sub_event_registrations').insert(subEventRows)
+        } catch (subErr) {
+          console.warn('Could not auto-create sub_event_registrations:', subErr)
+        }
+
+        toast.success('On-desk registration added')
+        resetForm()
+        fetchRegistrations()
       }
     } catch (error) {
       toast.error(error.message)
@@ -146,8 +201,20 @@ function RegistrationManager() {
     }
   }
 
+  const handleEventToggle = (eventId) => {
+    setSelectedEvents((prev) => {
+      const next = prev.includes(eventId) ? prev.filter((id) => id !== eventId) : [...prev, eventId]
+      if (eventId === DEBATE_EVENT_ID && !next.includes(DEBATE_EVENT_ID)) {
+        setDebateRole('')
+      }
+      return next
+    })
+  }
+
   const openNewRegistrationForm = () => {
     setFormData(createDeskRegistrationTemplate())
+    setSelectedEvents([])
+    setDebateRole('')
     setEditingId(null)
     setFormOpen(true)
   }
@@ -275,6 +342,57 @@ function RegistrationManager() {
                 <input aria-label="UTR or transaction ID" name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" style={inputStyle()} value={formData.utr_id} />
                 {formData.payment_status === 'verified' && !formData.utr_id.trim() && (
                   <p style={{ margin: '4px 0 0', color: '#fca5a5', fontSize: '11px' }}>Required for verified registrations</p>
+                )}
+              </div>
+
+              {/* Sub-event selection */}
+              <div style={{ border: '1px solid #334155', borderRadius: '12px', padding: '12px', background: '#0f172a' }}>
+                <p style={{ margin: '0 0 8px', color: '#06B6D4', fontSize: '12px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                  Sub Events (select at least one) *
+                </p>
+                <div style={{ display: 'grid', gap: '6px' }}>
+                  {SUB_EVENTS.map((ev) => (
+                    <label
+                      key={ev.id}
+                      style={{ display: 'flex', alignItems: 'center', gap: '10px', padding: '10px 12px', borderRadius: '8px', border: `1px solid ${selectedEvents.includes(ev.id) ? ev.color : '#334155'}`, background: selectedEvents.includes(ev.id) ? `${ev.color}22` : 'transparent', cursor: 'pointer' }}
+                    >
+                      <input
+                        checked={selectedEvents.includes(ev.id)}
+                        onChange={() => handleEventToggle(ev.id)}
+                        style={{ accentColor: ev.color, width: '16px', height: '16px', flexShrink: 0 }}
+                        type="checkbox"
+                      />
+                      <span style={{ fontSize: '16px' }}>{ev.icon}</span>
+                      <span style={{ color: selectedEvents.includes(ev.id) ? '#f8fafc' : '#94a3b8', fontSize: '13px', fontWeight: selectedEvents.includes(ev.id) ? 700 : 400 }}>{ev.name}</span>
+                    </label>
+                  ))}
+                </div>
+
+                {/* Debate role picker */}
+                {selectedEvents.includes(DEBATE_EVENT_ID) && (
+                  <div style={{ marginTop: '12px', border: '1px solid rgba(220,38,38,0.4)', borderRadius: '10px', padding: '10px', background: 'rgba(127,29,29,0.2)' }}>
+                    <p style={{ margin: '0 0 8px', color: '#f87171', fontSize: '11px', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '0.1em' }}>
+                      Debate Role *
+                    </p>
+                    <div style={{ display: 'grid', gap: '6px' }}>
+                      {DEBATE_ROLES.map((role) => (
+                        <label
+                          key={role}
+                          style={{ display: 'flex', alignItems: 'center', gap: '8px', padding: '8px 10px', borderRadius: '8px', border: `1px solid ${debateRole === role ? '#ef4444' : '#334155'}`, background: debateRole === role ? 'rgba(239,68,68,0.15)' : 'transparent', cursor: 'pointer' }}
+                        >
+                          <input
+                            checked={debateRole === role}
+                            name="debate_role"
+                            onChange={() => setDebateRole(role)}
+                            style={{ accentColor: '#ef4444', width: '16px', height: '16px', flexShrink: 0 }}
+                            type="radio"
+                            value={role}
+                          />
+                          <span style={{ color: debateRole === role ? '#fca5a5' : '#94a3b8', fontSize: '13px', fontWeight: debateRole === role ? 700 : 400 }}>{role}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
               <label style={{ color: '#cbd5e1', fontSize: '13px', display: 'flex', alignItems: 'center', gap: '8px' }}>
