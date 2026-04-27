@@ -253,9 +253,14 @@ CREATE POLICY "Allow all sub event operations"
   ON public.sub_event_registrations
   FOR ALL USING (true) WITH CHECK (true);
 
+-- Link back to the main registrations table (added after initial launch)
+ALTER TABLE public.sub_event_registrations
+  ADD COLUMN IF NOT EXISTS reg_id text DEFAULT NULL;
+
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_sub_event   ON public.sub_event_registrations(sub_event_id);
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_email        ON public.sub_event_registrations(participant_email);
 CREATE INDEX IF NOT EXISTS idx_sub_event_reg_pass_id      ON public.sub_event_registrations(pass_id);
+CREATE INDEX IF NOT EXISTS idx_sub_event_reg_reg_id       ON public.sub_event_registrations(reg_id);
 
 -- ─────────────────────────────────────────────────────────────
 -- 9. page_views

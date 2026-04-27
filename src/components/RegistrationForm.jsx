@@ -182,8 +182,10 @@ function RegistrationForm() {
         const supabase = ensureSupabase()
         const subEventRows = selectedEvents.map((eventId) => {
           const ev = SUB_EVENTS.find((e) => e.id === eventId)
+          const extraFields = eventId === DEBATE_EVENT_ID && debateRole ? { debate_role: debateRole } : null
           return {
             pass_id: generateSubEventPassId(eventId),
+            reg_id: data.reg_id,
             sub_event_id: eventId,
             sub_event_name: ev?.fullName ?? ev?.name ?? eventId,
             participant_name: data.full_name,
@@ -194,6 +196,7 @@ function RegistrationForm() {
             participant_year: data.year_of_study,
             participant_university: data.college,
             pass_type: 'Participant',
+            extra_fields: extraFields,
           }
         })
         await supabase.from('sub_event_registrations').insert(subEventRows)

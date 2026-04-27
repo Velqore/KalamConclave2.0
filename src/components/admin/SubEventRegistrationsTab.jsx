@@ -42,6 +42,7 @@ function SubEventRegistrationsTab() {
   const [search, setSearch] = useState('')
   const [activeEventTab, setActiveEventTab] = useState('all')
   const [filterUniversity, setFilterUniversity] = useState('All')
+  const [filterPaymentStatus, setFilterPaymentStatus] = useState('All')
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
   const [saving, setSaving] = useState(false)
@@ -50,12 +51,33 @@ function SubEventRegistrationsTab() {
   const fetchRegistrations = async () => {
     try {
       const supabase = ensureSupabase()
-      const { data, error } = await supabase
+      const { data: subData, error } = await supabase
         .from('sub_event_registrations')
         .select('*')
         .order('created_at', { ascending: false })
       if (error) throw error
-      setRegistrations(data ?? [])
+
+      // Enrich with payment_status and utr_id from the main registrations table
+      const rows = subData ?? []
+      const regIds = [...new Set(rows.map((r) => r.reg_id).filter(Boolean))]
+      let regMap = {}
+      if (regIds.length > 0) {
+        const { data: regData } = await supabase
+          .from('registrations')
+          .select('reg_id, payment_status, utr_id')
+          .in('reg_id', regIds)
+        if (regData) {
+          regMap = Object.fromEntries(regData.map((r) => [r.reg_id, r]))
+        }
+      }
+
+      const enriched = rows.map((r) => ({
+        ...r,
+        payment_status: r.reg_id ? (regMap[r.reg_id]?.payment_status ?? 'pending') : null,
+        utr_id: r.reg_id ? (regMap[r.reg_id]?.utr_id ?? null) : null,
+      }))
+
+      setRegistrations(enriched)
     } catch (err) {
       toast.error(err.message)
     } finally {
@@ -82,15 +104,19 @@ function SubEventRegistrationsTab() {
     return registrations.filter((r) => {
       const eventMatch = activeEventTab === 'all' || r.sub_event_id === activeEventTab
       const uniMatch = filterUniversity === 'All' || r.participant_university === filterUniversity
+      const paymentMatch =
+        filterPaymentStatus === 'All' ||
+        (filterPaymentStatus === 'unlinked' ? r.payment_status === null : r.payment_status === filterPaymentStatus)
       const textMatch =
         !term ||
         r.participant_name?.toLowerCase().includes(term) ||
         r.participant_roll?.toLowerCase().includes(term) ||
         r.participant_email?.toLowerCase().includes(term) ||
-        r.pass_id?.toLowerCase().includes(term)
-      return eventMatch && uniMatch && textMatch
+        r.pass_id?.toLowerCase().includes(term) ||
+        r.reg_id?.toLowerCase().includes(term)
+      return eventMatch && uniMatch && paymentMatch && textMatch
     })
-  }, [registrations, search, activeEventTab, filterUniversity])
+  }, [registrations, search, activeEventTab, filterUniversity, filterPaymentStatus])
 
   const statsByEvent = useMemo(
     () =>
@@ -208,6 +234,9 @@ function SubEventRegistrationsTab() {
     }
     const rows = filtered.map((r) => ({
       pass_id: r.pass_id,
+      reg_id: r.reg_id ?? '',
+      payment_status: r.payment_status ?? '',
+      utr_id: r.utr_id ?? '',
       sub_event: r.sub_event_name,
       name: r.participant_name,
       roll: r.participant_roll ?? '',
@@ -216,6 +245,7 @@ function SubEventRegistrationsTab() {
       course: r.participant_course ?? '',
       year: r.participant_year ?? '',
       university: r.participant_university ?? '',
+      debate_role: r.extra_fields?.debate_role ?? '',
       created_at: r.created_at,
     }))
     const csv = Papa.unparse(rows)
@@ -394,11 +424,17 @@ function SubEventRegistrationsTab() {
         <input
           className="input max-w-xs"
           onChange={(e) => setSearch(e.target.value)}
-          placeholder="Search by name, roll, email, pass ID"
+          placeholder="Search by name, roll, email, pass/reg ID"
           value={search}
         />
         <select className="input max-w-[220px]" onChange={(e) => setFilterUniversity(e.target.value)} value={filterUniversity}>
           {universities.map((u) => <option key={u} value={u}>{u}</option>)}
+        </select>
+        <select className="input max-w-[180px]" onChange={(e) => setFilterPaymentStatus(e.target.value)} value={filterPaymentStatus}>
+          <option value="All">All Payment Status</option>
+          <option value="verified">Verified</option>
+          <option value="pending">Pending</option>
+          <option value="unlinked">Unlinked (manual)</option>
         </select>
         <button
           className="rounded bg-accent px-4 py-2 text-sm font-semibold text-bg"
@@ -416,16 +452,18 @@ function SubEventRegistrationsTab() {
         <p className="text-sand/60">No registrations found.</p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-sand/10">
-          <table className="w-full min-w-[860px] text-sm">
+          <table className="w-full min-w-[1000px] text-sm">
             <thead>
               <tr className="border-b border-sand/10 bg-surface/60 text-left text-xs font-semibold uppercase tracking-wide text-sand/55">
                 <th className="px-3 py-3">Pass ID</th>
+                <th className="px-3 py-3">Reg ID</th>
                 <th className="px-3 py-3">Event</th>
                 <th className="px-3 py-3">Name</th>
                 <th className="px-3 py-3">Roll</th>
                 <th className="px-3 py-3">Email</th>
                 <th className="px-3 py-3">Phone</th>
                 <th className="px-3 py-3">University</th>
+                <th className="px-3 py-3">Payment</th>
                 <th className="px-3 py-3">Registered</th>
                 <th className="px-3 py-3">Actions</th>
               </tr>
@@ -433,19 +471,33 @@ function SubEventRegistrationsTab() {
             <tbody>
               {filtered.map((r) => {
                 const ev = SUB_EVENTS.find((e) => e.id === r.sub_event_id)
+                const debateRole = r.extra_fields?.debate_role
                 return (
                   <tr key={r.id} className="border-b border-sand/5 hover:bg-surface/30">
                     <td className="px-3 py-2 font-mono text-xs text-accent">{r.pass_id}</td>
+                    <td className="px-3 py-2 font-mono text-xs text-sand/50">{r.reg_id ?? '—'}</td>
                     <td className="px-3 py-2">
                       <span className="inline-flex items-center gap-1 text-xs font-semibold" style={{ color: ev?.color ?? '#ccc' }}>
                         {ev?.icon} {r.sub_event_name}
                       </span>
+                      {debateRole && (
+                        <span className="ml-1 rounded bg-red-900/30 px-1.5 py-0.5 text-[10px] text-red-300">{debateRole}</span>
+                      )}
                     </td>
                     <td className="px-3 py-2 font-medium text-sand">{r.participant_name}</td>
                     <td className="px-3 py-2 font-mono text-xs text-sand/70">{r.participant_roll ?? '—'}</td>
                     <td className="px-3 py-2 text-xs text-sand/70">{r.participant_email ?? '—'}</td>
                     <td className="px-3 py-2 text-xs text-sand/70">{r.participant_phone ?? '—'}</td>
                     <td className="px-3 py-2 text-xs text-sand/70">{r.participant_university ?? '—'}</td>
+                    <td className="px-3 py-2">
+                      {r.payment_status === null ? (
+                        <span className="rounded bg-sand/10 px-2 py-0.5 text-xs text-sand/40">—</span>
+                      ) : r.payment_status === 'verified' ? (
+                        <span className="rounded bg-emerald-600/20 px-2 py-0.5 text-xs font-semibold text-emerald-400">✓ Verified</span>
+                      ) : (
+                        <span className="rounded bg-amber-600/20 px-2 py-0.5 text-xs font-semibold text-amber-400">⏳ Pending</span>
+                      )}
+                    </td>
                     <td className="px-3 py-2 text-xs text-sand/50">
                       {new Date(r.created_at).toLocaleString()}
                     </td>
