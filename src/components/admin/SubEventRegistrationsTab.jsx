@@ -5,7 +5,7 @@ import { ensureSupabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
 import AdminSubEventRules from './AdminSubEventRules'
 
-const SUB_EVENT_OPTIONS = ['All Events', ...SUB_EVENTS.map((e) => e.name)]
+const EVENT_TABS = [{ id: 'all', name: 'All Events', icon: '📋', color: '#64748b' }, ...SUB_EVENTS.map((e) => ({ id: e.id, name: e.name, icon: e.icon, color: e.color }))]
 const yearOptions = ['1st', '2nd', '3rd', '4th', '5th', 'Working Professional', 'Other']
 const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'
 
@@ -40,7 +40,7 @@ function SubEventRegistrationsTab() {
   const [registrations, setRegistrations] = useState([])
   const [loading, setLoading] = useState(true)
   const [search, setSearch] = useState('')
-  const [filterEvent, setFilterEvent] = useState('All Events')
+  const [activeEventTab, setActiveEventTab] = useState('all')
   const [filterUniversity, setFilterUniversity] = useState('All')
   const [formOpen, setFormOpen] = useState(false)
   const [editingId, setEditingId] = useState(null)
@@ -80,7 +80,7 @@ function SubEventRegistrationsTab() {
   const filtered = useMemo(() => {
     const term = search.toLowerCase()
     return registrations.filter((r) => {
-      const eventMatch = filterEvent === 'All Events' || r.sub_event_name?.includes(filterEvent) || SUB_EVENTS.find((e) => e.name === filterEvent)?.id === r.sub_event_id
+      const eventMatch = activeEventTab === 'all' || r.sub_event_id === activeEventTab
       const uniMatch = filterUniversity === 'All' || r.participant_university === filterUniversity
       const textMatch =
         !term ||
@@ -90,7 +90,7 @@ function SubEventRegistrationsTab() {
         r.pass_id?.toLowerCase().includes(term)
       return eventMatch && uniMatch && textMatch
     })
-  }, [registrations, search, filterEvent, filterUniversity])
+  }, [registrations, search, activeEventTab, filterUniversity])
 
   const statsByEvent = useMemo(
     () =>
@@ -101,6 +101,11 @@ function SubEventRegistrationsTab() {
         count: registrations.filter((r) => r.sub_event_id === ev.id).length,
       })),
     [registrations],
+  )
+
+  const activeEventMeta = useMemo(
+    () => (activeEventTab !== 'all' ? SUB_EVENTS.find((e) => e.id === activeEventTab) ?? null : null),
+    [activeEventTab],
   )
 
   const handleFormChange = (event) => {
@@ -227,7 +232,36 @@ function SubEventRegistrationsTab() {
 
   return (
     <div>
-      <div className="mb-4">
+      {/* Event-wise tab navigation */}
+      <div className="mb-6 flex flex-wrap gap-2 border-b border-blue-900 pb-3">
+        {EVENT_TABS.map((tab) => {
+          const active = activeEventTab === tab.id
+          const count = tab.id === 'all' ? registrations.length : registrations.filter((r) => r.sub_event_id === tab.id).length
+          return (
+            <button
+              key={tab.id}
+              className="rounded-t px-4 py-2 text-sm font-semibold transition"
+              onClick={() => setActiveEventTab(tab.id)}
+              style={{
+                background: active ? tab.color : 'rgba(30,41,59,0.6)',
+                color: active ? '#fff' : '#94a3b8',
+                borderBottom: active ? `2px solid ${tab.color}` : '2px solid transparent',
+              }}
+              type="button"
+            >
+              {tab.icon} {tab.name}{' '}
+              <span
+                className="ml-1 rounded-full px-2 py-0.5 text-xs"
+                style={{ background: active ? 'rgba(255,255,255,0.25)' : 'rgba(100,116,139,0.3)', color: active ? '#fff' : '#64748b' }}
+              >
+                {count}
+              </span>
+            </button>
+          )
+        })}
+      </div>
+
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <button className="rounded bg-gold px-4 py-2 text-sm font-semibold text-navy" onClick={handleCreateNew} type="button">
           Add Event Registration
         </button>
@@ -309,22 +343,51 @@ function SubEventRegistrationsTab() {
         </form>
       )}
 
-      {/* Per-event stats */}
-      <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {statsByEvent.map((ev) => (
-          <div
-            key={ev.name}
-            className="rounded-xl border p-4"
-            style={{ borderColor: `${ev.color}44`, background: `${ev.color}0d` }}
-          >
-            <span className="text-2xl">{ev.icon}</span>
-            <p className="mt-2 font-display text-3xl leading-none" style={{ color: ev.color }}>
-              {ev.count}
-            </p>
-            <p className="mt-1 text-xs text-sand/70">{ev.name}</p>
+      {/* Per-event stats (shown only on All Events tab) */}
+      {activeEventTab === 'all' && (
+        <div className="mb-6 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+          {statsByEvent.map((ev) => (
+            <button
+              key={ev.name}
+              className="rounded-xl border p-4 text-left transition hover:opacity-80"
+              onClick={() => {
+                const match = SUB_EVENTS.find((e) => e.name === ev.name)
+                if (match) setActiveEventTab(match.id)
+              }}
+              style={{ borderColor: `${ev.color}44`, background: `${ev.color}0d` }}
+              type="button"
+            >
+              <span className="text-2xl">{ev.icon}</span>
+              <p className="mt-2 font-display text-3xl leading-none" style={{ color: ev.color }}>
+                {ev.count}
+              </p>
+              <p className="mt-1 text-xs text-sand/70">{ev.name}</p>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Active event header (shown when a specific event is selected) */}
+      {activeEventMeta && (
+        <div
+          className="mb-6 rounded-xl border p-4"
+          style={{ borderColor: `${activeEventMeta.color}44`, background: `${activeEventMeta.color}0d` }}
+        >
+          <div className="flex items-center gap-3">
+            <span className="text-3xl">{activeEventMeta.icon}</span>
+            <div>
+              <h3 className="font-semibold" style={{ color: activeEventMeta.color }}>{activeEventMeta.name}</h3>
+              <p className="text-xs text-sand/60">{activeEventMeta.tagline}</p>
+            </div>
+            <span
+              className="ml-auto rounded-full px-3 py-1 text-sm font-bold"
+              style={{ background: `${activeEventMeta.color}22`, color: activeEventMeta.color }}
+            >
+              {filtered.length} registered
+            </span>
           </div>
-        ))}
-      </div>
+        </div>
+      )}
 
       {/* Filters */}
       <div className="mb-4 flex flex-wrap gap-3">
@@ -334,9 +397,6 @@ function SubEventRegistrationsTab() {
           placeholder="Search by name, roll, email, pass ID"
           value={search}
         />
-        <select className="input max-w-[180px]" onChange={(e) => setFilterEvent(e.target.value)} value={filterEvent}>
-          {SUB_EVENT_OPTIONS.map((o) => <option key={o} value={o}>{o}</option>)}
-        </select>
         <select className="input max-w-[220px]" onChange={(e) => setFilterUniversity(e.target.value)} value={filterUniversity}>
           {universities.map((u) => <option key={u} value={u}>{u}</option>)}
         </select>
