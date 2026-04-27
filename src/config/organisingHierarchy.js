@@ -22,9 +22,9 @@ export const ORGANISING_HIERARCHY = [
     level: 'Academic Guidance',
     description: 'Faculty co-ordinators support planning, mentoring, and academic alignment.',
     members: [
-      'Dr. Monika Phoughat',
+      'Dr. Monika Phougat',
       'Dr. Rishi Ranjan Kumar',
-      'Saloni Rathee',
+      'Dr. Saloni Rathee',
       'Mr. Vaibhav',
     ],
   },
@@ -36,7 +36,7 @@ export const ORGANISING_HIERARCHY = [
       'Priyanshi Kharbanda — President',
       'Gitesh Yadav — Vice President',
       'Anjali Yadav — Ops Lead',
-      'Sakshi, Ishan, Tanvee — Student Council',
+      'Ayush, Ishan, Tanvee — Student Council Co-ordinators',
     ],
   },
   {
