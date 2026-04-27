@@ -1,6 +1,6 @@
 # 1st Kalam Conclave 2.0 — Event Dashboard
 
-Production-ready event portal built with **React + Vite + TailwindCSS + Supabase**, designed for fast deployment on **Vercel**.
+Production-ready event portal built with **React + Vite + TailwindCSS + Supabase**, designed for fast deployment on **Vercel**
 
 ## Features
 
