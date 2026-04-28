@@ -131,11 +131,6 @@ function RegistrationManager() {
       toast.error('Please select a role for The War Room - Debate Battle.')
       return
     }
-    if (formData.payment_status === 'verified' && !formData.utr_id.trim()) {
-      toast.error('UTR / Transaction ID is required for verified registrations.')
-      return
-    }
-
     setSaving(true)
     try {
       const payload = {
@@ -222,10 +217,6 @@ function RegistrationManager() {
   const togglePaymentStatus = async (row) => {
     if (!supabase) return
     const nextStatus = row.payment_status === 'verified' ? 'pending' : 'verified'
-    if (nextStatus === 'verified' && !row.utr_id?.trim()) {
-      toast.error('Cannot authorize: UTR / Transaction ID is missing. Use Update to add it first.')
-      return
-    }
     const { error } = await supabase
       .from('registrations')
       .update({ payment_status: nextStatus })
@@ -340,9 +331,6 @@ function RegistrationManager() {
               </select>
               <div>
                 <input aria-label="UTR or transaction ID" name="utr_id" onChange={handleFormChange} placeholder="UTR / Transaction ID" style={inputStyle()} value={formData.utr_id} />
-                {formData.payment_status === 'verified' && !formData.utr_id.trim() && (
-                  <p style={{ margin: '4px 0 0', color: '#fca5a5', fontSize: '11px' }}>Required for verified registrations</p>
-                )}
               </div>
 
               {/* Sub-event selection */}
