@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import toast from 'react-hot-toast'
 import { supabase } from '../../lib/supabaseClient'
 import { SUB_EVENTS } from '../../config/subEvents'
+import { sendVerificationEmail } from '../../lib/emailService'
 
 const yearOptions = ['1st', '2nd', '3rd', '4th', 'Working Professional', 'Other']
 const DEBATE_ROLES = ['Scientists', 'UN Delegates', 'Policy Makers']
@@ -60,7 +61,7 @@ function RegistrationManager() {
     }
     const { data, error } = await supabase
       .from('registrations')
-      .select('id, reg_id, full_name, email, phone, college, course, year_of_study, city, heard_from, utr_id, payment_status, attendance, selected_events, debate_topic, created_at')
+      .select('id, reg_id, full_name, email, phone, college, course, year_of_study, city, heard_from, utr_id, payment_status, attendance, selected_events, debate_topic, created_at, verification_email_sent')
       .order('created_at', { ascending: false })
     if (error) {
       toast.error(error.message)
@@ -186,6 +187,14 @@ function RegistrationManager() {
         }
 
         toast.success('On-desk registration added')
+        if (insertedData.payment_status === 'verified' && insertedData.email) {
+          try {
+            await sendVerificationEmail(insertedData.full_name, insertedData.email, insertedData.reg_id)
+            await supabase.from('registrations').update({ verification_email_sent: true, verification_email_sent_at: new Date().toISOString() }).eq('id', insertedData.id)
+          } catch (emailErr) {
+            console.warn('Could not send verification email:', emailErr)
+          }
+        }
         resetForm()
         fetchRegistrations()
       }
@@ -226,7 +235,19 @@ function RegistrationManager() {
       return
     }
     setRows((prev) => prev.map((entry) => (entry.id === row.id ? { ...entry, payment_status: nextStatus } : entry)))
-    toast.success(nextStatus === 'verified' ? 'Registration authorized' : 'Marked pending')
+    if (nextStatus === 'verified' && !row.verification_email_sent && row.email) {
+      try {
+        await sendVerificationEmail(row.full_name, row.email, row.reg_id)
+        await supabase.from('registrations').update({ verification_email_sent: true, verification_email_sent_at: new Date().toISOString() }).eq('id', row.id)
+        setRows((prev) => prev.map((entry) => (entry.id === row.id ? { ...entry, verification_email_sent: true } : entry)))
+        toast.success('Registration authorized and confirmation email sent')
+      } catch (emailErr) {
+        console.warn('Could not send verification email:', emailErr)
+        toast.success('Registration authorized')
+      }
+    } else {
+      toast.success(nextStatus === 'verified' ? 'Registration authorized' : 'Marked pending')
+    }
   }
 
   return (
