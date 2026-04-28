@@ -137,7 +137,7 @@ function buildVerifiedHtml(name, regId) {
               </div>
               <div style="text-align:center;margin-bottom:28px;">
                 <p style="margin:0 0 12px 0;font-size:14px;color:#94a3b8;">Join our official WhatsApp group for updates, schedules, and announcements:</p>
-                <a href="https://chat.whatsapp.com/EMJS5MYaNNk63UI1y73NER?mode=gi_t" style="display:inline-block;background:#25d366;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">💬 Join WhatsApp Group</a>
+                <a href="https://chat.whatsapp.com/Hc82ymLFg6HG38EbhLgGAv" style="display:inline-block;background:#25d366;color:#ffffff;font-size:15px;font-weight:600;text-decoration:none;padding:12px 28px;border-radius:8px;">💬 Join WhatsApp Group</a>
               </div>
               <p style="margin:0;font-size:13px;color:#64748b;">If you have any questions, contact us on Instagram <strong style="color:#60a5fa;">@kalamconclave</strong>.</p>
             </td>
